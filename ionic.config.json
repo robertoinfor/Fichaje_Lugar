@@ -1,0 +1,7 @@
+{
+  "name": "Fichaje_Lugar",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
