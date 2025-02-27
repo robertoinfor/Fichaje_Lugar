@@ -31,7 +31,7 @@ const Home: React.FC = () => {
       Rol: rol,
       Fecha_alta: fecha_alta
     }).then(() => {
-      handleClear
+      handleClear();
       generateData();
     })
       .catch(error => {
@@ -39,14 +39,12 @@ const Home: React.FC = () => {
       });
   };
 
-  const handleClear = (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
+  const handleClear = () => {
     setNombre("")
     setEmail("")
     setFechaAlta("")
     setRol("")
     setPwd("")
-
   };
 
   useEffect(() => {
@@ -110,7 +108,7 @@ const Home: React.FC = () => {
                   <option value="Empleado">Empleado</option>
                   <option value="Alumno en prácticas">Alumno en prácticas</option>
                 </select>
-                <button type="submit">Submit</button>
+                <button type="submit">Añadir usuario</button>
               </form>
               <IonButton onClick={handleClear}>Limpiar</IonButton>
             </div>
@@ -124,7 +122,7 @@ const Home: React.FC = () => {
                       <p>Nombre: {data.properties.Nombre.title[0].plain_text}</p>
                       <p>Pwd: {data.properties.Pwd.rich_text[0].plain_text}</p>
                       <p>Email: {data.properties.Email.rich_text[0].plain_text}</p>
-                      <p>Rol: {data.properties.Rol.rich_text[0].plain_text}</p>
+                      <p>Rol: {data.properties.Rol.select.name}</p>
                       <p>Fecha de alta: {data.properties.Fecha_alta.rich_text[0].plain_text}</p>
                       <p>-------------------</p>
                     </div>
