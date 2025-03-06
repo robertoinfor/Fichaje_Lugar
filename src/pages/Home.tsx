@@ -38,8 +38,6 @@ const Home: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentUserId, setCurrentUserId] = useState("");
 
-
-
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     Axios.post('http://localhost:8000/PostUser', {
