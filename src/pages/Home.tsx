@@ -1,7 +1,6 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import './Home.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import LogIn from '../components/LogIn';
 import Axios from 'axios';
 import { useEffect, useState } from 'react';
 
@@ -14,15 +13,21 @@ interface Usuario {
     },
     Email: { email: string },
     Pwd: { rich_text: [{ text: { content: string } }] },
-    Rol: { select: { name: string } }
-    Fecha_alta: { date: { start: string } }
+    Rol: { select: { name: string } },
+    Fecha_alta: { date: { start: string } },
+    Horas: { number: number }
   }
 }
 
 interface Fichaje {
-  Empleado: string,
-  Tipo: "Entrada" | "Salida" | "Horas extra" | "Descanso"
-  Fecha_hora: Date
+  id: string,
+  properties: {
+    Empleado: { relation: [{ id: string }] },
+    Tipo: { select: { name: string } },
+    Fecha_hora: { date: { start: string } },
+    Hora: { formula: { string: string } },
+    Fecha: { formula: { string: string } }
+  }
 }
 
 const Home: React.FC = () => {
@@ -31,36 +36,64 @@ const Home: React.FC = () => {
   const [email, setEmail] = useState("");
   const [rol, setRol] = useState("");
   const [fecha_alta, setFechaAlta] = useState("");
+  const [horas, setHoras] = useState(0)
 
   const [Users, setUsers] = useState<Usuario[]>([]);
   const [Signings, setSignings] = useState<Fichaje[]>([]);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentUserId, setCurrentUserId] = useState("");
+  const [isEditable, setIsEditable] = useState(false);
+
+  const [message, setMessage] = useState("");
+  const [originalPwd, setOriginalPwd] = useState("");
+
+  const [workedTime, setWorkedTime] = useState(0);
+
+  function validateEmail(mail: string) {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return regex.test(mail);
+  }
+
+  function validatePwd(password: string) {
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-.,?"':{}|<>])[A-Za-z\d!@#$%^&*()_+\-.,?"':{}|<>]{8,}$/;
+    return regex.test(password);
+  }
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    Axios.post('http://localhost:8000/PostUser', {
-      Nombre: nombre,
-      Pwd: pwd,
-      Email: email,
-      Rol: rol,
-      Fecha_alta: fecha_alta
-    }).then(() => {
-      handleClear();
-      generateData();
-    })
-      .catch(error => {
-        console.log(error);
-      });
+    if (nombre == "" || pwd == "" || email == "" || rol == "" || fecha_alta == "") {
+      setMessage("Introduce todos los datos.")
+    } else if (!validatePwd(pwd)) {
+      setMessage("No has introducido una contraseña válida (ocho caracteres, una mayúscula, un carácter especial y un número).")
+    } else if (!validateEmail(email)) {
+      setMessage("No has introducido un email válido ej: prueba@correo.com.")
+    } else {
+      setMessage("")
+      Axios.post('http://localhost:8000/PostUser', {
+        Nombre: nombre,
+        Pwd: pwd,
+        Email: email,
+        Rol: rol,
+        Fecha_alta: fecha_alta
+      }).then(() => {
+        handleClear();
+        generateData();
+      })
+        .catch(error => {
+          console.log(error);
+        });
+    }
   };
 
   const handleClear = () => {
+    setIsEditMode(false)
     setNombre("")
     setEmail("")
     setFechaAlta("")
     setRol("")
     setPwd("")
+    setHoras(0)
   };
 
   const handleEdit = (user: Usuario) => {
@@ -68,14 +101,14 @@ const Home: React.FC = () => {
     setEmail(user.properties.Email.email)
     setFechaAlta(user.properties.Fecha_alta.date.start)
     setRol(user.properties.Rol.select.name)
-    setPwd(user.properties.Pwd.rich_text[0].text.content)
+    setPwd("");
+    setOriginalPwd(user.properties.Pwd.rich_text[0].text.content);
+    setHoras(user.properties.Horas.number)
     setIsEditMode(true);
     setCurrentUserId(user.id);
   };
 
   const deleteUser = (id: string) => {
-    console.log("ID del usuario a eliminar:", id);
-
     Axios.delete(`http://localhost:8000/DeleteUser/${id}`)
       .then((response) => {
         console.log("Usuario eliminado:", response.data);
@@ -111,25 +144,46 @@ const Home: React.FC = () => {
     );
     return user;
   };
-
+// TO-DO PWD
   const updateUser = (id: string) => {
-    Axios.put(`http://localhost:8000/UpdateUser/${id}`, {
-      Nombre: nombre,
-      Email: email,
-      Pwd: pwd,
-      Rol: rol,
-      Fecha_alta: fecha_alta,
-    })
-      .then((response) => {
-        console.log("Usuario actualizado:", response.data);
-        generateData();
-        setIsEditMode(false);
-        setCurrentUserId("");
-        handleClear();
-      })
-      .catch((error) => {
+    const passwordToSend = pwd === "" ? originalPwd : pwd;
+    if (nombre == "" || passwordToSend == "" || email == "" || rol == "" || fecha_alta == "") {
+      setMessage("Introduce todos los datos.")
+    } else if (!validatePwd(passwordToSend)) {
+      setMessage("No has introducido una contraseña válida (ocho caracteres, una mayúscula, un carácter especial y un número).")
+    } else if (!validateEmail(email)) {
+      setMessage("No has introducido un email válido ej: prueba@correo.com.")
+    } else {
+      setMessage("")
+
+      Axios.put(`http://localhost:8000/UpdateUser/${id}`, {
+        Nombre: nombre,
+        Email: email,
+        Pwd: passwordToSend,
+        Rol: rol,
+        Fecha_alta: fecha_alta,
+        Horas: horas
+      }).catch((error) => {
         console.error("Error al actualizar usuario:", error);
       });
+      setIsEditMode(false);
+      setCurrentUserId("");
+      handleClear();
+      generateData();
+    };
+  }
+
+  const calculateWorkedHours = (userId: string, date: string) => {
+    const entries = Signings.filter(fichaje => fichaje.properties.Empleado?.relation[0]?.id === userId && fichaje.properties.Fecha.formula.string === date && fichaje.properties.Tipo.select.name === 'Entrada');
+    const exits = Signings.filter(fichaje => fichaje.properties.Empleado?.relation[0]?.id === userId && fichaje.properties.Fecha.formula.string === date && fichaje.properties.Tipo.select.name === 'Salida');
+
+    if (entries.length > 0 && exits.length > 0) {
+      const entryTime = new Date(entries[0].properties.Fecha_hora.date.start);
+      const exitTime = new Date(exits[0].properties.Fecha_hora.date.start);
+      setWorkedTime((exitTime.getTime() - entryTime.getTime()) / (1000 * 3600));
+    } else {
+      setWorkedTime(0)
+    }
   };
 
   return (
@@ -143,7 +197,7 @@ const Home: React.FC = () => {
         <div className="App">
           <header className="App-header">
             <div className="form">
-              <form onSubmit={isEditMode ? (e) => { e.preventDefault(); updateUser(currentUserId); } : handleSubmit}>
+              <form onSubmit={isEditMode ? (e) => { e.preventDefault(); updateUser(currentUserId); generateData() } : handleSubmit}>
                 <p>Nombre</p>
                 <input
                   type="text"
@@ -151,14 +205,24 @@ const Home: React.FC = () => {
                   value={nombre}
                   onChange={(e) => { setNombre(e.target.value) }}
                 />
+                {!isEditMode ? (
+                  <>
+                    <p>Contraseña</p><input
+                      type="text"
+                      placeholder="Contraseña"
+                      value={pwd}
+                      onChange={(e) => { setPwd(e.target.value); }} /></>) :
+                  (<>
+                    {isEditable ? (<><p>Contraseña: </p><input
+                      type="text"
+                      placeholder="Contraseña"
+                      value={pwd}
+                      onChange={(e) => { setPwd(e.target.value); }}
+                    /></>) : (
+                      <IonButton onClick={() => setIsEditable(true)}>Cambiar contraseña</IonButton>
+                    )}
+                  </>)}
 
-                <p>Contraseña</p>
-                <input
-                  type="text"
-                  placeholder="Contraseña"
-                  value={pwd}
-                  onChange={(e) => { setPwd(e.target.value) }}
-                />
 
                 <p>Email</p>
                 <input
@@ -183,10 +247,19 @@ const Home: React.FC = () => {
                   <option value="Empleado">Empleado</option>
                   <option value="Alumno en prácticas">Alumno en prácticas</option>
                 </select>
+
+                <p>Horas de contrato</p>
+                <input
+                  type="number"
+                  min="0"
+                  value={horas}
+                  onChange={(e) => { setHoras(parseFloat(e.target.value)) }}
+                />
                 <br />
                 <IonButton type="submit">{isEditMode ? 'Editar Usuario' : 'Añadir Usuario'}</IonButton>
               </form>
               <IonButton onClick={handleClear}>Limpiar</IonButton>
+              <p>{message}</p>
             </div>
 
             <div className="Data">
@@ -200,6 +273,7 @@ const Home: React.FC = () => {
                       <p>Email: {data.properties.Email.email}</p>
                       <p>Rol: {data.properties.Rol.select.name}</p>
                       <p>Fecha de alta: {data.properties.Fecha_alta.date.start}</p>
+                      <p>Horas de contrato: {data.properties.Horas.number}</p>
                       <p><IonButton onClick={() => handleEdit(data)}>Editar Usuario</IonButton></p>
                       <p><IonButton onClick={() => deleteUser(data.id)}>Eliminar Usuario</IonButton></p>
                       <p>-------------------</p>
@@ -213,11 +287,15 @@ const Home: React.FC = () => {
               <p>FICHAJES</p>
               {
                 Signings.map((data: any) => {
+                  // calculateWorkedHours(data.properties.Empleado.relation[0].id, data.properties.Fecha.formula.string);
                   return (
                     <div key={data.id}>
                       <p>Empleado: {getEmployeeName(data.properties.Empleado.relation[0].id)?.properties.Nombre.title[0].plain_text}</p>
                       <p>Tipo: {data.properties.Tipo.select.name}</p>
                       <p>Fecha y hora: {data.properties.Fecha_hora.date.start}</p>
+                      <p>Fecha: {data.properties.Fecha.formula.string}</p>
+                      <p>Hora: {data.properties.Hora.formula.string}</p>
+                      <p>Horas trabajadas: {workedTime}</p>
                       <p>-------------------</p>
                     </div>
                   )

@@ -16,22 +16,35 @@ const LogIn: React.FC = () => {
     const navigation = useIonRouter()
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('')
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const response = await Axios.post<UserResponse>('http://localhost:8000/login', { login, password });
             const userName = response.data;
-            console.log("Respuesta", response.data)
             localStorage.setItem('userName', userName.nombre);
             localStorage.setItem('id', response.data.id)
-            console.log("id", localStorage.getItem('id'))
-            console.log("Nombre de usuario", userName.nombre)
             navigation.push('/signing');
             window.location.href = '/signing';
         } catch (error) {
-            console.error('Error en la autenticación', error);
-            alert('Ocurrió un error al iniciar sesión');
+            if (Axios.isAxiosError(error)) {
+                if (error.response) {
+                    if (error.response.status === 404) {
+                        setMessage("No existe ese usuario.");
+                    }
+                    else if (error.response.status === 401) {
+                        setMessage("Contraseña incorrecta.");
+                    }
+                    else {
+                        setMessage("Ocurrió un error al intentar iniciar sesión.");
+                    }
+                } else {
+                    setMessage("Ocurrió un error de red.");
+                }
+            } else {
+                setMessage("Ocurrió un error inesperado.");
+            }
         }
     };
 
@@ -39,7 +52,7 @@ const LogIn: React.FC = () => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>Blank</IonTitle>
+                    <IonTitle>Inicio de sesión</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent fullscreen>
@@ -53,7 +66,7 @@ const LogIn: React.FC = () => {
                         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                                 <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                                    Sign in to your account
+                                    Inicia sesión con tu cuenta
                                 </h1>
                                 <form className="space-y-4 md:space-y-6" onSubmit={handleLogin}>
                                     <div>
@@ -72,11 +85,15 @@ const LogIn: React.FC = () => {
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-start">
+                                            <p>{message}</p>
                                             <div className="flex items-center h-5">
-                                                <input id="remember" aria-describedby="remember" type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" />
+                                                <input id="remember" aria-describedby="remember"
+                                                    type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" />
                                             </div>
                                             <div className="ml-3 text-sm">
-                                                <label htmlFor="remember" className="text-gray-500 dark:text-gray-300">Remember me</label>
+                                                <label htmlFor="remember" className="text-gray-500 dark:text-gray-300">
+                                                    Remember me
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
