@@ -3,6 +3,7 @@ import './Home.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface Usuario {
   id: string,
@@ -36,10 +37,14 @@ const Home: React.FC = () => {
   const [email, setEmail] = useState("");
   const [rol, setRol] = useState("");
   const [fecha_alta, setFechaAlta] = useState("");
-  const [horas, setHoras] = useState(0)
+  const [horas, setHoras] = useState(0);
+  const [checkpwd, setCheckPwd] = useState("");
 
   const [Users, setUsers] = useState<Usuario[]>([]);
   const [Signings, setSignings] = useState<Fichaje[]>([]);
+  const [showPwd, setShowPwd] = useState(false);
+  const [showSecPwd, setSecShowPwd] = useState(false)
+
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentUserId, setCurrentUserId] = useState("");
@@ -62,8 +67,10 @@ const Home: React.FC = () => {
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    if (nombre == "" || pwd == "" || email == "" || rol == "" || fecha_alta == "") {
+    if (nombre == "" || pwd == "" || email == "" || rol == "" || fecha_alta == "" || Number.isNaN(horas) || checkpwd == "") {
       setMessage("Introduce todos los datos.")
+    }  else if (pwd != checkpwd){
+      setMessage("Las dos contraseñas son diferentes.")
     } else if (!validatePwd(pwd)) {
       setMessage("No has introducido una contraseña válida (ocho caracteres, una mayúscula, un carácter especial y un número).")
     } else if (!validateEmail(email)) {
@@ -75,7 +82,8 @@ const Home: React.FC = () => {
         Pwd: pwd,
         Email: email,
         Rol: rol,
-        Fecha_alta: fecha_alta
+        Fecha_alta: fecha_alta,
+        Horas: horas
       }).then(() => {
         handleClear();
         generateData();
@@ -144,13 +152,15 @@ const Home: React.FC = () => {
     );
     return user;
   };
-// TO-DO PWD
+
   const updateUser = (id: string) => {
     const passwordToSend = pwd === "" ? originalPwd : pwd;
+    if (pwd !== "" && !validatePwd(passwordToSend)) {
+      setMessage("No has introducido una contraseña válida (ocho caracteres, una mayúscula, un carácter especial y un número).");
+      return;
+    }
     if (nombre == "" || passwordToSend == "" || email == "" || rol == "" || fecha_alta == "") {
       setMessage("Introduce todos los datos.")
-    } else if (!validatePwd(passwordToSend)) {
-      setMessage("No has introducido una contraseña válida (ocho caracteres, una mayúscula, un carácter especial y un número).")
     } else if (!validateEmail(email)) {
       setMessage("No has introducido un email válido ej: prueba@correo.com.")
     } else {
@@ -208,17 +218,48 @@ const Home: React.FC = () => {
                 {!isEditMode ? (
                   <>
                     <p>Contraseña</p><input
-                      type="text"
-                      placeholder="Contraseña"
+                      type={showPwd ? "text" : "password"}
+                      placeholder="********"
                       value={pwd}
-                      onChange={(e) => { setPwd(e.target.value); }} /></>) :
+                      onChange={(e) => { setPwd(e.target.value); }} />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600 dark:text-gray-300"
+                      onClick={() => setShowPwd(!showPwd)}
+                    >
+                      {showPwd ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                    <p>Introduzca de nuevo la contraseña</p><input
+                      type={showSecPwd ? "text" : "password"}
+                      placeholder="********"
+                      value={checkpwd}
+                      onChange={(e) => { setCheckPwd(e.target.value); }} />
+                      <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600 dark:text-gray-300"
+                      onClick={() => setSecShowPwd(!showSecPwd)}
+                    >
+                      {showSecPwd ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </>) :
                   (<>
-                    {isEditable ? (<><p>Contraseña: </p><input
-                      type="text"
-                      placeholder="Contraseña"
-                      value={pwd}
-                      onChange={(e) => { setPwd(e.target.value); }}
-                    /></>) : (
+                    {isEditable ? (<><p>Nueva contraseña: </p>
+                      <input
+                        type={showPwd ? "text" : "password"}
+                        placeholder="Contraseña"
+                        value={pwd}
+                        onChange={(e) => { setPwd(e.target.value); }}
+
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600 dark:text-gray-300"
+                        onClick={() => setShowPwd(!showPwd)}
+                      >
+                        {showPwd ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+
+                    </>) : (
                       <IonButton onClick={() => setIsEditable(true)}>Cambiar contraseña</IonButton>
                     )}
                   </>)}
@@ -252,8 +293,18 @@ const Home: React.FC = () => {
                 <input
                   type="number"
                   min="0"
-                  value={horas}
-                  onChange={(e) => { setHoras(parseFloat(e.target.value)) }}
+                  value={horas || ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {
+                      setHoras(value === '' ? 0 : parseFloat(value));
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (/[^0-9]/.test(e.key) && e.key !== 'Backspace') {
+                      e.preventDefault();
+                    }
+                  }}
                 />
                 <br />
                 <IonButton type="submit">{isEditMode ? 'Editar Usuario' : 'Añadir Usuario'}</IonButton>

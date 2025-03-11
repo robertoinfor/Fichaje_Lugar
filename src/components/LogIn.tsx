@@ -2,6 +2,7 @@ import { IonContent, IonHeader, IonPage, IonRouterLink, IonTitle, IonToolbar, us
 import './LogIn.css';
 import Axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface UserResponse {
     id: string
@@ -13,10 +14,11 @@ interface UserResponse {
 }
 
 const LogIn: React.FC = () => {
-    const navigation = useIonRouter()
+    const navigation = useIonRouter();
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('')
+    const [message, setMessage] = useState('');
+    const [showPwd, setShowPwd] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,10 +80,17 @@ const LogIn: React.FC = () => {
                                     </div>
                                     <div>
                                         <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                                        <input type="password" name="password" id="password" placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        <input type={showPwd ? "text" : "password"} name="password" id="password" placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                         />
+                                        <button
+                                            type="button"
+                                            className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600 dark:text-gray-300"
+                                            onClick={() => setShowPwd(!showPwd)}
+                                        >
+                                            {showPwd ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-start">

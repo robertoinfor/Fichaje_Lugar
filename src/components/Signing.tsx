@@ -1,6 +1,13 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonRouterLink, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import Axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Calendar, dayjsLocalizer } from 'react-big-calendar'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import dayjs from 'dayjs'
+
+
+const localizer = dayjsLocalizer(dayjs)
+
 
 interface Usuario {
     id: string,
@@ -17,13 +24,24 @@ interface Usuario {
     }
 }
 
-interface Fichaje {
-    Empleado: string,
-    Tipo: "Entrada" | "Salida" | "Horas extra" | "Descanso"
-    Fecha_hora: Date
-    Fecha: string
-    Hora: string
+interface CalendarEvent {
+    title: string;
+    start: Date;
+    end: Date;
+    allDay: boolean;
+    type: string;
 }
+
+interface Fichaje {
+    id: string,
+    properties: {
+      Empleado: { relation: [{ id: string }] },
+      Tipo: { select: { name: string } },
+      Fecha_hora: { date: { start: string } },
+      Hora: { formula: { string: string } },
+      Fecha: { formula: { string: string } }
+    }
+  }
 
 const Signing: React.FC = () => {
     const navigation = useIonRouter();
@@ -37,14 +55,19 @@ const Signing: React.FC = () => {
     const [isResting, setIsResting] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false)
     const [isWorkingExtra, setIsWorkingExtra] = useState(false)
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
+
 
     useEffect(() => {
         Axios.get('http://localhost:8000/GetSigningUser/' + userId)
             .then(response => {
                 setSignings(response.data.results);
+                const eventos = convertirFichajesAEventos(signings);
+                setEvents(eventos);
             }).catch(error => {
                 console.log(error);
             });
+            //console.log(events)
     })
 
     useEffect(() => {
@@ -151,6 +174,35 @@ const Signing: React.FC = () => {
         window.location.href = '/';
     }
 
+    const convertirFichajesAEventos = (fichajes: Fichaje[]) => {
+        return fichajes.map(fichaje => {
+            const start = dayjs(fichaje.properties.Fecha.formula.string + 'T' + fichaje.properties.Hora.formula.string).toDate();
+            const end = dayjs(start).toDate();
+
+            return {
+                title: `${fichaje.properties.Tipo.select.name} ${fichaje.properties.Hora.formula.string}`,
+                start: start,
+                end: end,
+                allDay: false,
+                type: fichaje.properties.Tipo.select.name,
+            };
+        });
+    };
+
+    const eventColors: Record<string, string> = {
+        "Entrada": "green",
+        "Salida": "red",
+        "Horas extra": "blue",
+        "Terminadas horas extra": "darkblue",
+        "Descanso": "orange",
+        "Terminado el descanso": "darkorange",
+    };
+
+    const getEventStyle = (event: CalendarEvent) => {
+        const backgroundColor = eventColors[event.type] || "gray"; // Color por defecto si el tipo no coincide
+        return { style: { backgroundColor, color: "white", borderRadius: "5px", padding: "5px" } };
+    };
+
     return (
         <IonPage>
             <IonHeader>
@@ -186,6 +238,16 @@ const Signing: React.FC = () => {
                                 )
                             })
                         }
+                        <div className="calendar-section">
+                            <Calendar
+                                localizer={localizer}
+                                events={ events }
+                                startAccessor="start"
+                                endAccessor="end"
+                                style={{ height: "95vh", width: "95vw" }}
+                                eventPropGetter={getEventStyle}
+                            />
+                        </div>
                         <IonButton onClick={handleFichaje}>
                             {isFichado ? 'Terminar turno' : 'Fichar'}
                         </IonButton>
