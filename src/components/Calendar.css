@@ -1,0 +1,22 @@
+.rbc-event-label {
+    display: none;
+  }
+
+  .rbc-event-content {
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: ellipsis;
+}
+
+.rbc-event {
+    height: auto !important;
+    min-height: 30px !important;
+    white-space: normal !important;
+}
+.rbc-event-content {
+    font-size: 14px;
+    padding: 4px;
+    text-align: left;
+    width: fit-content;
+
+}
