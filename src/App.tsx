@@ -32,7 +32,7 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import LogIn from './views/LogIn';
+import AdminUsers from './views/AdminUsers';
 import Signing from './views/Signing';
 import CalendarView from './views/CalendarView';
 
@@ -47,7 +47,7 @@ const App: React.FC = () => (
         <Route exact path="/" component={Home}>
         </Route>
         <Route path="/signing" component={Signing} exact={true}></Route>
-        <Route path="/adduser" component={LogIn}></Route>
+        <Route path="/adduser" component={AdminUsers}></Route>
         <Route path="/calendar" component={CalendarView}></Route>
       </IonRouterOutlet>
     </IonReactRouter>

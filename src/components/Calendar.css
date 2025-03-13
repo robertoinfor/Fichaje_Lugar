@@ -13,10 +13,27 @@
     min-height: 30px !important;
     white-space: normal !important;
 }
+
 .rbc-event-content {
     font-size: 14px;
     padding: 4px;
     text-align: left;
     width: fit-content;
-
 }
+
+.rbc-month-view .rbc-event {
+    height: 5vh !important;
+    font-size: 12px;
+    padding: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rbc-work-week-view .rbc-event{
+    width: 0.1vw !important;
+    height: 1px !important;
+    color: black;
+    font-size: 50px;
+}
+

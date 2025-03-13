@@ -1,41 +1,13 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, IonMenu } from '@ionic/react';
 import Axios from 'axios';
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import dayjs from 'dayjs';
+import { useEffect, useState, useCallback } from 'react';
 import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
-
-interface Usuario {
-    id: string,
-    properties: {
-        Nombre: {
-            title: [{ plain_text: string }];
-        },
-        Rol: { select: { name: string } };
-    };
-}
-
-export interface CalendarEvent {
-    title: string;
-    start: Date;
-    end: Date;
-    allDay: boolean;
-    type: string;
-}
-
-interface Fichaje {
-    id: string;
-    properties: {
-        Id: { title: [{ text: { content: string } }] };
-        Tipo: { select: { name: string } };
-        Fecha_hora: { date: { start: string } };
-        Hora: { formula: { string: string } };
-    };
-}
+import { User } from '../types/User';
 
 const Signing: React.FC = () => {
     const navigation = useIonRouter();
-    const [userlogged, setUserLogged] = useState<Usuario | undefined>(undefined);
+    const [userlogged, setUserLogged] = useState<User | undefined>(undefined);
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
     const [isFichado, setIsFichado] = useState(false);
@@ -135,11 +107,6 @@ const Signing: React.FC = () => {
         return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     };
 
-    const handleViewHistory = () => {
-        navigation.push('/calendar');
-        menu?.close();
-    };
-
     return (
         <IonPage>
             <IonMenu side="end" content-id="main-content" ref={setMenu}>
@@ -152,9 +119,7 @@ const Signing: React.FC = () => {
                     <Menu admin = {isAdmin}/>
                 </IonContent>
             </IonMenu>
-
             <TopBar onMenuClick={() => menu?.open()} />
-
             <IonContent id="main-content">
                 {userName ? (
                     <div>¡Hola, {userName}!</div>

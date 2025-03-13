@@ -3,6 +3,7 @@ import Axios from 'axios';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import TopBar from '../components/TopBar';
+import Menu from '../components/Menu';
 
 interface UserResponse {
   id: string
@@ -20,7 +21,7 @@ const Home: React.FC = () => {
   const [message, setMessage] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
-
+  const isAdmin = false;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +37,8 @@ const Home: React.FC = () => {
         if (error.response) {
           if (error.response.status === 404) {
             setMessage("No existe ese usuario.");
+            setLogin("")
+            setPassword("")
           }
           else if (error.response.status === 401) {
             setMessage("Contraseña incorrecta.");
@@ -54,12 +57,15 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <IonMenu side="end" content-id="main-content">
+      <IonMenu side="end" content-id="main-content" ref={setMenu}>
         <IonHeader>
           <IonToolbar>
             <IonTitle>Menú</IonTitle>
           </IonToolbar>
         </IonHeader>
+        <IonContent>
+          <Menu admin={isAdmin} />
+        </IonContent>
       </IonMenu>
       <TopBar onMenuClick={() => menu?.open()} />
       <IonContent id="main-content">

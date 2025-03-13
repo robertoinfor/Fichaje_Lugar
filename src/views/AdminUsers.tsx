@@ -1,8 +1,10 @@
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonMenu, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import TopBar from '../components/TopBar';
+import Menu from '../components/Menu';
 
 interface Usuario {
     id: string,
@@ -54,6 +56,9 @@ const LogIn: React.FC = () => {
     const [originalPwd, setOriginalPwd] = useState("");
 
     const [workedTime, setWorkedTime] = useState(0);
+    const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
+    const isAdmin = true;
+
 
     function validateEmail(mail: string) {
         const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -105,6 +110,7 @@ const LogIn: React.FC = () => {
         setHoras(0)
         setCheckPwd("")
         setSecShowPwd(false)
+        setIsEditable(false)
     };
 
     const handleEdit = (user: Usuario) => {
@@ -135,7 +141,7 @@ const LogIn: React.FC = () => {
 
     useEffect(() => {
         generateData()
-    }, [])
+    }, [isEditMode])
 
     function generateData() {
         Axios.get('http://localhost:8000/GetUsers')
@@ -160,6 +166,8 @@ const LogIn: React.FC = () => {
         }
         if (nombre == "" || passwordToSend == "" || email == "" || rol == "" || fecha_alta == "") {
             setMessage("Introduce todos los datos.")
+        } else if (pwd != checkpwd) {
+            setMessage("Las dos contraseñas no coinciden.")
         } else if (!validateEmail(email)) {
             setMessage("No has introducido un email válido ej: prueba@correo.com.")
         } else {
@@ -172,10 +180,12 @@ const LogIn: React.FC = () => {
                 Rol: rol,
                 Fecha_alta: fecha_alta,
                 Horas: horas
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 console.error("Error al actualizar usuario:", error);
             });
             setIsEditMode(false);
+            setIsEditable(false);
             setCurrentUserId("");
             handleClear();
             generateData();
@@ -197,17 +207,23 @@ const LogIn: React.FC = () => {
 
     return (
         <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle>Registro de usuarios</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-            <IonContent fullscreen>
+            <IonMenu side="end" content-id="main-content" ref={setMenu}>
+                <IonHeader>
+                    <IonToolbar>
+                        <IonTitle>Menú</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent>
+                    <Menu admin = {isAdmin}/>
+                </IonContent>
+            </IonMenu>
+            <TopBar onMenuClick={() => menu?.open()} />
+            <IonContent id="main-content">
                 <div className="App">
                     <header className="App-header">
                         <div className="form">
                             <form onSubmit={isEditMode ? (e) => { e.preventDefault(); updateUser(currentUserId); generateData() } : handleSubmit}>
-                                <p>Nombre</p>
+                                <p>Nombre de usuario: </p>
                                 <input
                                     type="text"
                                     placeholder="Nombre"
@@ -216,7 +232,7 @@ const LogIn: React.FC = () => {
                                 />
                                 {!isEditMode ? (
                                     <>
-                                        <p>Contraseña</p><input
+                                        <p>Contraseña:</p><input
                                             type={showPwd ? "text" : "password"}
                                             placeholder="********"
                                             value={pwd}
@@ -228,7 +244,7 @@ const LogIn: React.FC = () => {
                                         >
                                             {!showPwd ? <EyeOff size={20} /> : <Eye size={20} />}
                                         </button>
-                                        <p>Introduzca de nuevo la contraseña</p><input
+                                        <p>Introduzca de nuevo la contraseña: </p><input
                                             type={showSecPwd ? "text" : "password"}
                                             placeholder="********"
                                             value={checkpwd}
@@ -255,7 +271,7 @@ const LogIn: React.FC = () => {
                                             >
                                                 {!showPwd ? <EyeOff size={20} /> : <Eye size={20} />}
                                             </button>
-                                            <p>Introduzca de nuevo la contraseña</p><input
+                                            <p>Introduzca la nueva contraseña de nuevo</p><input
                                                 type={showSecPwd ? "text" : "password"}
                                                 placeholder="********"
                                                 value={checkpwd}
