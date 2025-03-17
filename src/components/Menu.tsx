@@ -1,13 +1,13 @@
 import { IonContent, IonButton, IonList, IonLabel, IonItem, useIonRouter } from '@ionic/react';
+import { useNavigation } from '../hooks/useNavigation';
 
 interface MenuProps {
     admin: boolean
 }
 
 const Menu: React.FC<MenuProps> = ({ admin }) => {
-    const navigation = useIonRouter();
+    const navigation = useNavigation();
     const username = localStorage.getItem("userName");
-
 
     const handleLogOut = () => {
         localStorage.removeItem('username');
@@ -16,13 +16,16 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
     };
 
     const handleAdmin = () => {
-        navigation.push('/adduser');
-        window.location.href = '/adduser';
+        navigation.push('/home/menu/adduser' , 'forward', 'push');
     };
 
     const handleViewHistory = () => {
-        navigation.push('/calendar');
+        navigation.push('/home/signing/calendar', 'forward', 'push');
     };
+
+    const handleConfig = () => {
+        navigation.push('/home/signing/config', 'forward', 'push')
+    }
     return (
 
         <IonList>
@@ -37,14 +40,14 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
                                 <IonLabel>Modo Administrador</IonLabel>
                             </IonItem>
                         )}
+                        <IonItem button onClick={handleLogOut}>
+                            <IonLabel>Cerrar sesión</IonLabel>
+                        </IonItem>
                     </>
                 )
             }
-            <IonItem button onClick={handleLogOut}>
+            <IonItem button onClick={handleConfig}>
                 <IonLabel>Ajustes</IonLabel>
-            </IonItem>
-            <IonItem button onClick={handleLogOut}>
-                <IonLabel>Cerrar sesión</IonLabel>
             </IonItem>
         </IonList>
     );

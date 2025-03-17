@@ -5,35 +5,10 @@ import { useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
+import { Fichaje } from '../types/Signing';
+import { User } from '../types/User';
 
-interface Usuario {
-    id: string,
-    properties: {
-        Nombre: {
-            title:
-            [{ plain_text: string }]
-        },
-        Email: { email: string },
-        Pwd: { rich_text: [{ text: { content: string } }] },
-        Rol: { select: { name: string } },
-        Fecha_alta: { date: { start: string } },
-        Horas: { number: number }
-    }
-}
-
-interface Fichaje {
-    id: string,
-    properties: {
-        Id: { title: [{ text: { content: string } }] },
-        Empleado: { relation: [{ id: string }] },
-        Tipo: { select: { name: string } },
-        Fecha_hora: { date: { start: string } },
-        Hora: { formula: { string: string } },
-        Fecha: { formula: { string: string } }
-    }
-}
-
-const LogIn: React.FC = () => {
+const AdminUsers: React.FC = () => {
     const [nombre, setNombre] = useState("");
     const [pwd, setPwd] = useState("");
     const [email, setEmail] = useState("");
@@ -42,8 +17,9 @@ const LogIn: React.FC = () => {
     const [horas, setHoras] = useState(0);
     const [checkpwd, setCheckPwd] = useState("");
 
-    const [Users, setUsers] = useState<Usuario[]>([]);
+    const [Users, setUsers] = useState<User[]>([]);
     const [Signings, setSignings] = useState<Fichaje[]>([]);
+    
     const [showPwd, setShowPwd] = useState(false);
     const [showSecPwd, setSecShowPwd] = useState(false)
 
@@ -57,7 +33,7 @@ const LogIn: React.FC = () => {
 
     const [workedTime, setWorkedTime] = useState(0);
     const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
-    const isAdmin = true;
+    const isAdmin = true; // cambiar
 
 
     function validateEmail(mail: string) {
@@ -113,7 +89,7 @@ const LogIn: React.FC = () => {
         setIsEditable(false)
     };
 
-    const handleEdit = (user: Usuario) => {
+    const handleEdit = (user: User) => {
         setNombre(user.properties.Nombre.title[0].plain_text)
         setEmail(user.properties.Email.email)
         setFechaAlta(user.properties.Fecha_alta.date.start)
@@ -289,7 +265,6 @@ const LogIn: React.FC = () => {
                                         )}
                                     </>)}
 
-
                                 <p>Email</p>
                                 <input
                                     type="text"
@@ -365,4 +340,4 @@ const LogIn: React.FC = () => {
     );
 };
 
-export default LogIn;
+export default AdminUsers;

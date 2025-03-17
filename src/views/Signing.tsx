@@ -1,12 +1,11 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, IonMenu } from '@ionic/react';
 import Axios from 'axios';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
 import { User } from '../types/User';
 
 const Signing: React.FC = () => {
-    const navigation = useIonRouter();
     const [userlogged, setUserLogged] = useState<User | undefined>(undefined);
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
@@ -17,6 +16,8 @@ const Signing: React.FC = () => {
     const [userName, setUserName] = useState<string | null>(localStorage.getItem('userName'));
     const [userId, setUserId] = useState<string | null>(localStorage.getItem('id'));
     const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
+    const focusRef = useRef<HTMLDivElement>(null);
+
 
     useEffect(() => {
         if (!userName) return;
@@ -50,6 +51,12 @@ const Signing: React.FC = () => {
             setIsAdmin(true);
         }
     }, [userlogged]);
+
+    useEffect(() => {
+        if (focusRef.current) {
+          focusRef.current.focus();
+        }
+      }, []);
 
     const handleAction = useCallback((actionType: 'fichaje' | 'descanso' | 'extra') => {
         let tipo = '';
@@ -121,6 +128,8 @@ const Signing: React.FC = () => {
             </IonMenu>
             <TopBar onMenuClick={() => menu?.open()} />
             <IonContent id="main-content">
+            <div ref={focusRef} tabIndex={-1} style={{ outline: 'none' }}>
+
                 {userName ? (
                     <div>¡Hola, {userName}!</div>
                 ) : (
@@ -143,6 +152,7 @@ const Signing: React.FC = () => {
                         </IonButton>
                     </>
                 )}
+                </div>
             </IonContent>
         </IonPage>
     );
