@@ -32,7 +32,7 @@ const Signing: React.FC = () => {
 
     useEffect(() => {
         let interval: NodeJS.Timeout | null = null;
-    
+
         if (isRunning) {
             interval = setInterval(() => {
                 setSeconds(prev => prev + 1);
@@ -40,7 +40,7 @@ const Signing: React.FC = () => {
         } else if (!isRunning && interval) {
             clearInterval(interval);
         }
-    
+
         return () => {
             if (interval) clearInterval(interval);
         };
@@ -54,17 +54,17 @@ const Signing: React.FC = () => {
 
     useEffect(() => {
         if (focusRef.current) {
-          focusRef.current.focus();
+            focusRef.current.focus();
         }
-      }, []);
+    }, []);
 
-    const handleAction = useCallback((actionType: 'fichaje' | 'descanso' | 'extra') => {
+    const handleAction = useCallback((actionType: 'entrada' | 'salida' | 'descanso' | 'extra') => {
         let tipo = '';
         let id = `${new Date().toLocaleString('es-ES', { month: 'long' }).charAt(0).toUpperCase() + new Date().toLocaleString('es-ES', { month: 'long' }).slice(1)} ${new Date().getFullYear()}`;
 
         switch (actionType) {
-            case 'fichaje':
-                tipo = isFichado ? 'Salida' : 'Entrada';
+            case 'entrada':
+                tipo = 'Entrada';
                 Axios.post('http://localhost:8000/PostSigning', {
                     Id: id,
                     Fecha_hora: new Date(),
@@ -78,6 +78,21 @@ const Signing: React.FC = () => {
                     console.log(error);
                 });
                 break;
+                case 'salida':
+                    tipo = 'Salida';
+                    Axios.post('http://localhost:8000/PostSigning', {
+                        Id: id,
+                        Fecha_hora: new Date(),
+                        Empleado: userId,
+                        Tipo: tipo,
+                    }).then(() => {
+                        setIsRunning(!isFichado);
+                        setSeconds(0);
+                        setIsFichado(!isFichado);
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+                    break;
             case 'descanso':
                 tipo = isResting ? 'Terminado el descanso' : 'Descanso';
                 Axios.post('http://localhost:8000/PostSigning', {
@@ -123,35 +138,39 @@ const Signing: React.FC = () => {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent>
-                    <Menu admin = {isAdmin}/>
+                    <Menu admin={isAdmin} />
                 </IonContent>
             </IonMenu>
             <TopBar onMenuClick={() => menu?.open()} />
             <IonContent id="main-content">
-            <div ref={focusRef} tabIndex={-1} style={{ outline: 'none' }}>
+                <div ref={focusRef} tabIndex={-1} style={{ outline: 'none' }}>
 
-                {userName ? (
-                    <div>¡Hola, {userName}!</div>
-                ) : (
-                    <div>Cargando...</div>
-                )}
+                    {userName ? (
+                        <div>¡Hola, {userName}!</div>
+                    ) : (
+                        <div>Cargando...</div>
+                    )}
 
-                <IonButton onClick={() => handleAction('fichaje')}>
-                    {isFichado ? 'Terminar turno' : 'Fichar'}
-                </IonButton>
-                <p>Tiempo trabajado: {formatTime(seconds)}</p>
+                    <IonButton onClick={() => handleAction('entrada')}>
+                        Entrada
+                    </IonButton>
 
-                {isFichado && (
-                    <>
-                        <IonButton onClick={() => handleAction('descanso')}>
-                            {isResting ? 'Terminar descanso' : 'Descanso'}
-                        </IonButton>
+                    <p>Tiempo trabajado: {formatTime(seconds)}</p>
 
-                        <IonButton onClick={() => handleAction('extra')}>
-                            {isWorkingExtra ? 'Terminar horas extra' : 'Iniciar horas extra'}
-                        </IonButton>
-                    </>
-                )}
+                    {isFichado && (
+                        <>
+                            <IonButton onClick={() => handleAction('descanso')}>
+                                {isResting ? 'Terminar descanso' : 'Descanso'}
+                            </IonButton>
+
+                            <IonButton onClick={() => handleAction('extra')}>
+                                {isWorkingExtra ? 'Terminar horas extra' : 'Iniciar horas extra'}
+                            </IonButton>
+                        </>
+                    )}
+                    <IonButton onClick={() => handleAction('salida')}>
+                        Salida
+                    </IonButton>
                 </div>
             </IonContent>
         </IonPage>

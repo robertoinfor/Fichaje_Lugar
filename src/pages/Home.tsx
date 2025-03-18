@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonHeader, IonMenu, IonPage, IonRouterLink, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonMenu, IonModal, IonPage, IonRouterLink, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import Axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
@@ -6,6 +6,8 @@ import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
 import { useNavigation } from '../hooks/useNavigation';
 import { UserResponse } from '../types/UserResponse';
+import { User } from '../types/User';
+
 
 const Home: React.FC = () => {
   const navigation = useNavigation();
@@ -16,6 +18,14 @@ const Home: React.FC = () => {
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
   const isAdmin = false;
   const focusRef = useRef<HTMLDivElement>(null);
+  const [tokenRecovery, setTokenRecovery] = useState("");
+  const [enteredToken, setEnteredToken] = useState('');
+  const [enteredUser, setEnteredUser] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [realPwd, setRealPwd] = useState('');
+  const [showModal, setShowModal] = useState(false);
+
+
 
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -55,6 +65,10 @@ const Home: React.FC = () => {
     setPassword("")
     setMessage("")
     setShowPwd(false)
+    setEnteredToken("")
+    setRealPwd("")
+    setMessage("")
+    setShowPassword(false)
   }
 
   useEffect(() => {
@@ -63,16 +77,77 @@ const Home: React.FC = () => {
     }
   }, []);
 
-  async function forgotPassword(email: any) {
-    try {
-      const response = await Axios.post('http://localhost:8000/forgot-password', { email });
+  function maskEmail(email: string): string {
+    const [localPart, domain] = email.split("@");
 
-      console.log('Correo de recuperación enviado:', response.data.message);
+    if (localPart.length <= 3) return email;
+
+    const visibleStart = localPart.slice(0, 2);
+    const visibleEnd = localPart.slice(-3);
+    const maskedMiddle = "*".repeat(localPart.length - 9 > 0 ? localPart.length - 9 : 3);
+
+    return `${visibleStart}${maskedMiddle}${visibleEnd}@${domain}`;
+  }
+
+  function generateVerificationToken(length: number = 16): string {
+    const array = new Uint8Array(length);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function forgotPassword() {
+    try {
+      const response = await Axios.get(`http://localhost:8000/GetUserByName/${enteredUser}`);
+
+      if (response.data.results.length === 0) {
+        console.log("Usuario no encontrado");
+        return;
+      }
+      const user = response.data.results[0];
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 15);
+
+      const tokenId = generateVerificationToken();
+      setTokenRecovery(tokenId);
+      await Axios.post('http://localhost:8000/PostToken', {
+        Id: tokenId,
+        Estado: "Sin usar",
+        Caduca: now.toISOString(),
+        Generado: new Date().toISOString(),
+        Empleado: user.id,
+      });
+      setMessage("Se ha enviado un correo a " + maskEmail(user.properties.Email.email) + " con el token de recuperación.")
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error al recuperar la contraseña:', error);
     }
   }
 
+  const handleTokenVerification = async () => {
+    if (enteredToken === tokenRecovery) {
+      try {
+        const response = await Axios.post('http://localhost:8000/GetDecryptedPassword', {
+          token: enteredToken
+        });
+
+        if (response.status === 200) {
+          setRealPwd(response.data.password);
+          setShowPassword(true);
+        } else {
+          setMessage('No se pudo recuperar la contraseña.');
+        }
+      } catch (error) {
+        setMessage("Hubo un error al recuperar la contraseña.");
+      }
+    } else {
+      setMessage("El token ingresado no es válido.");
+    }
+  };
+
+  useEffect(() => {
+    if (showModal) {
+      handleClear();
+    }
+  }, [showModal]);
 
   return (
     <IonPage>
@@ -100,7 +175,7 @@ const Home: React.FC = () => {
                   <form className="space-y-4 md:space-y-6" onSubmit={handleLogin}>
                     <div>
                       <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario/Email</label>
-                      <input type="text" name="text" id="text" className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      <input type="text" name="text" id="email" className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         value={login}
                         onChange={(e) => setLogin(e.target.value)} />
                     </div>
@@ -134,13 +209,38 @@ const Home: React.FC = () => {
                     <button type="submit" className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Iniciar Sesión</button>
                   </form>
                   <IonButton onClick={handleClear}>Limpiar</IonButton>
-                  <form id="forgotPasswordForm" onSubmit={(e) => {
-                      e.preventDefault();
-                      forgotPassword("robertoinfor03@gmail.com");
-                    }}>
-                    <input type="email" id="email" placeholder="Introduce tu correo electrónico" required />
-                    <button type="submit">Recuperar contraseña</button>
-                  </form>                </div>
+                  <IonButton onClick={() => setShowModal(true)}>¿Has olvidado tu contraseña?</IonButton>
+
+                  <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+                    <div className="p-4">
+                      <h2 className="text-xl">Recuperación de Contraseña</h2>
+                      <input
+                        type="text"
+                        placeholder="Nombre de usuario"
+                        value={enteredUser}
+                        onChange={(e) => setEnteredUser(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded"
+                      />
+                      <IonButton onClick={forgotPassword}>Enviar Token</IonButton>
+
+                      {message && <p>{message}</p>}
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Token de recuperación"
+                          value={enteredToken}
+                          onChange={(e) => setEnteredToken(e.target.value)}
+                          className="w-full p-2 border border-gray-300 rounded"
+                        />
+                        <IonButton onClick={handleTokenVerification}>Verificar Token</IonButton>
+                      </div>
+
+                      {showPassword && <p>Contraseña recuperada: {realPwd}</p>}
+
+                      <IonButton onClick={() => setShowModal(false)}>Cerrar</IonButton>
+                    </div>
+                  </IonModal>
+                </div>
               </div>
             </div>
           </section>
