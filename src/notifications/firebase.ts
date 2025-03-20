@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getMessaging, getToken } from "firebase/messaging";
+import axios from 'axios';
 
 const firebaseConfig = {
   apiKey: "AIzaSyANVCuYATVI0iWxjCTYN2hSy_36vbxZKi0",
@@ -16,7 +17,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const messaging = getMessaging(app);
 
-export const generateToken = async () => {
+export const generateToken = async (userId: string) => {
   try {
     const permission = await Notification.requestPermission();
 
@@ -29,12 +30,8 @@ export const generateToken = async () => {
 
       if (token) {
         console.log("Token generado:", token);
-
-        await fetch("/saveUserToken", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
+        await axios.post("http://localhost:8000/saveUserToken", { userId, token });
+        
       } else {
         console.log("No se pudo generar el token FCM");
       }

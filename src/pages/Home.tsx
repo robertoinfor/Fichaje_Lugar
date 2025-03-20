@@ -26,7 +26,6 @@ const Home: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
 
 useEffect(() => {
-  generateToken();
   onMessage(messaging, (payload) => {
     console.log(payload);
   })
@@ -38,6 +37,7 @@ useEffect(() => {
     try {
       const response = await Axios.post<UserResponse>('http://localhost:8000/login', { login, password });
       const userName = response.data;
+      generateToken(response.data.id);
       handleClear();
       localStorage.setItem('userName', userName.nombre);
       localStorage.setItem('id', response.data.id)
