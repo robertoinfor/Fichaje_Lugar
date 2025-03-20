@@ -6,8 +6,8 @@ import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
 import { useNavigation } from '../hooks/useNavigation';
 import { UserResponse } from '../types/UserResponse';
-import { User } from '../types/User';
-
+import { generateToken, messaging } from '../notifications/firebase';
+import { onMessage } from 'firebase/messaging';
 
 const Home: React.FC = () => {
   const navigation = useNavigation();
@@ -25,7 +25,12 @@ const Home: React.FC = () => {
   const [realPwd, setRealPwd] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-
+useEffect(() => {
+  generateToken();
+  onMessage(messaging, (payload) => {
+    console.log(payload);
+  })
+}, [])
 
 
   const handleLogin = async (e: React.FormEvent) => {
