@@ -4,6 +4,8 @@ import { User } from '../types/User';
 import Axios from 'axios';
 
 export const useUserAndSignings = (userName: string | null, userId: string | null) => {
+  const url_connect = import.meta.env.VITE_URL_CONNECT;
+
   const [userLogged, setUserLogged] = useState<User | undefined>();
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -12,7 +14,7 @@ export const useUserAndSignings = (userName: string | null, userId: string | nul
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await Axios.get(`http://localhost:8000/GetUserByName/${userName}`);
+        const response = await Axios.get(url_connect+`GetUserByName/${userName}`);
         setUserLogged(response.data.results[0]);
       } catch (error) {
         console.error("Error fetching user:", error);

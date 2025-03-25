@@ -6,6 +6,8 @@ import Menu from '../components/Menu';
 import { User } from '../types/User';
 
 const Signing: React.FC = () => {
+    const url_connect = import.meta.env.VITE_URL_CONNECT;
+
     const [userlogged, setUserLogged] = useState<User | undefined>(undefined);
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
@@ -21,7 +23,7 @@ const Signing: React.FC = () => {
 
     useEffect(() => {
         if (!userName) return;
-        Axios.get(`http://localhost:8000/GetUserByName/${userName}`)
+        Axios.get(url_connect+`GetUserByName/${userName}`)
             .then(response => {
                 setUserLogged(response.data.results[0]);
             })
@@ -65,7 +67,7 @@ const Signing: React.FC = () => {
         switch (actionType) {
             case 'entrada':
                 tipo = 'Entrada';
-                Axios.post('http://localhost:8000/PostSigning', {
+                Axios.post(url_connect+'PostSigning', {
                     Id: id,
                     Fecha_hora: new Date(),
                     Empleado: userId,
@@ -80,7 +82,7 @@ const Signing: React.FC = () => {
                 break;
                 case 'salida':
                     tipo = 'Salida';
-                    Axios.post('http://localhost:8000/PostSigning', {
+                    Axios.post(url_connect+'PostSigning', {
                         Id: id,
                         Fecha_hora: new Date(),
                         Empleado: userId,
@@ -95,7 +97,7 @@ const Signing: React.FC = () => {
                     break;
             case 'descanso':
                 tipo = isResting ? 'Terminado el descanso' : 'Descanso';
-                Axios.post('http://localhost:8000/PostSigning', {
+                Axios.post(url_connect+'PostSigning', {
                     Id: id,
                     Fecha_hora: new Date(),
                     Empleado: userId,
@@ -108,7 +110,7 @@ const Signing: React.FC = () => {
                 break;
             case 'extra':
                 tipo = isWorkingExtra ? 'Terminadas horas extra' : 'Horas extra';
-                Axios.post('http://localhost:8000/PostSigning', {
+                Axios.post(url_connect+'PostSigning', {
                     Id: id,
                     Fecha_hora: new Date(),
                     Empleado: userId,

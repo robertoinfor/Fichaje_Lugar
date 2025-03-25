@@ -1,0 +1,32 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    height: 90vh;
+  }
+  
+  .map-container {
+    flex: 1;
+    position: relative;
+  }
+  
+  .sidebar {
+    width: 300px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      box-shadow: none;
+      border-top: 1px solid #ddd;
+    }
+    .map-container {
+      height: 50vh;
+    }
+  }
+  

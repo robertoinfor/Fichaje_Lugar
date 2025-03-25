@@ -9,6 +9,7 @@ import { UserResponse } from '../types/UserResponse';
 import { generateToken, messaging } from '../notifications/firebase';
 import { onMessage } from 'firebase/messaging';
 
+
 const Home: React.FC = () => {
   const navigation = useNavigation();
   const [login, setLogin] = useState('');
@@ -24,6 +25,7 @@ const Home: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [realPwd, setRealPwd] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const url_connect = import.meta.env.VITE_URL_CONNECT;
 
 useEffect(() => {
   onMessage(messaging, (payload) => {
@@ -35,7 +37,7 @@ useEffect(() => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await Axios.post<UserResponse>('http://localhost:8000/login', { login, password });
+      const response = await Axios.post<UserResponse>(url_connect + 'login', { login, password });
       const userName = response.data;
       generateToken(response.data.id);
       handleClear();
@@ -102,7 +104,7 @@ useEffect(() => {
 
   async function forgotPassword() {
     try {
-      const response = await Axios.get(`http://localhost:8000/GetUserByName/${enteredUser}`);
+      const response = await Axios.get(url_connect+`GetUserByName/${enteredUser}`);
 
       if (response.data.results.length === 0) {
         console.log("Usuario no encontrado");
@@ -114,7 +116,7 @@ useEffect(() => {
 
       const tokenId = generateVerificationToken();
       setTokenRecovery(tokenId);
-      await Axios.post('http://localhost:8000/PostToken', {
+      await Axios.post(url_connect+'PostToken', {
         Id: tokenId,
         Estado: "Sin usar",
         Caduca: now.toISOString(),
@@ -130,7 +132,7 @@ useEffect(() => {
   const handleTokenVerification = async () => {
     if (enteredToken === tokenRecovery) {
       try {
-        const response = await Axios.post('http://localhost:8000/GetDecryptedPassword', {
+        const response = await Axios.post(url_connect+'GetDecryptedPassword', {
           token: enteredToken
         });
 

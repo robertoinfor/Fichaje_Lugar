@@ -37,6 +37,7 @@ import Signing from './views/Signing';
 import CalendarView from './views/CalendarView';
 import ConfigView from './views/AdminView';
 import AdminView from './views/AdminView';
+import MapView from './views/MapView';
 
 setupIonicReact();
 
@@ -53,6 +54,7 @@ const App: React.FC = () => (
         <Route path="/home/signing/config" component={ConfigView}></Route>
         <Route path="/home/menu" component={AdminView}></Route>
         <Route path="/home/menu/adduser" component={AdminUsers}></Route>
+        <Route path="/home/menu/places" component={MapView}></Route>
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>

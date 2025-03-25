@@ -9,6 +9,8 @@ import { Fichaje } from '../types/Signing';
 import { User } from '../types/User';
 
 const AdminUsers: React.FC = () => {
+    const url_connect = import.meta.env.VITE_URL_CONNECT;
+
     const [nombre, setNombre] = useState("");
     const [pwd, setPwd] = useState("");
     const [email, setEmail] = useState("");
@@ -58,7 +60,7 @@ const AdminUsers: React.FC = () => {
             setMessage("No has introducido un email válido ej: prueba@correo.com.")
         } else {
             setMessage("")
-            Axios.post('http://localhost:8000/PostUser', {
+            Axios.post(url_connect+'PostUser', {
                 Nombre: nombre,
                 Pwd: pwd,
                 Email: email,
@@ -105,7 +107,7 @@ const AdminUsers: React.FC = () => {
     };
 
     const deleteUser = (id: string) => {
-        Axios.delete(`http://localhost:8000/DeleteUser/${id}`)
+        Axios.delete(url_connect+`DeleteUser/${id}`)
             .then((response) => {
                 console.log("Usuario eliminado:", response.data);
                 generateData();
@@ -120,13 +122,13 @@ const AdminUsers: React.FC = () => {
     }, [isEditMode])
 
     function generateData() {
-        Axios.get('http://localhost:8000/GetUsers')
+        Axios.get(url_connect+'GetUsers')
             .then(response => {
                 setUsers(response.data.results);
             }).catch(error => {
                 console.log(error);
             });
-        Axios.get('http://localhost:8000/GetSignings')
+        Axios.get(url_connect+'GetSignings')
             .then(response => {
                 setSignings(response.data.results);
             }).catch(error => {
@@ -149,7 +151,7 @@ const AdminUsers: React.FC = () => {
         } else {
             setMessage("")
 
-            Axios.put(`http://localhost:8000/UpdateUser/${id}`, {
+            Axios.put(url_connect+`UpdateUser/${id}`, {
                 Nombre: nombre,
                 Email: email,
                 Pwd: passwordToSend,

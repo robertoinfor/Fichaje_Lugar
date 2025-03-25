@@ -1,4 +1,3 @@
-// /src/hooks/useSignings.ts
 import { useState, useEffect } from 'react';
 import { getSignings } from '../services/ApiService';
 import { CalendarEvent } from '../types/CalendarEvent';

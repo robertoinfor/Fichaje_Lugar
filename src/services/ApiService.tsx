@@ -1,10 +1,10 @@
 import Axios from 'axios';
 
-const apiUrl = "http://localhost:8000";
+const url_connect = import.meta.env.VITE_URL_CONNECT;
 
 export const getSignings = async (userId: string) => {
   try {
-    const response = await Axios.get(`${apiUrl}/GetSigningUser/${userId}`);
+    const response = await Axios.get(`${url_connect}GetSigningUser/${userId}`);
     return response.data.results;
   } catch (error) {
     console.error("Error fetching signings:", error);
