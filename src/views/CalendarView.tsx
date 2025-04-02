@@ -10,7 +10,7 @@ const CalendarView: React.FC = () => {
   const userName = localStorage.getItem('userName');
   const userId = localStorage.getItem('id');
 
-  const { eventos, isAdmin, userLogged } = useUserAndSignings(userName, userId);
+  const { eventos, isAdmin } = useUserAndSignings(userName, userId);
 
   return (
     <IonPage>

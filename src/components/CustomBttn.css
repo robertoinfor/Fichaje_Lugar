@@ -1,0 +1,33 @@
+.fancy-ion-button {
+    --background: linear-gradient(to bottom, #21989f, #227c89);
+    --color: #fff;
+    --border-radius: 9999px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    --padding-start: 24px;
+    --padding-end: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  /* Hover/active feedback */
+  .fancy-ion-button:hover {
+    filter: brightness(1.05);
+    transform: scale(1.02);
+  }
+  
+  .fancy-ion-button:active {
+    transform: scale(0.98);
+  }
+  
+  /* Responsive tweaks */
+  @media (max-width: 480px) {
+    .fancy-ion-button {
+      width: 100% !important;
+      font-size: 0.95rem !important;
+    }
+  }
+  

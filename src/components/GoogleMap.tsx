@@ -16,6 +16,7 @@ const GoogleMap: React.FC = () => {
     const [circleCenter, setCircleCenter] = useState<google.maps.LatLng | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editPointName, setEditPointName] = useState("");
+    const [editingKey, setEditingKey] = useState<string | null>(null);
     const api_maps = import.meta.env.VITE_API_MAPS ?? "";
     const id_map = import.meta.env.VITE_ID_MAP ?? "";
 
@@ -88,44 +89,36 @@ const GoogleMap: React.FC = () => {
 
     const handleEdit = useCallback(() => {
         if (selectedPoi) {
+            setEditingKey(selectedPoi.key);
             setIsEditing(true);
             setEditPointName(selectedPoi.name);
+            setSelectedPoi(null);
         }
     }, [selectedPoi]);
 
     const saveEdit = useCallback(() => {
-        if (!selectedPoi) return;
-        
-        Axios.put(url_connect + 'UpdateLocation/' + selectedPoi.key, {
-          Nombre: editPointName,
-        })
-          .then(() => {
-            // Actualizamos la lista local
-            setLocations(prev =>
-              prev.map(loc =>
-                loc.key === selectedPoi.key ? { ...loc, name: editPointName } : loc
-              )
-            );
-            // Actualizamos también el Poi seleccionado para que el InfoWindow muestre el nuevo nombre
-            setSelectedPoi(prev => {
-              if (!prev) return null;
-              return { ...prev, name: editPointName };
-            });
-          })
-          .catch((error) => {
-            console.error("Error al actualizar la ubicación:", error);
-          })
-          .finally(() => {
-            // Cerramos el formulario de edición, limpiamos el campo, pero NO cerramos el InfoWindow
-            setIsEditing(false);
-            setEditPointName("");
-            // Opcional: si deseas recargar de Notion, hazlo aquí, pero ten en cuenta que puede
-            // sobrescribir el estado si la actualización en Notion tarda.
-            fetchLocations();
-          });
-      }, [selectedPoi, editPointName, url_connect]);
-      
+        if (!editingKey) return;
 
+        Axios.put(url_connect + 'UpdateLocation/' + editingKey, {
+            Nombre: editPointName,
+        }).catch((error) => {
+                console.error("Error al actualizar la ubicación:", error);
+            });
+
+        setLocations(prev =>
+            prev.map(loc =>
+                loc.key === editingKey ? { ...loc, name: editPointName } : loc
+            )
+        );
+        setSelectedPoi(prev => {
+            if (!prev) return null;
+            return { ...prev, name: editPointName };
+        });
+        setIsEditing(false);
+        setEditPointName("");
+        fetchLocations();
+        setCircleCenter(null)
+    }, [selectedPoi, editPointName, url_connect]);
 
     return (
         <div className="container">

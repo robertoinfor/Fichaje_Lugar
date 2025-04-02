@@ -1,4 +1,4 @@
-export interface Fichaje {
+export interface Signing {
     id: string;
     properties: {
         Id: { title: [{ text: { content: string } }] },

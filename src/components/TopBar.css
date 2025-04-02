@@ -1,0 +1,64 @@
+.custom-toolbar {
+    --background: #fff;
+    --color: #000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    height: 70px;
+  }
+  
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 12px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+  }
+  
+  .logo-img {
+    height: 50px !important ;
+    width: auto;
+  }
+  
+  .title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+    font-family: 'Georgia', serif;
+    font-weight: 500;
+    color: #000;
+    white-space: nowrap;
+  }
+  
+  .toolbar-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  @media (max-width: 480px) {
+    .logo-img {
+      height: 32px !important;
+    }
+  
+    .title {
+      font-size: 1rem;
+    }
+  
+    .toolbar-buttons ion-button {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .logo-img {
+      height: 40px;
+    }
+  
+    .title {
+      font-size: 1.4rem;
+    }
+  }
+  

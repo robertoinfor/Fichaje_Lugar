@@ -1,0 +1,48 @@
+.form-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  
+  .form-box {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    max-width: 600px;
+    width: 100%;
+    font-family: 'Georgia', serif;
+  }
+  
+  .form-title {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  
+  .user-form ion-item {
+    margin-bottom: 0.75rem;
+    --background: transparent;
+    --border-radius: 8px;
+  }
+  
+  .form-button {
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+  
+  .form-button.cancel {
+    margin-top: 0.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    .form-box {
+      padding: 1.5rem;
+    }
+  
+    .form-title {
+      font-size: 1.5rem;
+    }
+  }
+  

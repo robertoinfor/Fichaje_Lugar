@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useMap } from '@vis.gl/react-google-maps';
 
 interface MarkerInfoProps {
@@ -10,6 +10,7 @@ interface MarkerInfoProps {
 
 const MarkerInfo: React.FC<MarkerInfoProps> = ({ position, name, onEdit, onClose }) => {
   const map = useMap();
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
 
   useEffect(() => {
     if (!map) return;
@@ -38,7 +39,7 @@ const MarkerInfo: React.FC<MarkerInfoProps> = ({ position, name, onEdit, onClose
     return () => {
       infoWindow.close();
     };
-  }, [map, position, name, onEdit, onClose]);
+  }, [map, position, onEdit, onClose]);
 
   return null;
 };

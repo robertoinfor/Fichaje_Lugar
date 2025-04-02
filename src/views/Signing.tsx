@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
 import { User } from '../types/User';
+import CustomBttn from '../components/CustomBttn';
 
 const Signing: React.FC = () => {
     const url_connect = import.meta.env.VITE_URL_CONNECT;
@@ -23,7 +24,7 @@ const Signing: React.FC = () => {
 
     useEffect(() => {
         if (!userName) return;
-        Axios.get(url_connect+`GetUserByName/${userName}`)
+        Axios.get(url_connect + `GetUserByName/${userName}`)
             .then(response => {
                 setUserLogged(response.data.results[0]);
             })
@@ -67,7 +68,7 @@ const Signing: React.FC = () => {
         switch (actionType) {
             case 'entrada':
                 tipo = 'Entrada';
-                Axios.post(url_connect+'PostSigning', {
+                Axios.post(url_connect + 'PostSigning', {
                     Id: id,
                     Fecha_hora: new Date(),
                     Empleado: userId,
@@ -80,24 +81,24 @@ const Signing: React.FC = () => {
                     console.log(error);
                 });
                 break;
-                case 'salida':
-                    tipo = 'Salida';
-                    Axios.post(url_connect+'PostSigning', {
-                        Id: id,
-                        Fecha_hora: new Date(),
-                        Empleado: userId,
-                        Tipo: tipo,
-                    }).then(() => {
-                        setIsRunning(!isFichado);
-                        setSeconds(0);
-                        setIsFichado(!isFichado);
-                    }).catch((error) => {
-                        console.log(error);
-                    });
-                    break;
+            case 'salida':
+                tipo = 'Salida';
+                Axios.post(url_connect + 'PostSigning', {
+                    Id: id,
+                    Fecha_hora: new Date(),
+                    Empleado: userId,
+                    Tipo: tipo,
+                }).then(() => {
+                    setIsRunning(!isFichado);
+                    setSeconds(0);
+                    setIsFichado(!isFichado);
+                }).catch((error) => {
+                    console.log(error);
+                });
+                break;
             case 'descanso':
                 tipo = isResting ? 'Terminado el descanso' : 'Descanso';
-                Axios.post(url_connect+'PostSigning', {
+                Axios.post(url_connect + 'PostSigning', {
                     Id: id,
                     Fecha_hora: new Date(),
                     Empleado: userId,
@@ -110,7 +111,7 @@ const Signing: React.FC = () => {
                 break;
             case 'extra':
                 tipo = isWorkingExtra ? 'Terminadas horas extra' : 'Horas extra';
-                Axios.post(url_connect+'PostSigning', {
+                Axios.post(url_connect + 'PostSigning', {
                     Id: id,
                     Fecha_hora: new Date(),
                     Empleado: userId,
@@ -148,15 +149,15 @@ const Signing: React.FC = () => {
                 <div ref={focusRef} tabIndex={-1} style={{ outline: 'none' }}>
 
                     {userName ? (
-                        <div>¡Hola, {userName}!</div>
+                        <div>¡Hola, {userName}!
+                            <img src={userlogged?.properties.Foto.files[0].external.url} />
+                        </div>
                     ) : (
                         <div>Cargando...</div>
                     )}
 
-                    <IonButton onClick={() => handleAction('entrada')}>
-                        Entrada
-                    </IonButton>
-
+                    <CustomBttn text='Entrada' onClick={() => handleAction('entrada')}/>
+                        
                     <p>Tiempo trabajado: {formatTime(seconds)}</p>
 
                     {isFichado && (

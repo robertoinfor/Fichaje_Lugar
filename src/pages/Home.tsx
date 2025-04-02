@@ -8,7 +8,10 @@ import { useNavigation } from '../hooks/useNavigation';
 import { UserResponse } from '../types/UserResponse';
 import { generateToken, messaging } from '../notifications/firebase';
 import { onMessage } from 'firebase/messaging';
-
+import CustomBttn from '../components/CustomBttn';
+import { Eraser } from 'lucide-react';
+import './Home.css'
+import Footer from '../components/Footer';
 
 const Home: React.FC = () => {
   const navigation = useNavigation();
@@ -27,15 +30,14 @@ const Home: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const url_connect = import.meta.env.VITE_URL_CONNECT;
 
-useEffect(() => {
-  onMessage(messaging, (payload) => {
-    console.log(payload);
-  })
-}, [])
+  useEffect(() => {
+    onMessage(messaging, (payload) => {
+      console.log(payload);
+    })
+  }, [])
 
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     try {
       const response = await Axios.post<UserResponse>(url_connect + 'login', { login, password });
       const userName = response.data;
@@ -104,7 +106,7 @@ useEffect(() => {
 
   async function forgotPassword() {
     try {
-      const response = await Axios.get(url_connect+`GetUserByName/${enteredUser}`);
+      const response = await Axios.get(url_connect + `GetUserByName/${enteredUser}`);
 
       if (response.data.results.length === 0) {
         console.log("Usuario no encontrado");
@@ -116,11 +118,9 @@ useEffect(() => {
 
       const tokenId = generateVerificationToken();
       setTokenRecovery(tokenId);
-      await Axios.post(url_connect+'PostToken', {
+      await Axios.post(url_connect + 'PostToken', {
         Id: tokenId,
         Estado: "Sin usar",
-        Caduca: now.toISOString(),
-        Generado: new Date().toISOString(),
         Empleado: user.id,
       });
       setMessage("Se ha enviado un correo a " + maskEmail(user.properties.Email.email) + " con el token de recuperación.")
@@ -130,9 +130,9 @@ useEffect(() => {
   }
 
   const handleTokenVerification = async () => {
-    if (enteredToken === tokenRecovery) {
+    if (enteredToken === tokenRecovery && tokenRecovery) {
       try {
-        const response = await Axios.post(url_connect+'GetDecryptedPassword', {
+        const response = await Axios.post(url_connect + 'GetDecryptedPassword', {
           token: enteredToken
         });
 
@@ -172,90 +172,99 @@ useEffect(() => {
       <IonContent id="main-content">
         <div ref={focusRef} tabIndex={-1} style={{ outline: 'none' }}>
 
-          <section className="bg-gray-50 dark:bg-gray-900">
-            <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-              <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-                <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                    Inicia sesión con tu cuenta
-                  </h1>
-                  <form className="space-y-4 md:space-y-6" onSubmit={handleLogin}>
-                    <div>
-                      <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Usuario/Email</label>
-                      <input type="text" name="text" id="email" className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        value={login}
-                        onChange={(e) => setLogin(e.target.value)} />
-                    </div>
-                    <div>
-                      <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                      <input type={showPwd ? "text" : "password"} name="password" id="password" placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)} />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600 dark:text-gray-300"
-                        onClick={() => setShowPwd(!showPwd)}
-                      >
-                        {showPwd ? <EyeOff size={20} /> : <Eye size={20} />}
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-start">
-                        <p>{message}</p>
-                        <div className="flex items-center h-5">
-                          <input id="remember" aria-describedby="remember"
-                            type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" />
-                        </div>
-                        <div className="ml-3 text-sm">
-                          <label htmlFor="remember" className="text-gray-500 dark:text-gray-300">
-                            Remember me
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    <button type="submit" className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Iniciar Sesión</button>
-                  </form>
-                  <IonButton onClick={handleClear}>Limpiar</IonButton>
-                  <IonButton onClick={() => setShowModal(true)}>¿Has olvidado tu contraseña?</IonButton>
-
-                  <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-                    <div className="p-4">
-                      <h2 className="text-xl">Recuperación de Contraseña</h2>
-                      <input
-                        type="text"
-                        placeholder="Nombre de usuario"
-                        value={enteredUser}
-                        onChange={(e) => setEnteredUser(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded"
-                      />
-                      <IonButton onClick={forgotPassword}>Enviar Token</IonButton>
-
-                      {message && <p>{message}</p>}
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="Token de recuperación"
-                          value={enteredToken}
-                          onChange={(e) => setEnteredToken(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded"
-                        />
-                        <IonButton onClick={handleTokenVerification}>Verificar Token</IonButton>
-                      </div>
-
-                      {showPassword && <p>Contraseña recuperada: {realPwd}</p>}
-
-                      <IonButton onClick={() => setShowModal(false)}>Cerrar</IonButton>
-                    </div>
-                  </IonModal>
+          <section className="login-section">
+            <div className="login-box">
+              <h1>Fichaje</h1>
+              <div className="login-divider" />
+              <form onSubmit={handleLogin}>
+                <div className="label-with-eraser">
+                  <label className="input-label" htmlFor="login">Ingrese su usuario/email:</label>
+                  <Eraser size={20} onClick={() => setLogin("")} className="eraser-icon" />
                 </div>
-              </div>
+                <div className="input-group">
+                  <input
+                    id="login"
+                    type="text"
+                    className="input-field"
+                    value={login}
+                    onChange={(e) => setLogin(e.target.value)}
+                  />
+                  <span className="input-decor">❯❯</span>
+                </div>
+
+
+                <div className="label-with-eraser">
+                  <label className="input-label" htmlFor="password">Ingrese su contraseña:</label>
+                  <Eraser size={20} onClick={() => setPassword("")} className="eraser-icon" />
+                </div>
+                <div className="input-group">
+                  <input
+                    id="password"
+                    type={showPwd ? 'text' : 'password'}
+                    className="input-field"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <span
+                    className="input-decor password-icon"
+                    onClick={() => setShowPwd(!showPwd)}
+                  >
+                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </span>
+                </div>
+
+
+                <div className="forgot-password" onClick={() => setShowModal(true)}>
+                  ¿Has olvidado tu contraseña?
+                </div>
+
+                <div className="checkbox-group">
+                  <input type="checkbox" id="rememberMe" />
+                  <label htmlFor="rememberMe">Recordarme la próxima vez</label>
+                </div>
+
+                {message && <p className="error-message">{message}</p>}
+
+                <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
+                  <CustomBttn text="ACCEDER" onClick={handleLogin} width="160px" />
+                </div>
+              </form>
+              <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+                <div className="p-4">
+                  <h2 className="text-xl">Recuperación de Contraseña</h2>
+                  <input
+                    type="text"
+                    placeholder="Nombre de usuario"
+                    value={enteredUser}
+                    onChange={(e) => setEnteredUser(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
+                  <IonButton onClick={forgotPassword}>Enviar Token</IonButton>
+
+                  {message && <p>{message}</p>}
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Token de recuperación"
+                      value={enteredToken}
+                      onChange={(e) => setEnteredToken(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded"
+                    />
+                    <IonButton onClick={handleTokenVerification}>Verificar Token</IonButton>
+                  </div>
+
+                  {showPassword && <p>Contraseña recuperada: {realPwd}</p>}
+
+                  <IonButton onClick={() => setShowModal(false)}>Cerrar</IonButton>
+                </div>
+              </IonModal>
             </div>
           </section>
         </div>
+        <Footer />
       </IonContent >
     </IonPage >
   );
 };
-
 
 export default Home;

@@ -9,5 +9,6 @@ export interface User {
         Rol: { select: { name: string } };
         Fecha_alta: { date: { start: string } };
         Horas: { number: number };
+        Foto: { files: [{ type: string, external: { url: string } }] };
     };
 }

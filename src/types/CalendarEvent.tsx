@@ -1,4 +1,6 @@
 export interface CalendarEvent {
+    empleadoId?: string;
+    id: string,
     title: string;
     start: Date;
     end: Date;

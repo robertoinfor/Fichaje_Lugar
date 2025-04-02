@@ -12,11 +12,11 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
     const handleLogOut = () => {
         localStorage.removeItem('username');
         localStorage.removeItem('id');
-        navigation.push('/');
+        navigation.push('/', 'forward', 'push');
     };
 
     const handleAdmin = () => {
-        navigation.push('/home/menu/adduser' , 'forward', 'push');
+        navigation.push('/home/menu' , 'forward', 'push');
     };
 
     const handleViewHistory = () => {

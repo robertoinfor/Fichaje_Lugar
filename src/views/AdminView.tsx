@@ -13,8 +13,14 @@ const ConfigView: React.FC = () => {
 
   const { isAdmin } = useUserAndSignings(userName, userId);
 
-  const handleAdmin = () => {
-    navigation.push('/')
+  const handleUsersView = () => {
+    navigation.push('/home/menu/adduser', 'forward')
+  }
+  const handleHistoryView = () => {
+    navigation.push('/home/menu/allsignings', 'forward')
+  }  
+  const handleLocationsView = () => {
+    navigation.push('/home/menu/places', 'forward')
   }
 
   return (
@@ -33,7 +39,9 @@ const ConfigView: React.FC = () => {
       <TopBar onMenuClick={() => menu?.open()} />
 
       <IonContent id="main-content">
-       <IonButton onClick={handleAdmin}>Panel usuario</IonButton>
+        <IonButton onClick={handleUsersView}>Editar usuarios</IonButton>
+        <IonButton onClick={handleLocationsView}>Modificar ubicaciones</IonButton>
+        <IonButton onClick={handleHistoryView}>Modificar fichajes</IonButton>
       </IonContent>
     </IonPage>
   );
