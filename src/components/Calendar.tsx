@@ -17,7 +17,6 @@ interface CustomCalendarProps {
 }
 
 const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent }) => {
-    const navigation = useNavigation();
     const isMobile = window.innerWidth < 768;
 
     const [currentView, setCurrentView] = useState<View>(isMobile ? "day" : "month");

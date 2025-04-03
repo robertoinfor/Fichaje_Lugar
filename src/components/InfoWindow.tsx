@@ -10,7 +10,6 @@ interface MarkerInfoProps {
 
 const MarkerInfo: React.FC<MarkerInfoProps> = ({ position, name, onEdit, onClose }) => {
   const map = useMap();
-  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
 
   useEffect(() => {
     if (!map) return;

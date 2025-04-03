@@ -13,6 +13,7 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
         localStorage.removeItem('username');
         localStorage.removeItem('id');
         navigation.push('/', 'forward', 'push');
+        window.location.reload();
     };
 
     const handleAdmin = () => {
@@ -27,7 +28,6 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
         navigation.push('/home/signing/config', 'forward', 'push')
     }
     return (
-
         <IonList>
             {
                 (username && username !== "") && (

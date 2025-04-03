@@ -5,6 +5,9 @@ import PoiMarkers from './PoiMarkers';
 import { Poi } from "../types/Poi";
 import "./GoogleMap.css";
 import MarkerInfo from "./InfoWindow";
+import { useGeolocation } from "../hooks/useGeolocation";
+import { AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+
 
 const GoogleMap: React.FC = () => {
     const url_connect = import.meta.env.VITE_URL_CONNECT;
@@ -17,6 +20,7 @@ const GoogleMap: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editPointName, setEditPointName] = useState("");
     const [editingKey, setEditingKey] = useState<string | null>(null);
+    const { coords: userCoords } = useGeolocation();
     const api_maps = import.meta.env.VITE_API_MAPS ?? "";
     const id_map = import.meta.env.VITE_ID_MAP ?? "";
 
@@ -102,8 +106,8 @@ const GoogleMap: React.FC = () => {
         Axios.put(url_connect + 'UpdateLocation/' + editingKey, {
             Nombre: editPointName,
         }).catch((error) => {
-                console.error("Error al actualizar la ubicación:", error);
-            });
+            console.error("Error al actualizar la ubicación:", error);
+        });
 
         setLocations(prev =>
             prev.map(loc =>
@@ -138,6 +142,15 @@ const GoogleMap: React.FC = () => {
                             onMarkerSelect={handleMarkerSelect}
                             circleCenter={circleCenter}
                         />
+                        {userCoords && (
+                            <AdvancedMarker
+                                position={userCoords}
+                                title="Tu ubicación"
+                            >
+                                <Pin background="#4285F4" glyphColor="#fff" borderColor="#1a73e8" />
+                            </AdvancedMarker>
+                        )}
+
                         {selectedPoi && (
                             <MarkerInfo
                                 position={selectedPoi.location}

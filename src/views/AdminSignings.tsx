@@ -17,6 +17,7 @@ const AdminSignings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const isAdmin = false; // cambiar
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [formData, setFormData] = useState({
@@ -49,7 +50,7 @@ const AdminSignings: React.FC = () => {
 
   const fetchEvents = async (): Promise<CalendarEvent[]> => {
     try {
-      const response = await Axios.get(url_connect + 'GetSignings');
+      const response = await Axios.get(url_connect + 'GetAllSignings');
       const fichajes: Signing[] = response.data.results;
       const mappedEvents = fichajes.map((fichaje: Signing) => mapFichajeToEvent(fichaje, users));
       setEvents(mappedEvents);
@@ -97,28 +98,58 @@ const AdminSignings: React.FC = () => {
     const updatedFormData = {
       ...formData,
       Fecha_hora: `${formData.fecha}T${formData.hora}`,
-    }; e.preventDefault();
+    };
+    e.preventDefault();
     try {
       Axios.put(`${url_connect}UpdateSigning/${selectedEvent?.id}`, updatedFormData)
-      .then(() => {
-        return fetchEvents();
-      })
-      .then(() => {
-        setSelectedEvent(null);
-        setIsEditing(false);
-      })
-      .catch((error) => {
-        console.error("Error updating event:", error);
-      });
+        .then(() => {
+          return fetchEvents();
+        })
+        .then(() => {
+          setSelectedEvent(null);
+          setIsEditing(false);
+        })
+        .catch((error) => {
+          console.error("Error updating event:", error);
+        });
     } catch (error) {
       console.error("Error updating event:", error);
     }
   };
 
+  const handleAddMode = () => {
+    setIsAdding(true);
+  };
+
+  const handleAddSigning = () => {
+    console.log("datos: ", formData)
+    const updatedFormData = {
+      ...formData,
+      Fecha_hora: `${formData.fecha}T${formData.hora}`,
+    };
+    console.log("datos: ", updatedFormData)
+    Axios.post(url_connect + 'PostSigning',
+      updatedFormData
+    ).then(() => {
+    }).catch((error) => {
+      console.log(error);
+    });
+    fetchEvents();
+  }
+
   const handleCancelEdit = () => {
     fetchEvents();
     setSelectedEvent(null);
     setIsEditing(false);
+    setIsAdding(false);
+    setFormData({
+      Empleado: "",
+      Tipo: "",
+      Fecha_hora: "",
+      fecha: "",
+      hora: ""
+    }
+    )
   };
 
   const filteredEvents = events.filter((event) => {
@@ -142,14 +173,18 @@ const AdminSignings: React.FC = () => {
       </IonMenu>
       <TopBar onMenuClick={() => menu?.open()} />
       <IonContent id="main-content">
-        {!isEditing ? (
+        {!isEditing && !isAdding ? (
           <>
             <IonItem>
               <IonInput
                 placeholder="Buscar por nombre o tipo"
                 value={searchTerm}
                 onIonChange={(e) => setSearchTerm(e.detail.value!)} />
-            </IonItem><div className="calendar-section">
+            </IonItem>
+            <IonItem>
+              <IonButton onClick={handleAddMode}>Añadir fichaje manualmente</IonButton>
+            </IonItem>
+            <div className="calendar-section">
               <div className="calendar-section">
                 <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} />
               </div>
@@ -174,72 +209,80 @@ const AdminSignings: React.FC = () => {
                 </div>
               ))}
             </div>
-            <IonItem>
-              <IonInput
-                placeholder="Buscar por nombre o tipo"
-                value={searchTerm}
-                onIonChange={(e) => setSearchTerm(e.detail.value!)}
-              />
-            </IonItem>
           </>
-        ) : (<>
-          <div style={{ padding: '1rem' }}>
-            <h2>Editar Fichaje</h2>
-            <form onSubmit={handleSaveChanges}>
-              <IonItem>
-                <IonSelect
-                  value={formData.Empleado}
-                  placeholder="Selecciona Empleado"
-                  onIonChange={(e) => setFormData({ ...formData, Empleado: e.detail.value })}
-                >
-                  {users.map((user) => (
-                    <IonSelectOption key={user.id} value={user.id}>
-                      {user.properties.Nombre.title[0].plain_text}
+        ) : (isEditing || isAdding) && (
+          <>
+            <div style={{ padding: '1rem' }}>
+              <h2>{isAdding ? "Añadir Fichaje" : "Editar Fichaje"}</h2>
+              <form onSubmit={isAdding ? handleAddSigning : handleSaveChanges}>
+                <IonItem>
+                  <IonSelect
+                    value={formData.Empleado}
+                    placeholder="Selecciona Empleado"
+                    onIonChange={(e) =>
+                      setFormData({ ...formData, Empleado: e.detail.value })
+                    }
+                  >
+                    {users.map((user) => (
+                      <IonSelectOption key={user.id} value={user.id}>
+                        {user.properties.Nombre.title[0].plain_text}
+                      </IonSelectOption>
+                    ))}
+                  </IonSelect>
+                </IonItem>
+                <IonItem>
+                  <IonSelect
+                    value={formData.Tipo}
+                    placeholder="Tipo de fichaje"
+                    onIonChange={(e) =>
+                      setFormData({ ...formData, Tipo: e.detail.value })
+                    }
+                  >
+                    <IonSelectOption value="Entrada">Entrada</IonSelectOption>
+                    <IonSelectOption value="Salida">Salida</IonSelectOption>
+                    <IonSelectOption value="Horas extra">Horas extra</IonSelectOption>
+                    <IonSelectOption value="Descanso">Descanso</IonSelectOption>
+                    <IonSelectOption value="Terminado el descanso">
+                      Terminado el descanso
                     </IonSelectOption>
-                  ))}
-                </IonSelect>
-              </IonItem>
-              <IonItem>
-                <IonSelect
-                  value={formData.Tipo}
-                  placeholder="Tipo de fichaje"
-                  onIonChange={(e) => setFormData({ ...formData, Tipo: e.detail.value })}
+                  </IonSelect>
+                </IonItem>
+                <IonItem>
+                  <IonInput
+                    type="time"
+                    placeholder="Hora"
+                    value={formData.hora}
+                    onIonChange={(e) =>
+                      setFormData({ ...formData, hora: e.detail.value! })
+                    }
+                  />
+                </IonItem>
+                <IonItem>
+                  <IonInput
+                    type="date"
+                    placeholder="Fecha"
+                    value={formData.fecha}
+                    onIonChange={(e) =>
+                      setFormData({ ...formData, fecha: e.detail.value! })
+                    }
+                  />
+                </IonItem>
+                <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
+                  {isAdding ? "Añadir Fichaje" : "Guardar cambios"}
+                </IonButton>
+                <IonButton
+                  color="medium"
+                  expand="block"
+                  onClick={handleCancelEdit}
+                  style={{ marginTop: '0.5rem' }}
                 >
-                  <IonSelectOption value="Entrada">Entrada</IonSelectOption>
-                  <IonSelectOption value="Salida">Salida</IonSelectOption>
-                  <IonSelectOption value="Horas extra">Horas extra</IonSelectOption>
-                  <IonSelectOption value="Descanso">Descanso</IonSelectOption>
-                  <IonSelectOption value="Terminado el descanso">Terminado el descanso</IonSelectOption>
-                </IonSelect>
-              </IonItem>
-              <IonItem>
-                <IonInput
-                  type="time"
-                  placeholder="Hora"
-                  value={formData.hora}
-                  onIonChange={(e) => setFormData({ ...formData, hora: e.detail.value! })}
-                />
-              </IonItem>
-              <IonItem>
-                <IonInput
-                  type="date"
-                  placeholder="Fecha"
-                  value={formData.fecha}
-                  onIonChange={(e) => setFormData({ ...formData, fecha: e.detail.value! })}
-                />
-              </IonItem>
-              <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
-                Guardar cambios
-              </IonButton>
-              <IonButton color="medium" expand="block" onClick={handleCancelEdit} style={{ marginTop: '0.5rem' }}>
-                Cancelar
-              </IonButton>
-            </form>
-          </div>
-
-        </>)
+                  Cancelar
+                </IonButton>
+              </form>
+            </div>
+          </>
+        )
         }
-
       </IonContent>
     </IonPage>
   );

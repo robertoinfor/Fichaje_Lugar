@@ -13,9 +13,10 @@ import {
 } from '@ionic/react';
 import Axios from 'axios';
 import { User } from '../types/User';
-import UserForm, { UserFormData } from '../components/UserForm';
+import UserForm from '../components/UserForm';
 import Menu from '../components/Menu';
 import TopBar from '../components/TopBar';
+import { UserFormData } from '../types/UserFormData';
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
@@ -40,10 +41,26 @@ const AdminUsersView: React.FC = () => {
         fetchUsers();
     }, []);
 
-    const handleEdit = (user: User) => {
-        setSelectedUser(user);
-        setEditingMode(true);
+    const handleEdit = async (user: User) => {
+        try {
+            const response = await Axios.post(url_connect + 'GetDecryptedPasswordByUserId', {
+                userId: user.id
+            });
+    
+            const decryptedPassword = response.data.password;
+    
+            const userWithPassword = {
+                ...user,
+                decryptedPwd: decryptedPassword
+            };
+    
+            setSelectedUser(userWithPassword);
+            setEditingMode(true);
+        } catch (error) {
+            console.error("Error al obtener la contraseña:", error);
+        }
     };
+    
 
     const handleAdd = () => {
         setSelectedUser(null);
@@ -52,7 +69,6 @@ const AdminUsersView: React.FC = () => {
 
     const handleSave = async (formData: UserFormData) => {
         let dataToSend = { ...formData } as any;
-
         if (formData.FotoFile) {
             const uploadData = new FormData();
             uploadData.append('file', formData.FotoFile);
@@ -134,6 +150,7 @@ const AdminUsersView: React.FC = () => {
                         <IonList>
                             {users.map(user => {
                                 const fotoUrl = user.properties.Foto.files[0].external.url;
+                                console.log(fotoUrl)
                                 return (
                                     <IonItem key={user.id}>
                                         <IonLabel>
@@ -159,7 +176,7 @@ const AdminUsersView: React.FC = () => {
                                     ? {
                                         Nombre: selectedUser.properties.Nombre.title[0].plain_text,
                                         Email: selectedUser.properties.Email.email,
-                                        Pwd: selectedUser.properties.Pwd.rich_text[0].text.content,
+                                        Pwd: (selectedUser as any).decryptedPwd || "",
                                         Rol: selectedUser.properties.Rol.select.name,
                                         Fecha_alta: selectedUser.properties.Fecha_alta.date.start,
                                         Horas: selectedUser.properties.Horas.number,
