@@ -1,5 +1,6 @@
 export interface UserFormData {
-  Nombre: string;
+  id?: string;
+  "Nombre de usuario": string;
   Email: string;
   Pwd: string;
   Rol: string;
@@ -7,4 +8,6 @@ export interface UserFormData {
   Horas: number;
   Foto?: string;
   FotoFile?: File;
+  Estado: string;
+  "Nombre completo": string
 }

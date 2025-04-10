@@ -18,7 +18,7 @@ export const useVerifyLocation = () => {
 
         const response = await axios.get(import.meta.env.VITE_URL_CONNECT + 'GetLocations');
         const pois: Poi[] = response.data.results.map((page: any) => ({
-          key: page.id, // Este es el ID de Notion
+          key: page.id,
           name: page.properties.Nombre.title[0].text.content,
           location: {
             lat: page.properties.Latitud.number,

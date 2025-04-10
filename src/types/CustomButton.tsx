@@ -4,4 +4,5 @@ export interface CustomButton {
     width?: string;
     height?: string;
     onClick: () => void;
+    disabled?: boolean
   }

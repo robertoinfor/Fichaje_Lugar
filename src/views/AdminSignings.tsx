@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonMenu, IonButton, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonMenu, IonButton, IonSelect, IonSelectOption, IonAlert } from '@ionic/react';
 import Axios from 'axios';
 import dayjs from 'dayjs';
 import CustomCalendar from '../components/Calendar';
 import { CalendarEvent } from '../types/CalendarEvent';
 import { Signing } from '../types/Signing';
 import { User } from '../types/User';
+import { Location } from '../types/Location';
 import Menu from '../components/Menu';
 import TopBar from '../components/TopBar';
 
@@ -14,24 +15,43 @@ const url_connect = import.meta.env.VITE_URL_CONNECT;
 const AdminSignings: React.FC = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const isAdmin = false; // cambiar
+  const isAdmin = true; // cambiar
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [formData, setFormData] = useState({
     Empleado: '',
     Tipo: '',
     Fecha_hora: '',
     fecha: '',
-    hora: ''
+    hora: '',
+    Localizacion: ''
   });
+
+  const fetchLocations = async () => {
+    try {
+      const response = await Axios.get(url_connect + 'GetLocations');
+      setLocations(response.data.results);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLocations();
+  }, []);
 
   const mapFichajeToEvent = (fichaje: Signing, users: User[]): CalendarEvent => {
     const dateString = fichaje.properties.Fecha.formula.string;
     const timeString = fichaje.properties.Hora.formula.string;
     const startDate = dayjs(`${dateString}T${timeString}`).toDate();
+    const locationId = fichaje.properties.Localizacion.relation[0]?.id;
+    const localizacion = locations.find(loc => loc.id === locationId);
+    const locationName = localizacion ? localizacion.properties.Nombre.title[0].text.content : "Sin ubicación";
 
     const empleadoId = fichaje.properties.Empleado.relation[0]?.id;
     const usuario = users.find(u => u.id === empleadoId);
@@ -45,6 +65,8 @@ const AdminSignings: React.FC = () => {
       end: startDate,
       allDay: false,
       type: fichaje.properties.Tipo.select.name,
+      location: locationId,
+      locationName: locationName
     };
   };
 
@@ -60,7 +82,6 @@ const AdminSignings: React.FC = () => {
       return [];
     }
   };
-
 
   const fetchUsers = async () => {
     try {
@@ -83,6 +104,7 @@ const AdminSignings: React.FC = () => {
   }, [users]);
 
   const handleSelectEvent = (event: CalendarEvent) => {
+    console.log(event.location)
     setSelectedEvent(event);
     setIsEditing(true)
     setFormData({
@@ -90,7 +112,8 @@ const AdminSignings: React.FC = () => {
       Tipo: event.type,
       Fecha_hora: dayjs(event.start).format("YYYY-MM-DDTHH:mm"),
       fecha: dayjs(event.start).format("YYYY-MM-DD"),
-      hora: dayjs(event.start).format("HH:mm")
+      hora: dayjs(event.start).format("HH:mm"),
+      Localizacion: event.location ?? ""
     });
   };
 
@@ -147,7 +170,8 @@ const AdminSignings: React.FC = () => {
       Tipo: "",
       Fecha_hora: "",
       fecha: "",
-      hora: ""
+      hora: "",
+      Localizacion: ""
     }
     )
   };
@@ -267,9 +291,34 @@ const AdminSignings: React.FC = () => {
                     }
                   />
                 </IonItem>
+                <IonItem>
+                  <IonSelect
+                    value={formData.Localizacion}
+                    placeholder="Selecciona una localización"
+                    onIonChange={(e) =>
+                      setFormData({ ...formData, Localizacion: e.detail.value })
+                    }
+                  >
+                    {locations.map((loc) => (
+                      <IonSelectOption key={loc.id} value={loc.id}>
+                        {loc.properties.Nombre.title[0].text.content}
+                      </IonSelectOption>
+                    ))}
+                  </IonSelect>
+                </IonItem>
                 <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
                   {isAdding ? "Añadir Fichaje" : "Guardar cambios"}
                 </IonButton>
+                {isEditing && (
+                  <IonButton
+                    color="danger"
+                    expand="block"
+                    onClick={() => setShowDeleteAlert(true)}
+                    style={{ marginTop: '0.5rem' }}
+                  >
+                    Eliminar fichaje
+                  </IonButton>
+                )}
                 <IonButton
                   color="medium"
                   expand="block"
@@ -283,6 +332,44 @@ const AdminSignings: React.FC = () => {
           </>
         )
         }
+        <IonAlert
+          isOpen={showDeleteAlert}
+          onDidDismiss={() => setShowDeleteAlert(false)}
+          header="Confirmar eliminación"
+          message="¿Estás seguro de que quieres eliminar este fichaje?"
+          buttons={[
+            {
+              text: 'Cancelar',
+              role: 'cancel',
+              handler: () => setShowDeleteAlert(false)
+            },
+            {
+              text: 'Eliminar',
+              role: 'destructive',
+              handler: async () => {
+                if (!selectedEvent) return;
+
+                try {
+                  await Axios.delete(`${url_connect}DeleteSigning/${selectedEvent.id}`);
+                  await fetchEvents();
+                  setSelectedEvent(null);
+                  setIsEditing(false);
+                  setFormData({
+                    Empleado: "",
+                    Tipo: "",
+                    Fecha_hora: "",
+                    fecha: "",
+                    hora: "",
+                    Localizacion: ""
+                  });
+                } catch (error) {
+                  console.error("Error eliminando el fichaje:", error);
+                }
+              }
+            }
+          ]}
+        />
+
       </IonContent>
     </IonPage>
   );

@@ -22,7 +22,6 @@ const Home: React.FC = () => {
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
   const isAdmin = false;
   const focusRef = useRef<HTMLDivElement>(null);
-  const [tokenRecovery, setTokenRecovery] = useState("");
   const [enteredToken, setEnteredToken] = useState('');
   const [enteredUser, setEnteredUser] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,18 +33,32 @@ const Home: React.FC = () => {
     onMessage(messaging, (payload) => {
       console.log(payload);
     })
+    const storedUser = localStorage.getItem('userName');
+    const storedId = localStorage.getItem('id');
+    if (storedUser && storedId) {
+      navigation.push('/home/signing', 'forward', 'push');
+    }
   }, [])
 
 
   const handleLogin = async () => {
     try {
-      const response = await Axios.post<UserResponse>(url_connect + 'login', { login, password });
-      const userName = response.data;
-      generateToken(response.data.id);
-      handleClear();
-      localStorage.setItem('userName', userName.nombre);
-      localStorage.setItem('id', response.data.id)
-      navigation.push('/home/signing', 'forward', 'push');
+      if (login == "") {
+        setMessage("Introduce el nombre de usuario/correo corporativo")
+      } else if (password == "") {
+        setMessage("Introduce la contraseña")
+      } else {
+        const response = await Axios.post<UserResponse>(url_connect + 'login', { login, password });
+        const userName = response.data;
+        generateToken(response.data.id);
+        handleClear();
+        localStorage.setItem('userName', userName.nombre);
+        localStorage.setItem('id', response.data.id);
+        Axios.put(url_connect+'UpdateUserLog/'+ response.data.id, {
+          Conexion: "Online"
+      });
+        navigation.push('/home/signing', 'forward', 'push');
+      }
     } catch (error) {
       if (Axios.isAxiosError(error)) {
         if (error.response) {
@@ -117,7 +130,6 @@ const Home: React.FC = () => {
       now.setMinutes(now.getMinutes() + 15);
 
       const tokenId = generateVerificationToken();
-      setTokenRecovery(tokenId);
       await Axios.post(url_connect + 'PostToken', {
         Id: tokenId,
         Estado: "Sin usar",
@@ -145,132 +157,133 @@ const Home: React.FC = () => {
         } else {
           setMessage('No se pudo recuperar la contraseña.');
         }
-      }} catch (error: any) {
-        if (error.response && error.response.status === 401) {
-          setMessage("El token ha expirado.");
-        } else if (error.response && error.response.status === 404) {
-          setMessage("Token no encontrado.");
-        } else {
-          setMessage("Error al verificar token.");
-        }
       }
-    };
-
-    useEffect(() => {
-      if (showModal) {
-        handleClear();
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        setMessage("El token ha expirado.");
+      } else if (error.response && error.response.status === 404) {
+        setMessage("Token no encontrado.");
+      } else {
+        setMessage("Error al verificar token.");
       }
-    }, [showModal]);
-
-    return (
-      <IonPage>
-        <IonMenu side="end" content-id="main-content" ref={setMenu}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Menú</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <Menu admin={isAdmin} />
-          </IonContent>
-        </IonMenu>
-        <TopBar onMenuClick={() => menu?.open()} />
-        <IonContent id="main-content">
-          <div ref={focusRef} tabIndex={-1} style={{ outline: 'none' }}>
-
-            <section className="login-section">
-              <div className="login-box">
-                <h1>Fichaje</h1>
-                <div className="login-divider" />
-                <form onSubmit={handleLogin}>
-                  <div className="label-with-eraser">
-                    <label className="input-label" htmlFor="login">Ingrese su usuario/email:</label>
-                    <Eraser size={20} onClick={() => setLogin("")} className="eraser-icon" />
-                  </div>
-                  <div className="input-group">
-                    <input
-                      id="login"
-                      type="text"
-                      className="input-field"
-                      value={login}
-                      onChange={(e) => setLogin(e.target.value)}
-                    />
-                    <span className="input-decor">❯❯</span>
-                  </div>
-
-
-                  <div className="label-with-eraser">
-                    <label className="input-label" htmlFor="password">Ingrese su contraseña:</label>
-                    <Eraser size={20} onClick={() => setPassword("")} className="eraser-icon" />
-                  </div>
-                  <div className="input-group">
-                    <input
-                      id="password"
-                      type={showPwd ? 'text' : 'password'}
-                      className="input-field"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <span
-                      className="input-decor password-icon"
-                      onClick={() => setShowPwd(!showPwd)}
-                    >
-                      {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </span>
-                  </div>
-
-
-                  <div className="forgot-password" onClick={() => setShowModal(true)}>
-                    ¿Has olvidado tu contraseña?
-                  </div>
-
-                  <div className="checkbox-group">
-                    <input type="checkbox" id="rememberMe" />
-                    <label htmlFor="rememberMe">Recordarme la próxima vez</label>
-                  </div>
-
-                  {message && <p className="error-message">{message}</p>}
-
-                  <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
-                    <CustomBttn text="ACCEDER" onClick={handleLogin} width="160px" />
-                  </div>
-                </form>
-                <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-                  <div className="p-4">
-                    <h2 className="text-xl">Recuperación de Contraseña</h2>
-                    <input
-                      type="text"
-                      placeholder="Nombre de usuario"
-                      value={enteredUser}
-                      onChange={(e) => setEnteredUser(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded"
-                    />
-                    <IonButton onClick={forgotPassword}>Enviar Token</IonButton>
-
-                    {message && <p>{message}</p>}
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Token de recuperación"
-                        value={enteredToken}
-                        onChange={(e) => setEnteredToken(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded"
-                      />
-                      <IonButton onClick={handleTokenVerification}>Verificar Token</IonButton>
-                    </div>
-
-                    {showPassword && <p>Contraseña recuperada: {realPwd}</p>}
-
-                    <IonButton onClick={() => setShowModal(false)}>Cerrar</IonButton>
-                  </div>
-                </IonModal>
-              </div>
-            </section>
-          </div>
-          <Footer />
-        </IonContent >
-      </IonPage >
-    );
+    }
   };
 
-  export default Home;
+  useEffect(() => {
+    if (showModal) {
+      handleClear();
+    }
+  }, [showModal]);
+
+  return (
+    <IonPage>
+      <IonMenu side="end" content-id="main-content" ref={setMenu}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Menú</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <Menu admin={isAdmin} />
+        </IonContent>
+      </IonMenu>
+      <TopBar onMenuClick={() => menu?.open()} />
+      <IonContent id="main-content">
+        <div ref={focusRef} tabIndex={-1} style={{ outline: 'none' }}>
+
+          <section className="login-section">
+            <div className="login-box">
+              <h1>Fichaje</h1>
+              <div className="login-divider" />
+              <form onSubmit={handleLogin}>
+                <div className="label-with-eraser">
+                  <label className="input-label" htmlFor="login">Ingrese su usuario/email:</label>
+                  <Eraser size={20} onClick={() => setLogin("")} className="eraser-icon" />
+                </div>
+                <div className="input-group">
+                  <input
+                    id="login"
+                    type="text"
+                    className="input-field"
+                    value={login}
+                    onChange={(e) => setLogin(e.target.value)}
+                  />
+                  <span className="input-decor">❯❯</span>
+                </div>
+
+
+                <div className="label-with-eraser">
+                  <label className="input-label" htmlFor="password">Ingrese su contraseña:</label>
+                  <Eraser size={20} onClick={() => setPassword("")} className="eraser-icon" />
+                </div>
+                <div className="input-group">
+                  <input
+                    id="password"
+                    type={showPwd ? 'text' : 'password'}
+                    className="input-field"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <span
+                    className="input-decor password-icon"
+                    onClick={() => setShowPwd(!showPwd)}
+                  >
+                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </span>
+                </div>
+
+
+                <div className="forgot-password" onClick={() => setShowModal(true)}>
+                  ¿Has olvidado tu contraseña?
+                </div>
+
+                <div className="checkbox-group">
+                  <input type="checkbox" id="rememberMe" />
+                  <label htmlFor="rememberMe">Recordarme la próxima vez</label>
+                </div>
+
+                {message && <p className="error-message">{message}</p>}
+
+                <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
+                  <CustomBttn text="ACCEDER" onClick={handleLogin} width="160px" />
+                </div>
+              </form>
+              <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
+                <div className="p-4">
+                  <h2 className="text-xl">Recuperación de Contraseña</h2>
+                  <input
+                    type="text"
+                    placeholder="Nombre de usuario"
+                    value={enteredUser}
+                    onChange={(e) => setEnteredUser(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
+                  <IonButton onClick={forgotPassword}>Enviar Token</IonButton>
+
+                  {message && <p>{message}</p>}
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Token de recuperación"
+                      value={enteredToken}
+                      onChange={(e) => setEnteredToken(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded"
+                    />
+                    <IonButton onClick={handleTokenVerification}>Verificar Token</IonButton>
+                  </div>
+
+                  {showPassword && <p>Contraseña recuperada: {realPwd}</p>}
+
+                  <IonButton onClick={() => setShowModal(false)}>Cerrar</IonButton>
+                </div>
+              </IonModal>
+            </div>
+          </section>
+        </div>
+        <Footer />
+      </IonContent >
+    </IonPage >
+  );
+};
+
+export default Home;

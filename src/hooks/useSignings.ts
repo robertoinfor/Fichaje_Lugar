@@ -10,13 +10,25 @@ export const useSignings = (userId: string) => {
     const fetchSignings = async () => {
       try {
         const fichajes = await getSignings(userId);
-        const eventos = fichajes.map((fichaje: any) => ({
-          title: `${fichaje.properties.Tipo.select.name} ${fichaje.properties.Hora.formula.string}`,
-          start: dayjs(`${fichaje.properties.Fecha.formula.string}T${fichaje.properties.Hora.formula.string}`).toDate(),
-          end: dayjs(`${fichaje.properties.Fecha.formula.string}T${fichaje.properties.Hora.formula.string}`).toDate(),
-          allDay: false,
-          type: fichaje.properties.Tipo.select.name,
-        }));
+        const typeMap: { [key: string]: string } = {
+          "Entrada": "E",
+          "Salida": "S",
+          "Descanso": "D",
+          "Terminado el descanso": "FD",
+          "Horas extra": "HE",
+          "Terminadas horas extra": "FHE",
+        };
+        const eventos = fichajes.map((fichaje: any) => {
+          const fullType = fichaje.properties.Tipo.select.name;
+          const abbreviation = typeMap[fullType] || fullType;
+          return {
+            title: `${abbreviation} - ${fichaje.properties.Hora.formula.string}`,
+            start: dayjs(`${fichaje.properties.Fecha.formula.string}T${fichaje.properties.Hora.formula.string}`).toDate(),
+            end: dayjs(`${fichaje.properties.Fecha.formula.string}T${fichaje.properties.Hora.formula.string}`).toDate(),
+            allDay: false,
+            type: abbreviation,
+          };
+        });
         setSignings(eventos);
       } catch (error) {
         console.error("Error fetching signings:", error);
@@ -30,3 +42,4 @@ export const useSignings = (userId: string) => {
 
   return signings;
 };
+

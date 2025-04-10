@@ -1,7 +1,7 @@
 export interface User {
     id: string;
     properties: {
-        Nombre: {
+        "Nombre de usuario": {
             title: [{ plain_text: string }];
         };
         Email: { email: string };
@@ -10,5 +10,8 @@ export interface User {
         Fecha_alta: { date: { start: string } };
         Horas: { number: number };
         Foto: { files: [{ type: string, external: { url: string } }] };
+        Conexion: { status: { name: string } };
+        Estado: { status: { name: string } };
+        "Nombre completo": {rich_text: [{text: {content: string}}]}
     };
 }

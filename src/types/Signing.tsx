@@ -7,5 +7,6 @@ export interface Signing {
         Fecha_hora: { date: { start: string } },
         Hora: { formula: { string: string } },
         Fecha: { formula: { string: string } };
+        Localizacion: { relation: [{ id: string }] }
     };
 }

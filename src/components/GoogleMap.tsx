@@ -11,6 +11,7 @@ import { AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 
 const GoogleMap: React.FC = () => {
     const url_connect = import.meta.env.VITE_URL_CONNECT;
+    const [message, setMessage] = useState("");
     const [locations, setLocations] = useState<Poi[]>([]);
     const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
     const [isDeletingPoint, setIsDeletingPoint] = useState<boolean>(false);
@@ -53,6 +54,16 @@ const GoogleMap: React.FC = () => {
             console.warn("latLng no encontrada en el evento.");
             return;
         }
+
+        const nombreExiste = locations.some(
+            loc => loc.name.trim().toLowerCase() === newPointName.trim().toLowerCase()
+        );
+
+        if (nombreExiste) {
+            setMessage("❌ Ya existe una ubicación con ese nombre. Elige otro.");
+            return;
+        }
+
         const { lat, lng } = eventData.latLng;
         const newPoi: Poi = {
             name: newPointName,
@@ -76,8 +87,7 @@ const GoogleMap: React.FC = () => {
 
     const handleDelete = useCallback((id: string) => {
         Axios.delete(url_connect + 'DeleteLocation/' + id)
-            .then((response) => {
-                console.log("Location deleted:", response.data);
+            .then(() => {
                 setLocations(prev => prev.filter(loc => loc.key !== id));
             })
             .catch((error) => {
@@ -197,7 +207,7 @@ const GoogleMap: React.FC = () => {
                         </button>
                     </div>
                 )}
-
+                {message}
                 <button onClick={() => { setIsDeletingPoint(true); setIsAddingPoint(false); setSelectedPoi(null); }}>
                     {isDeletingPoint ? "Haz clic en un marcador para eliminarlo" : "Eliminar punto"}
                 </button>

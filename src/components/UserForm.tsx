@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import {
   IonPage,
   IonHeader,
@@ -18,24 +18,28 @@ interface UserFormProps {
   initialData?: UserFormData;
   onSave: (data: UserFormData) => void;
   onCancel: () => void;
+  editing: boolean;
+  onChangeStatus: (id: string) => Promise<void>;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel }) => {
+const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, editing, onChangeStatus }) => {
   const [formData, setFormData] = useState<UserFormData>({
-    Nombre: initialData?.Nombre || "",
+    "Nombre de usuario": initialData?.['Nombre de usuario'] || "",
     Email: initialData?.Email || "",
     Pwd: initialData?.Pwd || "",
     Rol: initialData?.Rol || "",
     Fecha_alta: initialData?.Fecha_alta || "",
     Horas: initialData?.Horas || 0,
     Foto: initialData?.Foto || "",
+    Estado: initialData?.Estado || "",
+    "Nombre completo": initialData?.['Nombre completo'] || ""
   });
 
   const [repeatPassword, setRepeatPassword] = useState(initialData?.Pwd || "");
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [editingPassword, setEditingPassword] = useState(!initialData); // si es nuevo, editar directamente
+  const [editingPassword, setEditingPassword] = useState(!initialData);
 
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[-_!@#$%^&*])[A-Za-z\d\-_\!@#\$%\^&\*]{8,}$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,7 +47,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel }) =>
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!formData.Nombre) newErrors.Nombre = "El nombre es obligatorio.";
+    if (!formData['Nombre de usuario']) newErrors.Nombre = "El nombre de usuario es obligatorio.";
     if (!formData.Email) newErrors.Email = "El email es obligatorio.";
     else if (!emailRegex.test(formData.Email)) newErrors.Email = "Email no válido.";
 
@@ -62,10 +66,18 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel }) =>
     if (!formData.Rol) newErrors.Rol = "El rol es obligatorio.";
     if (!formData.Fecha_alta) newErrors.Fecha_alta = "La fecha es obligatoria.";
     if (!formData.Horas) newErrors.Horas = "Las horas son obligatorias.";
+    if (!formData['Nombre completo']) newErrors.Horas = "Introduzca el nombre completo.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
 
   const handleChange = (field: keyof UserFormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -85,7 +97,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel }) =>
 
     const finalData = { ...formData };
     if (!editingPassword && initialData) {
-      finalData.Pwd = initialData.Pwd; // si no se edita, mantener la original
+      finalData.Pwd = initialData.Pwd;
     }
 
     onSave(finalData);
@@ -99,12 +111,26 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel }) =>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        {initialData && initialData.id && (
+          <IonButton onClick={() => { if (initialData?.id) { onChangeStatus(initialData.id); } }}>
+            {initialData?.Estado === "Activo" ? "Dar de baja" : "Reactivar cuenta"}
+          </IonButton>
+        )}
         <form onSubmit={handleSubmit}>
           <IonItem>
             <IonInput
               placeholder="Nombre de usuario"
-              value={formData.Nombre}
-              onIonChange={e => handleChange('Nombre', e.detail.value!)}
+              value={formData['Nombre de usuario']}
+              onIonChange={e => handleChange('Nombre de usuario', e.detail.value!)}
+            />
+          </IonItem>
+          {errors.Nombre && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Nombre}</p>}
+
+          <IonItem>
+            <IonInput
+              placeholder="Nombre completo"
+              value={formData['Nombre completo']}
+              onIonChange={e => handleChange('Nombre completo', e.detail.value!)}
             />
           </IonItem>
           {errors.Nombre && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Nombre}</p>}
@@ -208,7 +234,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel }) =>
           )}
 
           <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
-            Guardar cambios
+            {editing ? "Guardar cambios" : "Añadir usuario"}
           </IonButton>
           <IonButton color="medium" expand="block" onClick={onCancel} style={{ marginTop: '0.5rem' }}>
             Cancelar

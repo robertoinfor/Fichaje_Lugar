@@ -6,4 +6,6 @@ export interface CalendarEvent {
     end: Date;
     allDay: boolean;
     type: string;
+    location: string,
+    locationName: string
 }

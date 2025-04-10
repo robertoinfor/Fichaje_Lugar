@@ -39,28 +39,25 @@ const AdminUsersView: React.FC = () => {
 
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [editingMode, addMode]);
 
     const handleEdit = async (user: User) => {
         try {
             const response = await Axios.post(url_connect + 'GetDecryptedPasswordByUserId', {
                 userId: user.id
             });
-    
             const decryptedPassword = response.data.password;
-    
             const userWithPassword = {
                 ...user,
                 decryptedPwd: decryptedPassword
             };
-    
+
             setSelectedUser(userWithPassword);
             setEditingMode(true);
         } catch (error) {
             console.error("Error al obtener la contraseña:", error);
         }
     };
-    
 
     const handleAdd = () => {
         setSelectedUser(null);
@@ -68,6 +65,20 @@ const AdminUsersView: React.FC = () => {
     };
 
     const handleSave = async (formData: UserFormData) => {
+        const usernameToCheck = formData["Nombre de usuario"].trim().toLowerCase();
+
+        const isDuplicate = users.some(user => {
+            const existingUsername = user.properties["Nombre de usuario"].title[0].plain_text.trim().toLowerCase();
+            if (editingMode && selectedUser && user.id === selectedUser.id) {
+                return false;
+            }
+            return existingUsername === usernameToCheck;
+        });
+    
+        if (isDuplicate) {
+            alert("Ya existe un usuario con ese nombre de usuario.");
+            return;
+        }
         let dataToSend = { ...formData } as any;
         if (formData.FotoFile) {
             const uploadData = new FormData();
@@ -82,7 +93,7 @@ const AdminUsersView: React.FC = () => {
             files: [
                 {
                     type: "external",
-                    name: dataToSend.Nombre,
+                    name: dataToSend["Nombre de usuario"] + "_perfil",
                     external: { url: dataToSend.FotoUrl }
                 }
             ]
@@ -104,23 +115,43 @@ const AdminUsersView: React.FC = () => {
     };
 
 
-    const handleDelete = async (id: string) => {
+    const handleChangeState = async (id: string) => {
+        let status = selectedUser?.properties.Estado?.status?.name || "";
+        let newStatus = "";
+        if (status === "Activo") {
+            newStatus = "Inactivo";
+        } else if (status === "Inactivo") {
+            newStatus = "Activo";
+        }
+        if (selectedUser) {
+            const updatedUser = {
+              ...selectedUser,
+              properties: {
+                ...selectedUser.properties,
+                Estado: {
+                  ...selectedUser.properties.Estado,
+                  status: {
+                    ...selectedUser.properties.Estado.status,
+                    name: newStatus
+                  }
+                }
+              }
+            };
+            setSelectedUser(updatedUser);
+          }
+          
         try {
-            await Axios.delete(url_connect + 'DeleteUser/' + id)
-                .then(() => {
-                    return fetchUsers();
-                })
-                .then(() => {
-                    setSelectedUser(null);
-                    setEditingMode(false);
-                })
-                .catch((error) => {
-                    console.error("Error updating event:", error);
-                });
+            await Axios.put(url_connect + 'UpdateUserState/' + id, { Estado: newStatus });
+            await fetchUsers();
+            const updatedUser = users.find(u => u.id === id);
+            if (updatedUser) {
+                setSelectedUser(updatedUser);
+            }
         } catch (error) {
-            console.error("Error saving user:", error);
+            console.error("Error updating state:", error);
         }
     };
+
 
     const handleCancel = () => {
         setEditingMode(false);
@@ -155,12 +186,11 @@ const AdminUsersView: React.FC = () => {
                                     <IonItem key={user.id}>
                                         <IonLabel>
                                             <img src={fotoUrl} alt="Foto del usuario" style={{ width: '100px', height: 'auto' }} />
-                                            <h2>{user.properties.Nombre.title[0].plain_text}</h2>
+                                            <h2>{user.properties['Nombre de usuario'].title[0].plain_text}</h2>
                                             <p>{user.properties.Email.email}</p>
                                             <p>{user.properties.Rol.select.name}</p>
                                         </IonLabel>
                                         <IonButton onClick={() => handleEdit(user)}>✎</IonButton>
-                                        <IonButton onClick={() => handleDelete(user.id)}>🗑️</IonButton>
                                     </IonItem>
                                 );
                             })}
@@ -171,27 +201,30 @@ const AdminUsersView: React.FC = () => {
                 ) : (
                     <>
                         <UserForm
+                            key={selectedUser ? selectedUser.id : 'new'}
                             initialData={
                                 editingMode && selectedUser
                                     ? {
-                                        Nombre: selectedUser.properties.Nombre.title[0].plain_text,
+                                        id: selectedUser.id,
+                                        "Nombre de usuario": selectedUser.properties['Nombre de usuario'].title[0].plain_text,
                                         Email: selectedUser.properties.Email.email,
                                         Pwd: (selectedUser as any).decryptedPwd || "",
                                         Rol: selectedUser.properties.Rol.select.name,
                                         Fecha_alta: selectedUser.properties.Fecha_alta.date.start,
                                         Horas: selectedUser.properties.Horas.number,
-                                        Foto: selectedUser.properties.Foto.files[0].external.url
+                                        Foto: selectedUser.properties.Foto.files[0].external.url,
+                                        Estado: selectedUser.properties.Estado.status.name,
+                                        "Nombre completo": selectedUser.properties['Nombre completo'].rich_text[0].text.content
                                     }
                                     : undefined
                             }
                             onSave={handleSave}
                             onCancel={handleCancel}
+                            editing={editingMode}
+                            onChangeStatus={handleChangeState}
                         />
-
                     </>
                 )}
-
-
             </IonContent>
         </IonPage>
     );

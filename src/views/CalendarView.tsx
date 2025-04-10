@@ -11,7 +11,6 @@ const CalendarView: React.FC = () => {
   const userId = localStorage.getItem('id');
 
   const { eventos, isAdmin } = useUserAndSignings(userName, userId);
-
   return (
     <IonPage>
       <IonMenu side="end" content-id="main-content" ref={setMenu}>
