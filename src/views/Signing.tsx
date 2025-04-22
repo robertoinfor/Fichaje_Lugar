@@ -19,8 +19,8 @@ const Signing: React.FC = () => {
     const [isResting, setIsResting] = useState(false);
     const [isWorkingExtra, setIsWorkingExtra] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [userName, setUserName] = useState<string | null>(localStorage.getItem('userName'));
-    const [userId, setUserId] = useState<string | null>(localStorage.getItem('id'));
+    const userName = localStorage.getItem('userName');
+    const userId = localStorage.getItem('id');
     const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
     const focusRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +114,7 @@ const Signing: React.FC = () => {
                 Tipo: tipo,
                 Localizacion: puntoCercano?.key
             }).then(() => {
-                Axios.put(url_connect + 'UpdateUserLog/' + userlogged?.id, {
+                Axios.put(url_connect + 'UpdateUserLog/' + userId, {
                     Conexion: online
                 });
             })

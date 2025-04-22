@@ -1,5 +1,6 @@
-import { IonContent, IonButton, IonList, IonLabel, IonItem, useIonRouter } from '@ionic/react';
+import { IonList, IonLabel, IonItem, useIonRouter } from '@ionic/react';
 import { useNavigation } from '../hooks/useNavigation';
+import  Axios  from 'axios';
 
 interface MenuProps {
     admin: boolean
@@ -8,8 +9,12 @@ interface MenuProps {
 const Menu: React.FC<MenuProps> = ({ admin }) => {
     const navigation = useNavigation();
     const username = localStorage.getItem("userName");
+    const url_connect = import.meta.env.VITE_URL_CONNECT;
 
     const handleLogOut = () => {
+        Axios.put(url_connect + 'UpdateUserLog/' + localStorage.getItem('id'), {
+            Conexion: "Desconectado"
+        });
         localStorage.removeItem('username');
         localStorage.removeItem('id');
         navigation.push('/', 'forward', 'push');

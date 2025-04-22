@@ -1,17 +1,16 @@
 import { IonContent, IonHeader, IonMenu, IonModal, IonPage, IonRouterLink, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import Axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eraser, Eye, EyeOff } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
 import { useNavigation } from '../hooks/useNavigation';
 import { UserResponse } from '../types/UserResponse';
-import { generateToken, messaging } from '../notifications/firebase';
-import { onMessage } from 'firebase/messaging';
 import CustomBttn from '../components/CustomBttn';
-import { Eraser } from 'lucide-react';
 import './Home.css'
 import Footer from '../components/Footer';
+import { generateToken, messaging } from '../notifications/firebase';
+import { getToken, onMessage } from 'firebase/messaging';
 
 const Home: React.FC = () => {
   const navigation = useNavigation();
@@ -31,15 +30,26 @@ const Home: React.FC = () => {
   const url_connect = import.meta.env.VITE_URL_CONNECT;
 
   useEffect(() => {
-    onMessage(messaging, (payload) => {
-      console.log(payload);
-    })
     const storedUser = localStorage.getItem('userName');
     const storedId = localStorage.getItem('id');
     if (storedUser && storedId) {
       navigation.push('/home/signing', 'forward', 'push');
     }
   }, [])
+
+  useEffect(() => {
+    navigator.serviceWorker
+      .register('/firebase-messaging-sw.js')
+      .then(registration => {
+        onMessage(messaging, payload => {
+          const { title, body } = payload.notification || {};
+          if (title && body) {
+            new Notification(title, { body });
+          }
+        });
+      })
+      .catch(err => console.error('Error registrando SW:', err));
+  }, []);
 
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -52,10 +62,11 @@ const Home: React.FC = () => {
       } else {
         const response = await Axios.post<UserResponse>(url_connect + 'login', { login, password });
         const userName = response.data;
-        generateToken(response.data.id);
         handleClear();
         localStorage.setItem('userName', userName.nombre);
         localStorage.setItem('id', response.data.id);
+        await generateToken(response.data.id);
+
         Axios.put(url_connect + 'UpdateUserLog/' + response.data.id, {
           Conexion: "Online"
         });

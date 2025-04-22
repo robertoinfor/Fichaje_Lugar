@@ -1,44 +1,46 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getMessaging, getToken } from "firebase/messaging";
-import axios from 'axios';
+import { getAnalytics }  from "firebase/analytics";
+import { getMessaging, getToken }  from "firebase/messaging";
+import axios from "axios";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyANVCuYATVI0iWxjCTYN2hSy_36vbxZKi0",
-  authDomain: "lugar-480e8.firebaseapp.com",
-  projectId: "lugar-480e8",
-  storageBucket: "lugar-480e8.firebasestorage.app",
-  messagingSenderId: "951737555296",
-  appId: "1:951737555296:web:8db61b83467fc1fa1f2605",
-  measurementId: "G-0GDH8GQV7F"
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-export const messaging = getMessaging(app);
+export const analytics  = getAnalytics(app);
+export const messaging  = getMessaging(app);
 
-export const generateToken = async (userId: string) => {
+export async function generateToken(userId: string) {
   try {
     const permission = await Notification.requestPermission();
-
-    if (permission === "granted") {
-      console.log("Permiso concedido para notificaciones");
-
-      const token = await getToken(messaging, {
-        vapidKey: "BH48DIZLNmSmKoLAMSrd85RlwrryxldY3eB6tqKaPwKOS_7JW27J4JVxVXwibWfGb9sOTexIl0g_1WPz3Fw3uRA",
-      });
-
-      if (token) {
-        console.log("Token generado:", token);
-        await axios.post("http://localhost:8000/saveUserToken", { userId, token });
-        
-      } else {
-        console.log("No se pudo generar el token FCM");
-      }
-    } else {
-      console.log("Permiso no concedido para notificaciones");
+    if (permission !== "granted") {
+      console.warn("Permiso de notificaciones denegado");
+      return null;
     }
-  } catch (error) {
-    console.error("Error al generar el token FCM:", error);
+
+    const token = await getToken(messaging, {
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
+    });
+    if (!token) {
+      console.error("No se pudo generar el token FCM");
+      return null;
+    }
+
+    await axios.post(
+      `${ import.meta.env.VITE_URL_CONNECT}fcm/token`,
+      { userId, token }
+    );
+
+    return token;
+  } catch (err) {
+    console.error("Error en generateToken():", err);
+    return null;
   }
-};
+}
