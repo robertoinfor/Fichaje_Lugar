@@ -1,0 +1,127 @@
+body {
+    overflow-y: scroll;
+  }   
+
+.login-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    min-height: calc(100vh - 80px);
+    background-color: #358F99;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-section::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background-image: url('/Logo_Lugar1_padded.svg');
+    background-repeat: repeat;
+    background-size: 200px;
+    opacity: 0.3;
+    transform: rotate(-15deg);
+    z-index: 0;
+  }
+  
+  .login-box {
+    position: relative;
+    z-index: 1;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    padding: 32px;
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    font-family: 'Georgia', serif;
+  }
+  
+  .login-box h1 {
+    text-align: center;
+    font-size: 2rem;
+    margin: 0;
+  }
+  .login-divider {
+    height: 3px;
+    background: #333;
+    width: 100%;
+    margin: 16px 0 24px;
+  }
+  
+  .table-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+  }
+  .table-header input {
+    padding: 6px 10px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    width: 200px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  .user-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .user-table thead th {
+    padding: 12px;
+    font-weight: bold;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+  }
+  .user-table tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .edit-icon {
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin: 0 4px;
+    color: #227c89;
+  }
+  
+  @media (max-width: 600px) {
+    .login-box { padding: 16px; }
+    .login-divider { margin: 12px 0 16px; }
+    .table-header input { width: 140px; }
+    .user-table thead { display: none; }
+    .user-table, .user-table tbody, .user-table tr, .user-table td {
+      display: block; width: 100%;
+    }
+    .user-table tr { margin-bottom: 16px; border-bottom: 1px solid #ddd; }
+    .user-table td {
+      padding-left: 50%;
+      position: relative;
+      white-space: normal;
+    }
+    .user-table td::before {
+      position: absolute; left: 12px; width: 45%; white-space: nowrap;
+      font-weight: bold;
+    }
+    .user-table td:nth-of-type(1)::before { content: "Usuario"; }
+    .user-table td:nth-of-type(2)::before { content: "Correo"; }
+    .user-table td:nth-of-type(3)::before { content: "Rol"; }
+    .user-table td:nth-of-type(4)::before { content: "Editar"; }
+  }
+  

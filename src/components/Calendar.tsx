@@ -14,9 +14,10 @@ dayjs.locale('es');
 interface CustomCalendarProps {
     events: CalendarEvent[];
     onSelectEvent?: (event: CalendarEvent) => void;
+    onMonthChange?: (date: Date) => void;
 }
 
-const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent }) => {
+const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, onMonthChange }) => {
     const url_connect = import.meta.env.VITE_URL_CONNECT
     const isMobile = window.innerWidth < 768;
     const [currentView, setCurrentView] = useState<View>(isMobile ? "day" : "month");
@@ -48,6 +49,9 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent }
         setCurrentView(newView);
         const año = newDate.getFullYear();
         fetchFestivos(año);
+        if (onMonthChange) {
+            onMonthChange(newDate);
+          }
     };
 
     const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
@@ -79,7 +83,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent }
       return {
         style: {
           backgroundColor,
-          color: event.type === "Festivo" ? "#e65100" : "white",
+          color: event.type === "Festivo" ? "#e65100" : "black",
           borderRadius: "5px",
           fontWeight: event.type === "Festivo" ? 600 : "normal",
           border: "none",
@@ -87,8 +91,6 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent }
         },
       };
     };
-    
-      
 
     useEffect(() => {
         const año = currentDate.getFullYear();
@@ -113,19 +115,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent }
 
         return {};
     };
-
-    const getFestivoName = (date: Date) => {
-        const isSameDay = (d1: Date, d2: Date) =>
-            d1.getFullYear() === d2.getFullYear() &&
-            d1.getMonth() === d2.getMonth() &&
-            d1.getDate() === d2.getDate();
     
-        const festivo = festivos.find(f => isSameDay(new Date(f.start), date));
-        return festivo?.title || null;
-    };
-    
-
-
     return (
         <div style={{ height: "90vh", width: "90vw" }}>
             <Calendar

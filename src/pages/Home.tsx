@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonHeader, IonMenu, IonModal, IonPage, IonRouterLink, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
+import { IonContent, IonHeader, IonMenu, IonModal, IonPage, IonRouterLink, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import Axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
@@ -27,6 +27,7 @@ const Home: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [realPwd, setRealPwd] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [userId, setUserId] = useState("");
   const url_connect = import.meta.env.VITE_URL_CONNECT;
 
   useEffect(() => {
@@ -41,7 +42,8 @@ const Home: React.FC = () => {
   }, [])
 
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       if (login == "") {
         setMessage("Introduce el nombre de usuario/correo corporativo")
@@ -54,9 +56,9 @@ const Home: React.FC = () => {
         handleClear();
         localStorage.setItem('userName', userName.nombre);
         localStorage.setItem('id', response.data.id);
-        Axios.put(url_connect+'UpdateUserLog/'+ response.data.id, {
+        Axios.put(url_connect + 'UpdateUserLog/' + response.data.id, {
           Conexion: "Online"
-      });
+        });
         navigation.push('/home/signing', 'forward', 'push');
       }
     } catch (error) {
@@ -111,28 +113,20 @@ const Home: React.FC = () => {
     return `${visibleStart}${maskedMiddle}${visibleEnd}@${domain}`;
   }
 
-  function generateVerificationToken(length: number = 16): string {
-    const array = new Uint8Array(length);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-  }
-
   async function forgotPassword() {
+    if (enteredUser == "") { return setMessage("Introduce un usuario.") }
     try {
       const response = await Axios.get(url_connect + `GetUserByName/${enteredUser}`);
-
       if (response.data.results.length === 0) {
-        console.log("Usuario no encontrado");
+        setMessage("No existe ese usuario.")
         return;
       }
       const user = response.data.results[0];
+      setUserId(user.id)
       const now = new Date();
       now.setMinutes(now.getMinutes() + 15);
 
-      const tokenId = generateVerificationToken();
-      await Axios.post(url_connect + 'PostToken', {
-        Id: tokenId,
-        Estado: "Sin usar",
+     await Axios.post(url_connect + 'PostToken', {
         Empleado: user.id,
       });
       setMessage("Se ha enviado un correo a " + maskEmail(user.properties.Email.email) + " con el token de recuperación.")
@@ -145,15 +139,21 @@ const Home: React.FC = () => {
     try {
       const response = await Axios.post(
         url_connect + 'VerifyToken',
-        { token: enteredToken }
+        { token: enteredToken,
+          empleado: userId
+         }
       );
       if (response.status = 200) {
         const response2 = await Axios.post(url_connect + 'GetDecryptedPassword', {
-          token: enteredToken
-        });
+          token: enteredToken,
+          empleado: userId
+        }).then(
+
+        );
         if (response2.status === 200) {
           setRealPwd(response2.data.password);
           setShowPassword(true);
+          setMessage("");
         } else {
           setMessage('No se pudo recuperar la contraseña.');
         }
@@ -193,8 +193,10 @@ const Home: React.FC = () => {
 
           <section className="login-section">
             <div className="login-box">
-              <h1>Fichaje</h1>
-              <div className="login-divider" />
+              <div className="login-header">
+                <h1>Fichaje</h1>
+                <div className="login-divider" />
+              </div>
               <form onSubmit={handleLogin}>
                 <div className="label-with-eraser">
                   <label className="input-label" htmlFor="login">Ingrese su usuario/email:</label>
@@ -245,38 +247,61 @@ const Home: React.FC = () => {
                 {message && <p className="error-message">{message}</p>}
 
                 <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center' }}>
-                  <CustomBttn text="ACCEDER" onClick={handleLogin} width="160px" />
+                  <CustomBttn text="ACCEDER" width="160px" type='submit' />
                 </div>
               </form>
-              <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-                <div className="p-4">
-                  <h2 className="text-xl">Recuperación de Contraseña</h2>
-                  <input
-                    type="text"
-                    placeholder="Nombre de usuario"
-                    value={enteredUser}
-                    onChange={(e) => setEnteredUser(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded"
-                  />
-                  <IonButton onClick={forgotPassword}>Enviar Token</IonButton>
-
-                  {message && <p>{message}</p>}
-                  <div>
+              <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)} className='custom-modal'>
+                <div className="modal-content">
+                  <div className="label-with-eraser">
+                    <label className="input-label" htmlFor="recovery-user">Ingrese su usuario:</label>
+                  </div>
+                  <div className="input-group">
                     <input
+                      id="recovery-user"
                       type="text"
+                      className="input-field"
+                      placeholder="Nombre de usuario"
+                      value={enteredUser}
+                      onChange={(e) => setEnteredUser(e.target.value)}
+                    />
+                    <span className="input-decor">❯❯</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <CustomBttn text="Mandar clave" onClick={forgotPassword} width="200px" />
+                  </div>
+                  {message && <p className="error-message" style={{ marginTop: '10px' }}>{message}</p>}
+
+                  <div className="label-with-eraser" style={{ marginTop: '1.5rem' }}>
+                    <label className="input-label" htmlFor="recovery-token">Ingrese la clave:</label>
+                  </div>
+                  <div className="input-group">
+                    <input
+                      id="recovery-token"
+                      type="text"
+                      className="input-field"
                       placeholder="Token de recuperación"
                       value={enteredToken}
                       onChange={(e) => setEnteredToken(e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded"
                     />
-                    <IonButton onClick={handleTokenVerification}>Verificar Token</IonButton>
+                    <span className="input-decor">❯❯</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <CustomBttn text="Recuperar contraseña" onClick={handleTokenVerification} width="240px" />
                   </div>
 
-                  {showPassword && <p>Contraseña recuperada: {realPwd}</p>}
+                  {showPassword && (
+                    <p style={{ marginTop: '1rem', textAlign: 'center', fontSize: '1rem' }}>
+                      Contraseña: <strong>{realPwd}</strong>
+                    </p>
+                  )}
 
-                  <IonButton onClick={() => setShowModal(false)}>Cerrar</IonButton>
+
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                    <CustomBttn text="Cerrar" onClick={() => { setShowModal(false); setMessage("") }} width="140px" />
+                  </div>
                 </div>
               </IonModal>
+
             </div>
           </section>
         </div>

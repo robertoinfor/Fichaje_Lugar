@@ -222,16 +222,22 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
           </IonItem>
           {errors.Horas && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Horas}</p>}
 
+          {formData.Foto && (
+            <>
+              <IonItem lines="none">
+                <img src={formData.Foto} alt="Foto actual" style={{ width: '100px', height: 'auto' }} />
+              </IonItem>
+              <IonItem lines="none">
+                <p style={{ marginLeft: '15px' }}>Inserte una nueva imagen para reemplazar la actual:</p>
+              </IonItem>
+            </>
+          )}
+
+
           <IonItem>
             <IonLabel>Foto</IonLabel>
             <input type="file" accept="image/*" onChange={handleFileChange} />
           </IonItem>
-
-          {formData.Foto && (
-            <IonItem>
-              <img src={formData.Foto} alt="Foto actual" style={{ width: '100px', height: 'auto' }} />
-            </IonItem>
-          )}
 
           <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
             {editing ? "Guardar cambios" : "Añadir usuario"}

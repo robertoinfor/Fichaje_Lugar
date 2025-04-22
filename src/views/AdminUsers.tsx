@@ -6,10 +6,10 @@ import {
     IonTitle,
     IonContent,
     IonButton,
+    IonMenu,
     IonList,
     IonItem,
-    IonLabel,
-    IonMenu
+    IonLabel
 } from '@ionic/react';
 import Axios from 'axios';
 import { User } from '../types/User';
@@ -17,6 +17,8 @@ import UserForm from '../components/UserForm';
 import Menu from '../components/Menu';
 import TopBar from '../components/TopBar';
 import { UserFormData } from '../types/UserFormData';
+import './AdminUsers.css'
+import CustomBttn from '../components/CustomBttn';
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
@@ -27,6 +29,7 @@ const AdminUsersView: React.FC = () => {
     const [editingMode, setEditingMode] = useState(false);
     const [addMode, setAddingMode] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const fetchUsers = async () => {
         try {
@@ -74,12 +77,13 @@ const AdminUsersView: React.FC = () => {
             }
             return existingUsername === usernameToCheck;
         });
-    
+
         if (isDuplicate) {
             alert("Ya existe un usuario con ese nombre de usuario.");
             return;
         }
         let dataToSend = { ...formData } as any;
+
         if (formData.FotoFile) {
             const uploadData = new FormData();
             uploadData.append('file', formData.FotoFile);
@@ -87,17 +91,18 @@ const AdminUsersView: React.FC = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             dataToSend.FotoUrl = uploadResponse.data.fileUrl;
+            dataToSend.Foto = {
+                files: [
+                    {
+                        type: "external",
+                        name: dataToSend["Nombre de usuario"] + "_perfil",
+                        external: { url: dataToSend.FotoUrl }
+                    }
+                ]
+            };
+        } else if (editingMode && selectedUser) {
+            dataToSend.Foto = selectedUser.properties.Foto;
         }
-
-        dataToSend.Foto = {
-            files: [
-                {
-                    type: "external",
-                    name: dataToSend["Nombre de usuario"] + "_perfil",
-                    external: { url: dataToSend.FotoUrl }
-                }
-            ]
-        };
 
         try {
             if (editingMode && selectedUser) {
@@ -125,21 +130,21 @@ const AdminUsersView: React.FC = () => {
         }
         if (selectedUser) {
             const updatedUser = {
-              ...selectedUser,
-              properties: {
-                ...selectedUser.properties,
-                Estado: {
-                  ...selectedUser.properties.Estado,
-                  status: {
-                    ...selectedUser.properties.Estado.status,
-                    name: newStatus
-                  }
+                ...selectedUser,
+                properties: {
+                    ...selectedUser.properties,
+                    Estado: {
+                        ...selectedUser.properties.Estado,
+                        status: {
+                            ...selectedUser.properties.Estado.status,
+                            name: newStatus
+                        }
+                    }
                 }
-              }
             };
             setSelectedUser(updatedUser);
-          }
-          
+        }
+
         try {
             await Axios.put(url_connect + 'UpdateUserState/' + id, { Estado: newStatus });
             await fetchUsers();
@@ -151,7 +156,6 @@ const AdminUsersView: React.FC = () => {
             console.error("Error updating state:", error);
         }
     };
-
 
     const handleCancel = () => {
         setEditingMode(false);
@@ -175,56 +179,115 @@ const AdminUsersView: React.FC = () => {
             <TopBar onMenuClick={() => menu?.open()} />
 
             <IonContent id="main-content">
-                {!(editingMode || addMode) ? (
-                    <>
-                        <IonButton onClick={handleAdd}>Añadir Usuario</IonButton>
-                        <IonList>
-                            {users.map(user => {
-                                const fotoUrl = user.properties.Foto.files[0].external.url;
-                                console.log(fotoUrl)
-                                return (
-                                    <IonItem key={user.id}>
-                                        <IonLabel>
-                                            <img src={fotoUrl} alt="Foto del usuario" style={{ width: '100px', height: 'auto' }} />
-                                            <h2>{user.properties['Nombre de usuario'].title[0].plain_text}</h2>
-                                            <p>{user.properties.Email.email}</p>
-                                            <p>{user.properties.Rol.select.name}</p>
-                                        </IonLabel>
-                                        <IonButton onClick={() => handleEdit(user)}>✎</IonButton>
-                                    </IonItem>
-                                );
-                            })}
+                <section className="login-section">
+                    <div className="login-box">
+                        <h1>Gestión de usuarios</h1>
+                        <div className="login-divider" />
 
-                        </IonList>
+                        {!editingMode && !addMode ? (
+                            <>
+                                <CustomBttn onClick={handleAdd} text='Nuevo usuario'/>
 
-                    </>
-                ) : (
-                    <>
-                        <UserForm
-                            key={selectedUser ? selectedUser.id : 'new'}
-                            initialData={
-                                editingMode && selectedUser
-                                    ? {
-                                        id: selectedUser.id,
-                                        "Nombre de usuario": selectedUser.properties['Nombre de usuario'].title[0].plain_text,
-                                        Email: selectedUser.properties.Email.email,
-                                        Pwd: (selectedUser as any).decryptedPwd || "",
-                                        Rol: selectedUser.properties.Rol.select.name,
-                                        Fecha_alta: selectedUser.properties.Fecha_alta.date.start,
-                                        Horas: selectedUser.properties.Horas.number,
-                                        Foto: selectedUser.properties.Foto.files[0].external.url,
-                                        Estado: selectedUser.properties.Estado.status.name,
-                                        "Nombre completo": selectedUser.properties['Nombre completo'].rich_text[0].text.content
-                                    }
-                                    : undefined
-                            }
-                            onSave={handleSave}
-                            onCancel={handleCancel}
-                            editing={editingMode}
-                            onChangeStatus={handleChangeState}
-                        />
-                    </>
-                )}
+                                <div className="table-header">
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar usuario..."
+                                        value={searchTerm}
+                                        onChange={e => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="table-container">
+                                    <table className="user-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Usuario</th>
+                                                <th>Correo</th>
+                                                <th>Rol</th>
+                                                <th>Editar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {users
+                                                .filter(u =>
+                                                    u.properties['Nombre de usuario'].title[0]
+                                                        .plain_text
+                                                        .toLowerCase()
+                                                        .includes(searchTerm.toLowerCase())
+                                                )
+                                                .map(user => {
+                                                    const nombre = user.properties['Nombre de usuario']
+                                                        .title[0].plain_text;
+                                                    const correo = user.properties.Email.email;
+                                                    const rol = user.properties.Rol.select.name;
+                                                    const fotoUrl = user.properties.Foto.files[0].external.url;
+
+                                                    return (
+                                                        <tr key={user.id}>
+                                                            <td>
+                                                                <img
+                                                                    src={fotoUrl}
+                                                                    className="user-avatar"
+                                                                    alt="Avatar"
+                                                                />
+                                                                {nombre}
+                                                            </td>
+                                                            <td>
+                                                                <a href={`mailto:${correo}`}>{correo}</a>
+                                                            </td>
+                                                            <td>{rol}</td>
+                                                            <td>
+                                                                <span
+                                                                    className="edit-icon"
+                                                                    onClick={() => handleEdit(user)}
+                                                                    role="button"
+                                                                    aria-label="Editar usuario"
+                                                                >
+                                                                    ✎
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
+                        ) : (
+                            /* Formulario de edición/alta */
+                            <UserForm
+                                key={selectedUser ? selectedUser.id : 'new'}
+                                initialData={
+                                    editingMode && selectedUser
+                                        ? {
+                                            id: selectedUser.id,
+                                            "Nombre de usuario":
+                                                selectedUser.properties['Nombre de usuario']
+                                                    .title[0].plain_text,
+                                            Email: selectedUser.properties.Email.email,
+                                            Pwd: (selectedUser as any).decryptedPwd || "",
+                                            Rol: selectedUser.properties.Rol.select.name,
+                                            Fecha_alta:
+                                                selectedUser.properties.Fecha_alta.date.start,
+                                            Horas: selectedUser.properties.Horas.number,
+                                            Foto:
+                                                selectedUser.properties.Foto.files[0].external.url,
+                                            Estado:
+                                                selectedUser.properties.Estado.status.name,
+                                            "Nombre completo":
+                                                selectedUser.properties['Nombre completo']
+                                                    .rich_text[0].text.content,
+                                        }
+                                        : undefined
+                                }
+                                onSave={handleSave}
+                                onCancel={handleCancel}
+                                editing={editingMode}
+                                onChangeStatus={handleChangeState}
+                            />
+                        )}
+                    </div>
+                </section>
             </IonContent>
         </IonPage>
     );

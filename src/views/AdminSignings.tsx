@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonMenu, IonButton, IonSelect, IonSelectOption, IonAlert } from '@ionic/react';
 import Axios from 'axios';
 import dayjs from 'dayjs';
@@ -9,6 +9,12 @@ import { User } from '../types/User';
 import { Location } from '../types/Location';
 import Menu from '../components/Menu';
 import TopBar from '../components/TopBar';
+import ExportToExcel from '../components/ExportToExcel';
+import { Buffer } from 'buffer';
+import ExportToPdf from '../components/ExportToPdf';
+(window as any).Buffer = Buffer;
+
+
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
@@ -23,6 +29,7 @@ const AdminSignings: React.FC = () => {
   const isAdmin = true; // cambiar
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [calendarDate, setCalendarDate] = useState<Date>(new Date());
   const [formData, setFormData] = useState({
     Empleado: '',
     Tipo: '',
@@ -31,6 +38,14 @@ const AdminSignings: React.FC = () => {
     hora: '',
     Localizacion: ''
   });
+  const typeMap: { [key: string]: string } = {
+    "Entrada": "E",
+    "Salida": "S",
+    "Descanso": "D",
+    "Terminado el descanso": "FD",
+    "Horas extra": "HE",
+    "Terminadas horas extra": "FHE",
+  };
 
   const fetchLocations = async () => {
     try {
@@ -52,10 +67,9 @@ const AdminSignings: React.FC = () => {
     const locationId = fichaje.properties.Localizacion.relation[0]?.id;
     const localizacion = locations.find(loc => loc.id === locationId);
     const locationName = localizacion ? localizacion.properties.Nombre.title[0].text.content : "Sin ubicación";
-
     const empleadoId = fichaje.properties.Empleado.relation[0]?.id;
     const usuario = users.find(u => u.id === empleadoId);
-    const empleadoNombre = usuario ? usuario.properties.Nombre.title[0].plain_text : "Desconocido";
+    const empleadoNombre = usuario ? usuario.properties['Nombre de usuario'].title[0].plain_text : "Desconocido";
 
     return {
       empleadoId: empleadoId,
@@ -74,7 +88,13 @@ const AdminSignings: React.FC = () => {
     try {
       const response = await Axios.get(url_connect + 'GetAllSignings');
       const fichajes: Signing[] = response.data.results;
-      const mappedEvents = fichajes.map((fichaje: Signing) => mapFichajeToEvent(fichaje, users));
+      const mappedEvents = fichajes.map((fichaje: Signing) => {
+        const fullType = fichaje.properties.Tipo.select.name;
+        const abbreviation = typeMap[fullType] || fullType;
+        const event = mapFichajeToEvent(fichaje, users);
+        event.type = abbreviation;
+        return event;
+      });
       setEvents(mappedEvents);
       return mappedEvents;
     } catch (error) {
@@ -145,12 +165,10 @@ const AdminSignings: React.FC = () => {
   };
 
   const handleAddSigning = () => {
-    console.log("datos: ", formData)
     const updatedFormData = {
       ...formData,
       Fecha_hora: `${formData.fecha}T${formData.hora}`,
     };
-    console.log("datos: ", updatedFormData)
     Axios.post(url_connect + 'PostSigning',
       updatedFormData
     ).then(() => {
@@ -176,12 +194,27 @@ const AdminSignings: React.FC = () => {
     )
   };
 
-  const filteredEvents = events.filter((event) => {
+  const filteredEvents = useMemo(() => {
     const term = searchTerm.toLowerCase();
-    const title = (event.title || "").toLowerCase();
-    const type = (event.type || "").toLowerCase();
-    return title.includes(term) || type.includes(term);
-  });
+    return events.filter(ev => {
+      const title = ev.title.toLowerCase();
+      const abbr = ev.type.toLowerCase();
+      const full = Object
+        .keys(typeMap)
+        .find(k => typeMap[k].toLowerCase() === abbr)
+        ?.toLowerCase() || '';
+      return (
+        title.includes(term) ||
+        abbr.includes(term) ||
+        full.includes(term)
+      );
+    });
+  }, [events, searchTerm]);
+
+  const filteredEventsByMonth = filteredEvents.filter(ev =>
+    ev.start.getMonth() === calendarDate.getMonth() &&
+    ev.start.getFullYear() === calendarDate.getFullYear()
+  );
 
   return (
     <IonPage>
@@ -201,16 +234,47 @@ const AdminSignings: React.FC = () => {
           <>
             <IonItem>
               <IonInput
-                placeholder="Buscar por nombre o tipo"
+                placeholder="Buscar por nombre o tipo de evento"
                 value={searchTerm}
-                onIonChange={(e) => setSearchTerm(e.detail.value!)} />
+                onIonInput={e => setSearchTerm(e.detail.value!)}
+              />
             </IonItem>
-            <IonItem>
+
+            <IonItem lines="none">
               <IonButton onClick={handleAddMode}>Añadir fichaje manualmente</IonButton>
+              <ExportToExcel
+                eventos={filteredEventsByMonth.map(ev => {
+                  const [nombre, hora] = (ev.title || '').split(' - ');
+                  return {
+                    nombre,
+                    fecha: ev.start.toISOString().split('T')[0],
+                    hora,
+                    tipo: ev.type,
+                  };
+                })}
+                nombreArchivo={"Fichajes"}
+              />
             </IonItem>
+
+            <IonItem lines="none">
+              <ExportToPdf
+                eventos={filteredEventsByMonth.map(ev => {
+                  const [nombre, hora] = (ev.title || '').split(' - ');
+                  return {
+                    nombre,
+                    fecha: ev.start.toISOString().split('T')[0],
+                    hora,
+                    tipo: ev.type,
+                  };
+                })}
+                nombreArchivo="Fichajes"
+              />
+            </IonItem>
+
             <div className="calendar-section">
               <div className="calendar-section">
-                <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} />
+                <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} onMonthChange={setCalendarDate}
+                />
               </div>
             </div><div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', padding: '16px' }}>
               {[
@@ -249,7 +313,7 @@ const AdminSignings: React.FC = () => {
                   >
                     {users.map((user) => (
                       <IonSelectOption key={user.id} value={user.id}>
-                        {user.properties.Nombre.title[0].plain_text}
+                        {user.properties['Nombre de usuario'].title[0].plain_text}
                       </IonSelectOption>
                     ))}
                   </IonSelect>

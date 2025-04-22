@@ -3,6 +3,7 @@ export interface CustomButton {
     fontSize?: string;
     width?: string;
     height?: string;
-    onClick: () => void;
-    disabled?: boolean
+    onClick?: () => void;
+    disabled?: boolean;
+    type?: 'button' | 'submit' | 'reset';
   }

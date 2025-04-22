@@ -22,7 +22,7 @@ export const useSignings = (userId: string) => {
           const fullType = fichaje.properties.Tipo.select.name;
           const abbreviation = typeMap[fullType] || fullType;
           return {
-            title: `${abbreviation} - ${fichaje.properties.Hora.formula.string}`,
+            title: `${fichaje.properties.Tipo.select.name} - ${fichaje.properties.Hora.formula.string}`,
             start: dayjs(`${fichaje.properties.Fecha.formula.string}T${fichaje.properties.Hora.formula.string}`).toDate(),
             end: dayjs(`${fichaje.properties.Fecha.formula.string}T${fichaje.properties.Hora.formula.string}`).toDate(),
             allDay: false,

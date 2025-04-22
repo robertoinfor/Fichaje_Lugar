@@ -6,5 +6,6 @@ export interface Location {
         };
         Latitud: string;
         Nombre: { title: [{ text: { content: string } }] };
+        Estado: { status: {name : string}}
     };
 }

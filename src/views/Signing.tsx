@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, IonMenu } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonMenu } from '@ionic/react';
 import Axios from 'axios';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import TopBar from '../components/TopBar';
@@ -6,7 +6,8 @@ import Menu from '../components/Menu';
 import { User } from '../types/User';
 import CustomBttn from '../components/CustomBttn';
 import { useVerifyLocation } from '../hooks/useVerifyLocation';
-
+import Footer from '../components/Footer';
+import './Signing.css';
 
 const Signing: React.FC = () => {
     const url_connect = import.meta.env.VITE_URL_CONNECT;
@@ -37,18 +38,18 @@ const Signing: React.FC = () => {
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (isRunning) {
-          let storedTimestamp = localStorage.getItem('startTimestamp');
-          if (!storedTimestamp) {
-            storedTimestamp = Date.now().toString();
-            localStorage.setItem('startTimestamp', storedTimestamp);
-          }
-          const startTimestamp = parseInt(storedTimestamp, 10);
-          interval = setInterval(() => {
-            setSeconds(Math.floor((Date.now() - startTimestamp) / 1000));
-          }, 1000);
+            let storedTimestamp = localStorage.getItem('startTimestamp');
+            if (!storedTimestamp) {
+                storedTimestamp = Date.now().toString();
+                localStorage.setItem('startTimestamp', storedTimestamp);
+            }
+            const startTimestamp = parseInt(storedTimestamp, 10);
+            interval = setInterval(() => {
+                setSeconds(Math.floor((Date.now() - startTimestamp) / 1000));
+            }, 1000);
         }
         return () => clearInterval(interval);
-      }, [isRunning]);
+    }, [isRunning]);
 
     useEffect(() => {
         const storedFichado = localStorage.getItem('isFichado');
@@ -99,16 +100,25 @@ const Signing: React.FC = () => {
                 setIsWorkingExtra(!isWorkingExtra);
                 break;
         }
-        Axios.post(url_connect + 'PostSigning', {
-            Fecha_hora: new Date(),
-            Empleado: userId,
-            Tipo: tipo,
-            Localizacion: puntoCercano?.key
-        }).then(() => {
-            Axios.put(url_connect+'UpdateUserLog/'+ userlogged?.id, {
-                Conexion: online
-            });
-        })
+        if (online == "") {
+            Axios.post(url_connect + 'PostSigning', {
+                Fecha_hora: new Date(),
+                Empleado: userId,
+                Localizacion: puntoCercano?.key,
+                Tipo: tipo
+            })
+        } else {
+            Axios.post(url_connect + 'PostSigning', {
+                Fecha_hora: new Date(),
+                Empleado: userId,
+                Tipo: tipo,
+                Localizacion: puntoCercano?.key
+            }).then(() => {
+                Axios.put(url_connect + 'UpdateUserLog/' + userlogged?.id, {
+                    Conexion: online
+                });
+            })
+        }
     }, [isFichado, isResting, isWorkingExtra, userId, puntoCercano]);
 
     const formatTime = (totalSeconds: number) => {
@@ -137,34 +147,63 @@ const Signing: React.FC = () => {
                 ) : error ? (
                     <p>{error}</p>
                 ) : puntoCercano && estaDentro ? (
-                    <div ref={focusRef} tabIndex={-1} style={{ outline: 'none' }}>
+                    <section className="signing-section">
+                        <div className="signing-box">
+                            {userlogged && (
+                                <>
+                                    <img
+                                        src={userlogged.properties.Foto.files[0].external.url}
+                                        alt="Usuario"
+                                        className="signing-avatar"
+                                    />
+                                    <h2>Fichaje</h2>
+                                </>
+                            )}
 
-                        {userName ? (
-                            <div>¡Hola, {userName}!
-                                <img src={userlogged?.properties.Foto.files[0].external.url} />
+                            <div className="login-divider" />
+                            <div className="timer">{formatTime(seconds)}</div>
+                            <div className="signing-buttons-wrapper">
+                                <div className="button-row">
+                                    <CustomBttn
+                                        text="Entrada"
+                                        onClick={() => handleAction('entrada')}
+                                        disabled={isFichado}
+                                        width="100%"
+                                    />
+                                </div>
+
+                                <div className="button-row two-buttons">
+                                    <CustomBttn
+                                        text={isResting ? 'Terminar descanso' : 'Descanso'}
+                                        onClick={() => handleAction('descanso')}
+                                        disabled={!isFichado}
+                                        width="100%"
+                                    />
+                                    <CustomBttn
+                                        text={isWorkingExtra ? 'Terminar extra' : 'Horas extra'}
+                                        onClick={() => handleAction('extra')}
+                                        disabled={!isFichado}
+                                        width="100%"
+                                    />
+                                </div>
+
+                                <div className="button-row">
+                                    <CustomBttn
+                                        text="Salida"
+                                        onClick={() => handleAction('salida')}
+                                        disabled={!isFichado}
+                                        width="100%"
+                                    />
+                                </div>
                             </div>
-                        ) : (
-                            <div>Cargando...</div>
-                        )}
-
-                        <CustomBttn text='Entrada' onClick={() => handleAction('entrada')} disabled={isFichado} />
-
-                        <p>Tiempo trabajado: {formatTime(seconds)}</p>
-                        <CustomBttn onClick={() => handleAction('descanso')}
-                            text={isResting ? 'Terminar descanso' : 'Descanso'}
-                            disabled={!isFichado}
-                        />
-                        <CustomBttn onClick={() => handleAction('extra')}
-                            text={isWorkingExtra ? 'Terminar horas extra' : 'Iniciar horas extra'}
-                            disabled={!isFichado}
-                        />
-                        <CustomBttn onClick={() => handleAction('salida')} text="Salida" disabled={!isFichado} />
-                    </div>
+                        </div>
+                    </section>
                 ) : (
-                    <p style={{ color: 'red' }}>
+                    <p style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>
                         ❌ No estás en una zona de fichaje autorizada.
                     </p>
                 )}
+                <Footer />
             </IonContent>
         </IonPage>
     );

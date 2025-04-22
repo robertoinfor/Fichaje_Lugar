@@ -13,7 +13,6 @@
     transition: transform 0.2s ease-in-out;
   }
   
-  /* Hover/active feedback */
   .fancy-ion-button:hover {
     filter: brightness(1.05);
     transform: scale(1.02);
@@ -23,7 +22,6 @@
     transform: scale(0.98);
   }
   
-  /* Responsive tweaks */
   @media (max-width: 480px) {
     .fancy-ion-button {
       width: 100% !important;

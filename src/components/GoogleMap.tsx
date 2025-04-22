@@ -13,12 +13,14 @@ const GoogleMap: React.FC = () => {
     const url_connect = import.meta.env.VITE_URL_CONNECT;
     const [message, setMessage] = useState("");
     const [locations, setLocations] = useState<Poi[]>([]);
+    const [oldlocations, setOldLocations] = useState<Poi[]>([]);
     const [isAddingPoint, setIsAddingPoint] = useState<boolean>(false);
     const [isDeletingPoint, setIsDeletingPoint] = useState<boolean>(false);
     const [newPointName, setNewPointName] = useState("");
     const [selectedPoi, setSelectedPoi] = useState<Poi | null>(null);
     const [circleCenter, setCircleCenter] = useState<google.maps.LatLng | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isShowingOld, setShowOldLocations] = useState(false);
     const [editPointName, setEditPointName] = useState("");
     const [editingKey, setEditingKey] = useState<string | null>(null);
     const { coords: userCoords } = useGeolocation();
@@ -28,14 +30,27 @@ const GoogleMap: React.FC = () => {
     const fetchLocations = useCallback(() => {
         Axios.get(url_connect + 'GetLocations')
             .then((response) => {
-                const fetchedPois: Poi[] = response.data.results.map((page: any) => ({
-                    key: page.id,
-                    name: page.properties.Nombre.title[0].text.content,
-                    location: {
-                        lat: page.properties.Latitud.number,
-                        lng: page.properties.Longitud.number,
-                    },
-                }));
+                const fetchedPois: Poi[] = response.data.results
+                    .filter((page: any) => page.properties.Estado?.status?.name === "Activo")
+                    .map((page: any) => ({
+                        key: page.id,
+                        name: page.properties.Nombre.title[0].text.content,
+                        location: {
+                            lat: page.properties.Latitud.number,
+                            lng: page.properties.Longitud.number,
+                        },
+                    }));
+                const oldPois: Poi[] = response.data.results
+                    .filter((page: any) => page.properties.Estado?.status?.name === "Inactivo")
+                    .map((page: any) => ({
+                        key: page.id,
+                        name: page.properties.Nombre.title[0].text.content,
+                        location: {
+                            lat: page.properties.Latitud.number,
+                            lng: page.properties.Longitud.number,
+                        },
+                    }));
+                setOldLocations(oldPois);
                 setLocations(fetchedPois);
             })
             .catch((error: any) => {
@@ -86,7 +101,9 @@ const GoogleMap: React.FC = () => {
     }, [isAddingPoint, newPointName, url_connect]);
 
     const handleDelete = useCallback((id: string) => {
-        Axios.delete(url_connect + 'DeleteLocation/' + id)
+        Axios.put(url_connect + 'ChangeStateLocation/' + id, {
+            Estado: "Inactivo"
+        })
             .then(() => {
                 setLocations(prev => prev.filter(loc => loc.key !== id));
             })
@@ -133,6 +150,17 @@ const GoogleMap: React.FC = () => {
         fetchLocations();
         setCircleCenter(null)
     }, [selectedPoi, editPointName, url_connect]);
+
+    const reactivateLocation = (id: string) => {
+        Axios.put(url_connect + 'ChangeStateLocation/' + id, {
+            Estado: "Activo"
+        }).then(() => {
+            setLocations(prev => prev.filter(loc => loc.key !== id));
+        })
+        .catch((error) => {
+            console.error("Error deleting location:", error);
+        });
+    }
 
     return (
         <div className="container">
@@ -211,6 +239,21 @@ const GoogleMap: React.FC = () => {
                 <button onClick={() => { setIsDeletingPoint(true); setIsAddingPoint(false); setSelectedPoi(null); }}>
                     {isDeletingPoint ? "Haz clic en un marcador para eliminarlo" : "Eliminar punto"}
                 </button>
+                <button onClick={() => { setShowOldLocations(true) }}>
+                    Recuperar ubicación
+                </button>
+                {isShowingOld && (
+                    <div>
+                        {oldlocations.map((location: Poi) => {
+                            return (
+                                <p key={location.key} 
+                                onClick={() => {{reactivateLocation(location.key); setShowOldLocations(false)}}}>
+                                    {location.name}
+                                </p>
+                            )
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );

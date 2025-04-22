@@ -9,7 +9,8 @@ const CustomBttn: React.FC<CustomButton> = ({
   width = '150px',
   height = '45px',
   onClick,
-  disabled
+  disabled,
+  type = 'button'
 }) => {
   return (
     <IonButton
@@ -18,6 +19,7 @@ const CustomBttn: React.FC<CustomButton> = ({
       onClick={onClick}
       expand="block"
       disabled={disabled}
+      type={type}
     >
       {text}
     </IonButton>
