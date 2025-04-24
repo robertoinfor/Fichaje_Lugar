@@ -104,17 +104,14 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
   };
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>{initialData ? "Editar Usuario" : "Añadir Usuario"}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
+    <div className="form-container">
+      <div className="form-box">
         {initialData && initialData.id && (
-          <IonButton onClick={() => { if (initialData?.id) { onChangeStatus(initialData.id); } }}>
-            {initialData?.Estado === "Activo" ? "Dar de baja" : "Reactivar cuenta"}
-          </IonButton>
+          <h2 className="form-title">
+            <IonButton onClick={() => { if (initialData?.id) { onChangeStatus(initialData.id); } }}>
+              {initialData?.Estado === "Activo" ? "Dar de baja" : "Reactivar cuenta"}
+            </IonButton>
+          </h2>
         )}
         <form onSubmit={handleSubmit}>
           <IonItem>
@@ -246,8 +243,8 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
             Cancelar
           </IonButton>
         </form>
-      </IonContent>
-    </IonPage>
+    </div>
+    </div>
   );
 };
 

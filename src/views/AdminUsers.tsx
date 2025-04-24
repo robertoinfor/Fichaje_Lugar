@@ -5,11 +5,7 @@ import {
     IonToolbar,
     IonTitle,
     IonContent,
-    IonButton,
     IonMenu,
-    IonList,
-    IonItem,
-    IonLabel
 } from '@ionic/react';
 import Axios from 'axios';
 import { User } from '../types/User';
@@ -33,7 +29,7 @@ const AdminUsersView: React.FC = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await Axios.get(url_connect + 'GetUsers');
+            const response = await Axios.get(url_connect+"users/");
             setUsers(response.data.results);
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -46,7 +42,7 @@ const AdminUsersView: React.FC = () => {
 
     const handleEdit = async (user: User) => {
         try {
-            const response = await Axios.post(url_connect + 'GetDecryptedPasswordByUserId', {
+            const response = await Axios.post(url_connect + 'users/decrypt', {
                 userId: user.id
             });
             const decryptedPassword = response.data.password;
@@ -87,7 +83,7 @@ const AdminUsersView: React.FC = () => {
         if (formData.FotoFile) {
             const uploadData = new FormData();
             uploadData.append('file', formData.FotoFile);
-            const uploadResponse = await Axios.post(url_connect + 'upload', uploadData, {
+            const uploadResponse = await Axios.post(url_connect + 'drive', uploadData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             dataToSend.FotoUrl = uploadResponse.data.fileUrl;
@@ -106,9 +102,9 @@ const AdminUsersView: React.FC = () => {
 
         try {
             if (editingMode && selectedUser) {
-                await Axios.put(url_connect + `UpdateUser/${selectedUser.id}`, dataToSend);
+                await Axios.put(url_connect + `users/${selectedUser.id}`, dataToSend);
             } else if (addMode) {
-                await Axios.post(url_connect + 'PostUser', dataToSend);
+                await Axios.post(url_connect + 'users/', dataToSend);
             }
             setEditingMode(false);
             setAddingMode(false);
@@ -146,7 +142,7 @@ const AdminUsersView: React.FC = () => {
         }
 
         try {
-            await Axios.put(url_connect + 'UpdateUserState/' + id, { Estado: newStatus });
+            await Axios.put(url_connect + 'users/' + id + "/state", { Estado: newStatus });
             await fetchUsers();
             const updatedUser = users.find(u => u.id === id);
             if (updatedUser) {

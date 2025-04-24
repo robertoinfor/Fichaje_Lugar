@@ -16,7 +16,7 @@ export const useVerifyLocation = () => {
         const posicion = await Geolocation.getCurrentPosition();
         const { latitude, longitude } = posicion.coords;
 
-        const response = await axios.get(import.meta.env.VITE_URL_CONNECT + 'GetLocations');
+        const response = await axios.get(import.meta.env.VITE_URL_CONNECT + 'locations');
         const pois: Poi[] = response.data.results.map((page: any) => ({
           key: page.id,
           name: page.properties.Nombre.title[0].text.content,

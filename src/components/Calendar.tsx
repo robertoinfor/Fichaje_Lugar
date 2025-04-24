@@ -7,7 +7,6 @@ import './Calendar.css'
 import { CalendarEvent } from "../types/CalendarEvent";
 import { CSSProperties } from "react";
 
-
 const localizer = dayjsLocalizer(dayjs);
 dayjs.locale('es');
 

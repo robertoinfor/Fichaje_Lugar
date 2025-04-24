@@ -26,7 +26,7 @@ const Signing: React.FC = () => {
 
     useEffect(() => {
         if (!userName) return;
-        Axios.get(url_connect + `GetUserByName/${userName}`)
+        Axios.get(url_connect + `users/${userName}`)
             .then(response => {
                 setUserLogged(response.data.results[0]);
             })
@@ -101,20 +101,20 @@ const Signing: React.FC = () => {
                 break;
         }
         if (online == "") {
-            Axios.post(url_connect + 'PostSigning', {
+            Axios.post(url_connect + 'signings/', {
                 Fecha_hora: new Date(),
                 Empleado: userId,
                 Localizacion: puntoCercano?.key,
                 Tipo: tipo
             })
         } else {
-            Axios.post(url_connect + 'PostSigning', {
+            Axios.post(url_connect + 'signings/', {
                 Fecha_hora: new Date(),
                 Empleado: userId,
                 Tipo: tipo,
                 Localizacion: puntoCercano?.key
             }).then(() => {
-                Axios.put(url_connect + 'UpdateUserLog/' + userId, {
+                Axios.put(url_connect + 'users/' + userId + "/log", {
                     Conexion: online
                 });
             })

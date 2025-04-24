@@ -12,10 +12,10 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
     const url_connect = import.meta.env.VITE_URL_CONNECT;
 
     const handleLogOut = () => {
-        Axios.put(url_connect + 'UpdateUserLog/' + localStorage.getItem('id'), {
+        Axios.put(url_connect + "users/" + localStorage.getItem('id') + "/log", {
             Conexion: "Desconectado"
         });
-        localStorage.removeItem('username');
+        localStorage.removeItem('userName');
         localStorage.removeItem('id');
         navigation.push('/', 'forward', 'push');
         window.location.reload();

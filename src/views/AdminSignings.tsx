@@ -49,7 +49,7 @@ const AdminSignings: React.FC = () => {
 
   const fetchLocations = async () => {
     try {
-      const response = await Axios.get(url_connect + 'GetLocations');
+      const response = await Axios.get(url_connect + 'locations/');
       setLocations(response.data.results);
     } catch (error) {
       console.error("Error fetching locations:", error);
@@ -86,7 +86,7 @@ const AdminSignings: React.FC = () => {
 
   const fetchEvents = async (): Promise<CalendarEvent[]> => {
     try {
-      const response = await Axios.get(url_connect + 'GetAllSignings');
+      const response = await Axios.get(url_connect + 'signings/allsignings');
       const fichajes: Signing[] = response.data.results;
       const mappedEvents = fichajes.map((fichaje: Signing) => {
         const fullType = fichaje.properties.Tipo.select.name;
@@ -105,7 +105,7 @@ const AdminSignings: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await Axios.get(url_connect + 'GetUsers');
+      const response = await Axios.get(url_connect + 'users/');
       const fetchedUsers: User[] = response.data.results;
       setUsers(fetchedUsers);
     } catch (error) {
@@ -124,7 +124,6 @@ const AdminSignings: React.FC = () => {
   }, [users]);
 
   const handleSelectEvent = (event: CalendarEvent) => {
-    console.log(event.location)
     setSelectedEvent(event);
     setIsEditing(true)
     setFormData({
@@ -144,7 +143,7 @@ const AdminSignings: React.FC = () => {
     };
     e.preventDefault();
     try {
-      Axios.put(`${url_connect}UpdateSigning/${selectedEvent?.id}`, updatedFormData)
+      Axios.put(`${url_connect}signings/${selectedEvent?.id}/update`, updatedFormData)
         .then(() => {
           return fetchEvents();
         })
@@ -169,9 +168,10 @@ const AdminSignings: React.FC = () => {
       ...formData,
       Fecha_hora: `${formData.fecha}T${formData.hora}`,
     };
-    Axios.post(url_connect + 'PostSigning',
+    Axios.post(url_connect + 'signings/',
       updatedFormData
     ).then(() => {
+      fetchEvents()
     }).catch((error) => {
       console.log(error);
     });
@@ -414,7 +414,7 @@ const AdminSignings: React.FC = () => {
                 if (!selectedEvent) return;
 
                 try {
-                  await Axios.delete(`${url_connect}DeleteSigning/${selectedEvent.id}`);
+                  await Axios.delete(`${url_connect}signings/${selectedEvent.id}/delete`);
                   await fetchEvents();
                   setSelectedEvent(null);
                   setIsEditing(false);

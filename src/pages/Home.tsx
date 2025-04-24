@@ -27,6 +27,7 @@ const Home: React.FC = () => {
   const [realPwd, setRealPwd] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [userId, setUserId] = useState("");
+  const [tokenId, setTokenId] = useState("");
   const url_connect = import.meta.env.VITE_URL_CONNECT;
 
   useEffect(() => {
@@ -60,14 +61,14 @@ const Home: React.FC = () => {
       } else if (password == "") {
         setMessage("Introduce la contraseña")
       } else {
-        const response = await Axios.post<UserResponse>(url_connect + 'login', { login, password });
+        const response = await Axios.post<UserResponse>(url_connect + 'users/login', { login, password });
         const userName = response.data;
         handleClear();
         localStorage.setItem('userName', userName.nombre);
         localStorage.setItem('id', response.data.id);
         await generateToken(response.data.id);
 
-        Axios.put(url_connect + 'UpdateUserLog/' + response.data.id, {
+        Axios.put(url_connect + 'users/' + response.data.id + "/log", {
           Conexion: "Online"
         });
         navigation.push('/home/signing', 'forward', 'push');
@@ -127,7 +128,7 @@ const Home: React.FC = () => {
   async function forgotPassword() {
     if (enteredUser == "") { return setMessage("Introduce un usuario.") }
     try {
-      const response = await Axios.get(url_connect + `GetUserByName/${enteredUser}`);
+      const response = await Axios.get(url_connect + `users/${enteredUser}`);
       if (response.data.results.length === 0) {
         setMessage("No existe ese usuario.")
         return;
@@ -137,9 +138,10 @@ const Home: React.FC = () => {
       const now = new Date();
       now.setMinutes(now.getMinutes() + 15);
 
-     await Axios.post(url_connect + 'PostToken', {
+      const response2 = await Axios.post(url_connect + 'tokens', {
         Empleado: user.id,
       });
+      setTokenId(response2.data.tokenId)
       setMessage("Se ha enviado un correo a " + maskEmail(user.properties.Email.email) + " con el token de recuperación.")
     } catch (error) {
       console.error('Error al recuperar la contraseña:', error);
@@ -149,17 +151,14 @@ const Home: React.FC = () => {
   const handleTokenVerification = async () => {
     try {
       const response = await Axios.post(
-        url_connect + 'VerifyToken',
-        { token: enteredToken,
-          empleado: userId
-         }
+        `${url_connect}tokens/decrypt`,
+        { token: enteredToken }
       );
       if (response.status = 200) {
-        const response2 = await Axios.post(url_connect + 'GetDecryptedPassword', {
-          token: enteredToken,
-          empleado: userId
+        const response2 = await Axios.post(url_connect + 'users/decrypt', {
+          userId
         }).then(
-
+          await Axios.delete(url_connect + "tokens/" + tokenId + "/delete")
         );
         if (response2.status === 200) {
           setRealPwd(response2.data.password);
@@ -245,7 +244,6 @@ const Home: React.FC = () => {
                   </span>
                 </div>
 
-
                 <div className="forgot-password" onClick={() => setShowModal(true)}>
                   ¿Has olvidado tu contraseña?
                 </div>
@@ -306,13 +304,11 @@ const Home: React.FC = () => {
                     </p>
                   )}
 
-
                   <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                     <CustomBttn text="Cerrar" onClick={() => { setShowModal(false); setMessage("") }} width="140px" />
                   </div>
                 </div>
               </IonModal>
-
             </div>
           </section>
         </div>

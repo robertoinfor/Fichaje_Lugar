@@ -28,7 +28,7 @@ const GoogleMap: React.FC = () => {
     const id_map = import.meta.env.VITE_ID_MAP ?? "";
 
     const fetchLocations = useCallback(() => {
-        Axios.get(url_connect + 'GetLocations')
+        Axios.get(url_connect + 'locations/')
             .then((response) => {
                 const fetchedPois: Poi[] = response.data.results
                     .filter((page: any) => page.properties.Estado?.status?.name === "Activo")
@@ -87,7 +87,7 @@ const GoogleMap: React.FC = () => {
         };
 
         setLocations(prev => [...prev, newPoi]);
-        Axios.post(url_connect + 'PostLocation', {
+        Axios.post(url_connect + 'locations/', {
             Longitud: lng,
             Latitud: lat,
             Nombre: newPointName,
@@ -101,7 +101,7 @@ const GoogleMap: React.FC = () => {
     }, [isAddingPoint, newPointName, url_connect]);
 
     const handleDelete = useCallback((id: string) => {
-        Axios.put(url_connect + 'ChangeStateLocation/' + id, {
+        Axios.put(url_connect + 'locations/' + id + '/changeState', {
             Estado: "Inactivo"
         })
             .then(() => {
@@ -130,7 +130,7 @@ const GoogleMap: React.FC = () => {
     const saveEdit = useCallback(() => {
         if (!editingKey) return;
 
-        Axios.put(url_connect + 'UpdateLocation/' + editingKey, {
+        Axios.put(url_connect + 'locations/' + editingKey + '/changeName', {
             Nombre: editPointName,
         }).catch((error) => {
             console.error("Error al actualizar la ubicación:", error);
@@ -152,10 +152,11 @@ const GoogleMap: React.FC = () => {
     }, [selectedPoi, editPointName, url_connect]);
 
     const reactivateLocation = (id: string) => {
-        Axios.put(url_connect + 'ChangeStateLocation/' + id, {
+        Axios.put(url_connect + 'locations/' + id + "/changeState", {
             Estado: "Activo"
         }).then(() => {
             setLocations(prev => prev.filter(loc => loc.key !== id));
+            fetchLocations()
         })
         .catch((error) => {
             console.error("Error deleting location:", error);
@@ -236,10 +237,10 @@ const GoogleMap: React.FC = () => {
                     </div>
                 )}
                 {message}
-                <button onClick={() => { setIsDeletingPoint(true); setIsAddingPoint(false); setSelectedPoi(null); }}>
+                <button onClick={() => { setIsDeletingPoint(true); setIsAddingPoint(false); setSelectedPoi(null); fetchLocations() }}>
                     {isDeletingPoint ? "Haz clic en un marcador para eliminarlo" : "Eliminar punto"}
                 </button>
-                <button onClick={() => { setShowOldLocations(true) }}>
+                <button onClick={() => { setShowOldLocations(true); fetchLocations() }}>
                     Recuperar ubicación
                 </button>
                 {isShowingOld && (

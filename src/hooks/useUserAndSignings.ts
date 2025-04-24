@@ -14,7 +14,7 @@ export const useUserAndSignings = (userName: string | null, userId: string | nul
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await Axios.get(url_connect+`GetUserByName/${userName}`);
+        const response = await Axios.get(url_connect+`users/${userName}`);
         setUserLogged(response.data.results[0]);
       } catch (error) {
         console.error("Error fetching user:", error);
