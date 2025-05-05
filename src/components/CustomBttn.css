@@ -1,6 +1,6 @@
 .fancy-ion-button {
     --background: linear-gradient(to bottom, #21989f, #227c89);
-    --color: #fff;
+    --color: #fff !important;
     --border-radius: 9999px;
     --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --padding-top: 8px;

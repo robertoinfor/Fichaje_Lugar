@@ -1,36 +1,9 @@
 import React from 'react';
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import dayjs from 'dayjs';
-
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontSize: 12,
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  table: {
-    width: 'auto',
-    marginVertical: 10,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottom: '1px solid #ccc',
-    padding: 4,
-  },
-  tableCell: {
-    flex: 1,
-    paddingHorizontal: 4,
-  },
-  header: {
-    fontWeight: 'bold',
-    backgroundColor: '#f0f0f0',
-  },
-});
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Toast } from '@capacitor/toast';
 
 interface Props {
   eventos: {
@@ -42,6 +15,16 @@ interface Props {
   nombreArchivo?: string;
 }
 
+// estilos del PDF
+const styles = StyleSheet.create({
+  page: { padding: 30, fontSize: 12 },
+  title: { fontSize: 18, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' },
+  table: { marginVertical: 10 },
+  tableRow: { flexDirection: 'row', borderBottom: '1px solid #ccc', padding: 4 },
+  tableCell: { flex: 1, paddingHorizontal: 4 },
+  header: { fontWeight: 'bold', backgroundColor: '#f0f0f0' },
+});
+
 const tipoMap: Record<string, string> = {
   E: 'Entrada',
   S: 'Salida',
@@ -51,11 +34,11 @@ const tipoMap: Record<string, string> = {
   FQ: 'Terminadas horas extra',
 };
 
+// documento PDF
 const FichajesPdf: React.FC<Props> = ({ eventos }) => (
   <Document>
     <Page style={styles.page}>
       <Text style={styles.title}>Listado de Fichajes</Text>
-
       <View style={styles.table}>
         <View style={[styles.tableRow, styles.header]}>
           <Text style={styles.tableCell}>Nombre</Text>
@@ -79,21 +62,54 @@ const FichajesPdf: React.FC<Props> = ({ eventos }) => (
 const ExportToPdf: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' }) => {
   const filename = `${nombreArchivo}_${dayjs().format('YYYY-MM-DD')}.pdf`;
 
+  const handleExport = async () => {
+    // 1) Generar blob de PDF
+    const blob = await pdf(<FichajesPdf eventos={eventos} />).toBlob();
+
+    const platform = Capacitor.getPlatform();
+    if (platform === 'web') {
+      // 2a) Web: descarga directa
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } else {
+      // 2b) Móvil: guardamos en Descargas/Documentos
+      const base64 = await new Promise<string>((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = () => res((reader.result as string).split(',')[1]);
+        reader.onerror = rej;
+        reader.readAsDataURL(blob);
+      });
+      const dir = platform === 'android' ? Directory.External : Directory.Documents;
+      await Filesystem.writeFile({
+        path: `Download/${filename}`,
+        data: base64,
+        directory: dir,
+      });
+      await Toast.show({
+        text: `PDF guardado como ${filename}`,
+        duration: 'long',
+      });
+    }
+  };
+
   return (
-    <PDFDownloadLink
-      document={<FichajesPdf eventos={eventos} />}
-      fileName={filename}
+    <button
+      onClick={handleExport}
       style={{
-        textDecoration: 'none',
         padding: '8px 16px',
         color: '#fff',
         backgroundColor: '#007bff',
         borderRadius: '4px',
         fontSize: '14px',
+        border: 'none',
+        cursor: 'pointer',
       }}
     >
-      {({ loading }) => (loading ? 'Generando PDF...' : '📄 Exportar PDF')}
-    </PDFDownloadLink>
+      📄 Exportar PDF
+    </button>
   );
 };
 

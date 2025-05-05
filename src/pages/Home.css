@@ -150,8 +150,33 @@
 
 .password-icon {
     cursor: pointer;
+    z-index: 10;
+  }
+  .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    z-index: 2;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .input-decor.password-icon {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;                     /* ajusta este valor al que mejor encaje */
+    transform: translateY(-50%);
+    z-index: 2;                         /* más alto que el input */
     pointer-events: auto;
-}
+    cursor: pointer;
+  }
+  
 
 .forgot-password {
     color: #227c89;
@@ -199,6 +224,35 @@
     margin-right: 8px;
 }
 
+/* 1) Desactivar cualquier subrayado/halo azul de Ionic */
+ion-input.input-field {
+    --highlight-color: transparent !important;
+    --highlight-height: 0px !important;
+    --highlight-color-focused: transparent !important;
+    --highlight-height-focused: 0px !important;
+  }
+  
+  /* 2) Apuntar al <input> real dentro del ion-input */
+  ion-input.input-field::part(native) {
+    /* eliminar cualquier border-bottom */
+    border-bottom: none !important;
+    /* pintar el cursor (caret) de negro */
+    caret-color: #000 !important;
+    /* quitar outlines o sombras al enfocar */
+    outline: none !important;
+    box-shadow: none !important;
+    padding-right: 2.5rem !important;  /* deja espacio para el ojo */
+    z-index: 1 !important; 
+  }
+  
+  /* 3) Por si acaso, también al selector nativo directo */
+  ion-input.input-field input {
+    border-bottom: none !important;
+    caret-color: #000 !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
 
 @media (max-width: 480px) {
     .login-box {
@@ -228,4 +282,24 @@
         align-items: center;
         margin-bottom: 4px;
     }
+}
+
+.login-box,
+.login-box h1,
+.input-field,
+.input-decor,
+.forgot-password,
+.checkbox-group label {
+  color: #333 !important;
+}
+
+.input-field::placeholder {
+  color: #999 !important;
+  opacity: 1 !important;
+}
+
+.footer,
+.footer a,
+.footer-icon svg {
+  color: #333 !important;
 }

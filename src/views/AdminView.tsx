@@ -83,8 +83,8 @@ const AdminView: React.FC = () => {
             </div>
           </div>
         </section>
+        <Footer />
       </IonContent>
-      <Footer />
     </IonPage>
   );
 };

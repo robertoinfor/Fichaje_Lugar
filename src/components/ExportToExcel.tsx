@@ -28,63 +28,70 @@ const tipoMap: Record<string, string> = {
 const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' }) => {
   const handleExport = async () => {
     try {
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Fichajes');
+      // 1) Creamos workbook y worksheet
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Fichajes');
 
-      worksheet.columns = [
+      ws.columns = [
         { header: 'Nombre', key: 'nombre', width: 20 },
         { header: 'Fecha', key: 'fecha', width: 15 },
         { header: 'Hora', key: 'hora', width: 10 },
         { header: 'Tipo', key: 'tipo', width: 25 },
       ];
 
+      // 2) Rellenamos filas
       eventos.forEach(e =>
-        worksheet.addRow({
-          ...e,
+        ws.addRow({
+          nombre: e.nombre,
+          fecha: e.fecha,
+          hora: e.hora,
           tipo: tipoMap[e.tipo] || e.tipo,
         })
       );
 
-      const headerRow = worksheet.getRow(1);
-      headerRow.font = { bold: true };
-      headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
-      headerRow.commit();
+      // 3) Estilizado cabecera
+      const header = ws.getRow(1);
+      header.font = { bold: true };
+      header.alignment = { vertical: 'middle', horizontal: 'center' };
+      header.commit();
 
-      worksheet.columns.forEach(column => {
-        let maxLength = 10;
-        if (column.eachCell) {
-          column.eachCell({ includeEmpty: true }, cell => {
-            const value = cell.value ? cell.value.toString() : '';
-            maxLength = Math.max(maxLength, value.length + 2);
-          });
-        }
-        column.width = maxLength;
+      // 4) Ajuste ancho columnas
+      ws.columns.forEach(col => {
+        let max = 10;
+        col.eachCell?.({ includeEmpty: true }, cell => {
+          const text = cell.value?.toString() ?? '';
+          max = Math.max(max, text.length + 2);
+        });
+        col.width = max;
       });
 
-      const buffer = await workbook.xlsx.writeBuffer();
+      // 5) Generamos buffer
+      const buffer = await wb.xlsx.writeBuffer();
 
-      if (Capacitor.getPlatform() === 'web') {
+      const platform = Capacitor.getPlatform();
+      if (platform === 'web') {
+        // 5a) Web: descarga directa
         const blob = new Blob([buffer], {
           type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         });
         saveAs(blob, `${nombreArchivo}.xlsx`);
       } else {
+        // 5b) Móvil: guardamos en Descargas/Documentos
         const base64 = Buffer.from(buffer).toString('base64');
-
+        const dir = platform === 'android' ? Directory.External : Directory.Documents;
         await Filesystem.writeFile({
-          path: `${nombreArchivo}.xlsx`,
+          path: `Download/${nombreArchivo}.xlsx`,
           data: base64,
-          directory: Directory.Documents,
+          directory: dir,
           encoding: 'base64' as Encoding,
         });
-
         await Toast.show({
-          text: `Excel guardado en Documentos como ${nombreArchivo}.xlsx`,
+          text: `Excel guardado como ${nombreArchivo}.xlsx`,
           duration: 'long',
         });
       }
-    } catch (error) {
-      console.error('Error al exportar Excel:', error);
+    } catch (err) {
+      console.error('Error al exportar Excel:', err);
       await Toast.show({
         text: 'Error al guardar el archivo Excel',
         duration: 'long',
@@ -92,7 +99,22 @@ const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' })
     }
   };
 
-  return <button onClick={handleExport}>📄 Exportar Excel</button>;
+  return (
+    <button
+      onClick={handleExport}
+      style={{
+        padding: '8px 16px',
+        color: '#fff',
+        backgroundColor: '#007bff',
+        borderRadius: '4px',
+        fontSize: '14px',
+        border: 'none',
+        cursor: 'pointer',
+      }}
+    >
+      📄 Exportar Excel
+    </button>
+  );
 };
 
 export default ExportToExcel;

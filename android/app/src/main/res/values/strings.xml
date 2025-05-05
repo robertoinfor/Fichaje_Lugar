@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Fichaje_Lugar</string>
+    <string name="title_activity_main">Fichaje_Lugar</string>
+    <string name="package_name">com.Lugar.Fichaje_Lugar</string>
+    <string name="custom_url_scheme">com.Lugar.Fichaje_Lugar</string>
+</resources>

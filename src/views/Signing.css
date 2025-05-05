@@ -22,7 +22,7 @@
     background-size: 200px;
     opacity: 0.3;
     transform: rotate(-15deg);
-    z-index: 0;
+    z-index: -1;
 }
 
 .signing-box {

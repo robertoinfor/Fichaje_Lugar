@@ -15,6 +15,7 @@ import TopBar from '../components/TopBar';
 import { UserFormData } from '../types/UserFormData';
 import './AdminUsers.css'
 import CustomBttn from '../components/CustomBttn';
+import Footer from '../components/Footer';
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
@@ -250,7 +251,6 @@ const AdminUsersView: React.FC = () => {
                                 </div>
                             </>
                         ) : (
-                            /* Formulario de edición/alta */
                             <UserForm
                                 key={selectedUser ? selectedUser.id : 'new'}
                                 initialData={
@@ -284,6 +284,7 @@ const AdminUsersView: React.FC = () => {
                         )}
                     </div>
                 </section>
+                <Footer/>
             </IonContent>
         </IonPage>
     );

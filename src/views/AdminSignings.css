@@ -1,0 +1,217 @@
+/* AdminSignings.css */
+
+/* 1) Background section, matching other “card” views */
+.signings-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    min-height: calc(100vh - 80px);
+    background-color: #358F99;
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .signings-section::before {
+    content: "";
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background-image: url('/Logo_Lugar1_padded.svg');
+    background-repeat: repeat;
+    background-size: 200px;
+    opacity: 0.3;
+    transform: rotate(-15deg);
+    z-index: -1;
+  }
+  
+  /* 2) White “card” container */
+  .signings-box {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    padding: 1.5rem;
+    width: 95vw;
+    max-width: 1200px;    /* ampliado para más espacio */
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  
+  /* 3) Top header row: search + add/export buttons */
+  .header-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+  }
+  .search-input ion-input,
+  .search-input input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+  
+  /* 4) Button group for “Añadir”, “Exportar” etc */
+  .toolbar-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .toolbar-buttons ion-item {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .toolbar-buttons ion-button {
+    flex: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* 5) Calendar area */
+  .calendar-wrapper {
+    width: 100%;
+    height: 75vh;        /* aumentado para que quepan más eventos */
+    margin-bottom: 1.5rem;
+  }
+  /* force full size on the inner calendar component */
+  .calendar-wrapper .rbc-calendar,
+  .calendar-wrapper > * {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* 6) Reduce row height so quepan más días */
+  .signings-box .rbc-month-view .rbc-row-bg,
+  .signings-box .rbc-month-view .rbc-row-content {
+    min-height: 6.5rem;  /* antes 8rem */
+  }
+  
+  /* 7) Events styling: más compacto */
+  .signings-box .rbc-event {
+    margin: 1px 0;
+    padding: 2px 4px;          /* antes 4px */
+    border-radius: 4px;
+    font-size: 0.75rem !important;  /* antes 0.9rem */
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* hide the default time label on day events */
+  .rbc-event-label {
+    display: none;
+  }
+  
+  /* 8) Toolbar inside calendar */
+  .signings-box .rbc-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .signings-box .rbc-toolbar-label {
+    flex: 1;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+  .signings-box .rbc-btn-group button {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;  /* más compacto */
+    margin: 0 0.25rem;
+    cursor: pointer;
+    font-size: 0.9rem;       /* antes 1rem */
+  }
+  .signings-box .rbc-btn-group button:hover {
+    background: #eee;
+  }
+  
+  /* 9) Popup overlay */
+  .signings-box .rbc-overlay {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  /* 10) Legend row */
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .legend-item .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+  }
+  
+  /* 11) Form section (add/edit) */
+  .form-section {
+    padding: 1rem;
+  }
+  .form-section h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  .form-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .form-section ion-item,
+  .form-section .form-field {
+    width: 100%;
+  }
+  .form-section ion-button {
+    margin-top: 0.5rem;
+  }
+  
+  /* 12) Responsive adjustments */
+  @media (max-width: 768px) {
+    .header-row {
+      flex-direction: column;
+    }
+    .toolbar-buttons ion-button {
+      min-width: 100%;
+    }
+    .calendar-wrapper {
+      height: 60vh;
+    }
+    .signings-box {
+      padding: 1rem;
+      width: 95vw;
+    }
+    .signings-box .rbc-month-view .rbc-row-bg,
+    .signings-box .rbc-month-view .rbc-row-content {
+      min-height: 5rem;
+    }
+    .signings-box .rbc-event {
+      font-size: 0.7rem !important;
+      padding: 1px 3px;
+    }
+  }
+  

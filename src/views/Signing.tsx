@@ -11,7 +11,7 @@ import './Signing.css';
 
 const Signing: React.FC = () => {
     const url_connect = import.meta.env.VITE_URL_CONNECT;
-    const { estaDentro, puntoCercano, cargando, error } = useVerifyLocation();
+    const { estaDentro, puntoCercano, cargando, error, checkLocation } = useVerifyLocation();
     const [userlogged, setUserLogged] = useState<User | undefined>(undefined);
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
@@ -145,7 +145,10 @@ const Signing: React.FC = () => {
                 {cargando ? (
                     <p>Verificando ubicación...</p>
                 ) : error ? (
-                    <p>{error}</p>
+                    <>
+                        <p>{error}</p>
+                        <CustomBttn text='Recargar ubicación' onClick={checkLocation} />ç
+                    </>
                 ) : puntoCercano && estaDentro ? (
                     <section className="signing-section">
                         <div className="signing-box">
@@ -199,13 +202,15 @@ const Signing: React.FC = () => {
                         </div>
                     </section>
                 ) : (
-                    <p style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>
-                        ❌ No estás en una zona de fichaje autorizada.
-                    </p>
+                    <>
+                        <p style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>
+                            ❌ No estás en una zona de fichaje autorizada.
+                        </p>
+                        <CustomBttn text='Recargar ubicación' onClick={checkLocation} /></>
                 )}
                 <Footer />
             </IonContent>
-        </IonPage>
+        </IonPage >
     );
 };
 

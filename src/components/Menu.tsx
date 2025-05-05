@@ -1,6 +1,7 @@
-import { IonList, IonLabel, IonItem, useIonRouter } from '@ionic/react';
+import { IonList, IonLabel, IonItem } from '@ionic/react';
 import { useNavigation } from '../hooks/useNavigation';
-import  Axios  from 'axios';
+import Axios from 'axios';
+import './Menu.css'
 
 interface MenuProps {
     admin: boolean
@@ -21,8 +22,12 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
         window.location.reload();
     };
 
+    const handleHome = () => {
+        navigation.push('/home/signing', 'forward', 'push');
+    };
+
     const handleAdmin = () => {
-        navigation.push('/home/menu' , 'forward', 'push');
+        navigation.push('/home/menu', 'forward', 'push');
     };
 
     const handleViewHistory = () => {
@@ -37,6 +42,9 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
             {
                 (username && username !== "") && (
                     <>
+                        <IonItem button onClick={handleHome}>
+                            <IonLabel>Inicio</IonLabel>
+                        </IonItem>
                         <IonItem button onClick={handleViewHistory}>
                             <IonLabel>Ver mi historial</IonLabel>
                         </IonItem>

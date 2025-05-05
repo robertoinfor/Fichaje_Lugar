@@ -1,0 +1,240 @@
+/* ================================
+   Fondo con patrón y color
+   ================================ */
+   .map-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    min-height: calc(100vh - 80px);
+    background-color: #358F99;
+    position: relative;
+    overflow: hidden;
+  }
+  .map-section::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background-image: url('/Logo_Lugar1_padded.svg');
+    background-repeat: repeat;
+    background-size: 200px;
+    opacity: 0.3;
+    transform: rotate(-15deg);
+    z-index: 0;
+  }
+  
+  /* ================================
+     Recuadro blanco centrado
+     ================================ */
+  .map-box {
+    position: relative;
+    z-index: 1;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    padding: 1.5rem;
+    width: 95vw;
+    max-width: 900px;
+    height: 80vh;           /* Altura total del recuadro en desktop */
+    box-sizing: border-box;
+  }
+  
+  /* Título y línea divisoria */
+  .map-box h1 {
+    margin: 0;
+    font-family: 'Georgia', serif;
+    font-size: 2rem;
+    text-align: center;
+    font-weight: 500;
+  }
+  .map-divider {
+    height: 3px;
+    background: #333;
+    width: 100%;
+    margin: 16px 0 24px;
+  }
+  
+  /* ================================
+     Contenedor flex mapa + sidebar
+     ================================ */
+  .layout {
+    display: flex;
+    gap: 1rem;                         /* Separación entre columnas */
+    height: calc(100% - 4rem);         /* Resto tras h1 + divider (~4rem) */
+  }
+  
+  /* ================================
+     Estilos del mapa
+     ================================ */
+  .layout .map-wrapper {
+    flex: 1;                           /* Rellena todo el espacio disponible */
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  /* ================================
+     Estilos de la sidebar
+     ================================ */
+  .layout .sidebar {
+    width: 300px;                      /* Anchura fija en desktop */
+    background-color: #f9f9f9;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  }
+  
+  /* Form sections */
+  .sidebar-section {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  }
+  .section-title {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #227c89;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.25rem;
+  }
+  .field-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+  }
+  .field-input:focus {
+    outline: none;
+    border-color: #227c89;
+  }
+  .section-text {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  .inactive-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .inactive-item {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: #f7f7f7;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .inactive-item:hover {
+    background: #e0f7f5;
+    color: #00504a;
+  }
+  .error-space {
+    min-height: 1.5em;
+    margin-top: 0.5rem;
+  }
+  .sidebar-error {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #b91c1c;
+  }
+
+  .sidebar-edit {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  }
+  
+  .sidebar-edit .edit-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #227c89;
+  }
+  
+  .sidebar-edit .edit-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  
+  .sidebar-edit .edit-input:focus {
+    outline: none;
+    border-color: #227c89;
+  }
+  
+  .sidebar-edit .edit-buttons {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .sidebar-edit .edit-buttons button {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .sidebar-edit .edit-buttons .save-btn {
+    background: #227c89;
+    color: #fff;
+  }
+  
+  .sidebar-edit .edit-buttons .save-btn:hover {
+    background: #1b645d;
+  }
+  
+  .sidebar-edit .edit-buttons .cancel-btn {
+    background: #ccc;
+    color: #333;
+  }
+  
+  .sidebar-edit .edit-buttons .cancel-btn:hover {
+    background: #b3b3b3;
+  }
+  
+  /* ================================
+     Ajustes responsive (móvil)
+     ================================ */
+  @media (max-width: 600px) {
+    /* Recuadro se adapta */
+    .map-box {
+      padding: 1rem;
+      height: auto;       /* Crece según contenido */
+    }
+  
+    /* Layout apila */
+    .layout {
+      flex-direction: column;
+      height: auto;
+    }
+  
+    /* Mapa fija un vh en móvil */
+    .layout .map-wrapper {
+      height: 50vh;
+      flex: none;
+    }
+  
+    /* Sidebar ocupa todo ancho */
+    .layout .sidebar {
+      width: 100%;
+    }
+  }
+  

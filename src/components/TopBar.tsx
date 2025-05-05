@@ -1,6 +1,15 @@
-import { IonButton, IonHeader, IonToolbar, IonTitle, useIonRouter } from '@ionic/react';
+import {
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonButton,
+  IonTitle,
+  IonIcon,
+} from '@ionic/react';
+import { arrowBack, menu as menuIcon } from 'ionicons/icons';
 import { useNavigation } from '../hooks/useNavigation';
-import './TopBar.css'
+import './TopBar.css';
+import { useEffect } from 'react';
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -8,32 +17,39 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
   const navigation = useNavigation();
-  const username = localStorage.getItem("userName");
+  let username = localStorage.getItem("userName");
 
   const returnView = () => {
+    if (location.pathname === '/home/signing' || location.pathname === '/home' ) {
+      localStorage.removeItem('userName');
+      localStorage.removeItem('id');
+      username=""
+    }
+    (document.activeElement as HTMLElement)?.blur();
     navigation.goBack();
-  }
+  };
   
   return (
     <IonHeader>
       <IonToolbar className="custom-toolbar">
-        <div className="toolbar-content">
-          <img src="/Logo_Lugar2.svg" alt="Logo La Lugar" className="logo-img" />
-          <div className="title">FICHAPP</div>
-          <div className="toolbar-buttons">
-            {username && username !== "" && (
-              <IonButton fill="clear" onClick={returnView}>
-                ⬅️
-              </IonButton>
-            )}
-            <IonButton fill="clear" onClick={onMenuClick}>
-              ☰
+        <div slot="start" className="toolbar-start">
+        {username && (
+            <IonButton fill="clear" onClick={returnView}>
+              <IonIcon icon={arrowBack}/>
             </IonButton>
-          </div>
+          )}
+          <img src="/Logo_Lugar2.svg" alt="Logo La Lugar" className="logo-img" />
         </div>
+
+        <h1 className="toolbar-title-custom">FICHAPP</h1>
+
+        <IonButtons slot="end">
+          <IonButton fill="clear" onClick={onMenuClick}>
+            <IonIcon icon={menuIcon} />
+          </IonButton>
+        </IonButtons>
       </IonToolbar>
     </IonHeader>
-
   );
 };
 

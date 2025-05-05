@@ -12,9 +12,9 @@ import TopBar from '../components/TopBar';
 import ExportToExcel from '../components/ExportToExcel';
 import { Buffer } from 'buffer';
 import ExportToPdf from '../components/ExportToPdf';
+import './AdminSignings.css'
+import Footer from '../components/Footer';
 (window as any).Buffer = Buffer;
-
-
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
@@ -230,210 +230,212 @@ const AdminSignings: React.FC = () => {
       </IonMenu>
       <TopBar onMenuClick={() => menu?.open()} />
       <IonContent id="main-content">
-        {!isEditing && !isAdding ? (
-          <>
-            <IonItem>
-              <IonInput
-                placeholder="Buscar por nombre o tipo de evento"
-                value={searchTerm}
-                onIonInput={e => setSearchTerm(e.detail.value!)}
-              />
-            </IonItem>
+        <div className="signings-section">
+          <div className="signings-box">
+            {!isEditing && !isAdding ? (
+              <>
+                <div className="header-row">
+                    <div className="search-input">
+                      <IonInput
+                        placeholder="Buscar por nombre o tipo de evento"
+                        value={searchTerm}
+                        onIonInput={e => setSearchTerm(e.detail.value!)}
+                      />
+                    </div>
+                  <div className="toolbar-buttons">
+                      <IonButton onClick={handleAddMode}>Añadir fichaje manualmente</IonButton>
+                      <ExportToExcel
+                        eventos={filteredEventsByMonth.map(ev => {
+                          const [nombre, hora] = (ev.title || '').split(' - ');
+                          return {
+                            nombre,
+                            fecha: ev.start.toISOString().split('T')[0],
+                            hora,
+                            tipo: ev.type,
+                          };
+                        })}
+                        nombreArchivo={"Fichajes"}
+                      />
 
-            <IonItem lines="none">
-              <IonButton onClick={handleAddMode}>Añadir fichaje manualmente</IonButton>
-              <ExportToExcel
-                eventos={filteredEventsByMonth.map(ev => {
-                  const [nombre, hora] = (ev.title || '').split(' - ');
-                  return {
-                    nombre,
-                    fecha: ev.start.toISOString().split('T')[0],
-                    hora,
-                    tipo: ev.type,
-                  };
-                })}
-                nombreArchivo={"Fichajes"}
-              />
-            </IonItem>
+                      <ExportToPdf
+                        eventos={filteredEventsByMonth.map(ev => {
+                          const [nombre, hora] = (ev.title || '').split(' - ');
+                          return {
+                            nombre,
+                            fecha: ev.start.toISOString().split('T')[0],
+                            hora,
+                            tipo: ev.type,
+                          };
+                        })}
+                        nombreArchivo="Fichajes"
+                      />
+                  </div>
 
-            <IonItem lines="none">
-              <ExportToPdf
-                eventos={filteredEventsByMonth.map(ev => {
-                  const [nombre, hora] = (ev.title || '').split(' - ');
-                  return {
-                    nombre,
-                    fecha: ev.start.toISOString().split('T')[0],
-                    hora,
-                    tipo: ev.type,
-                  };
-                })}
-                nombreArchivo="Fichajes"
-              />
-            </IonItem>
-
-            <div className="calendar-section">
-              <div className="calendar-section">
-                <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} onMonthChange={setCalendarDate}
-                />
-              </div>
-            </div><div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', padding: '16px' }}>
-              {[
-                { label: 'Entrada', color: '#81C784' },
-                { label: 'Salida', color: '#E57373' },
-                { label: 'Descanso', color: '#FFF176' },
-                { label: 'Terminando el descanso', color: '#FFB74D' },
-                { label: 'Horas extra', color: '#9575CD' },
-                { label: 'Terminadas horas extra', color: '#BA68C8' },
-              ].map(({ label, color }) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    backgroundColor: color,
-                    borderRadius: '4px',
-                    border: '1px solid #ccc'
-                  }} />
-                  <span style={{ fontSize: '14px' }}>{label}</span>
+                  <div className="calendar-wrapper">
+                    <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} onMonthChange={setCalendarDate}
+                    />
+                  </div>
                 </div>
-              ))}
-            </div>
-          </>
-        ) : (isEditing || isAdding) && (
-          <>
-            <div style={{ padding: '1rem' }}>
-              <h2>{isAdding ? "Añadir Fichaje" : "Editar Fichaje"}</h2>
-              <form onSubmit={isAdding ? handleAddSigning : handleSaveChanges}>
-                <IonItem>
-                  <IonSelect
-                    value={formData.Empleado}
-                    placeholder="Selecciona Empleado"
-                    onIonChange={(e) =>
-                      setFormData({ ...formData, Empleado: e.detail.value })
-                    }
-                  >
-                    {users.map((user) => (
-                      <IonSelectOption key={user.id} value={user.id}>
-                        {user.properties['Nombre de usuario'].title[0].plain_text}
-                      </IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonItem>
-                  <IonSelect
-                    value={formData.Tipo}
-                    placeholder="Tipo de fichaje"
-                    onIonChange={(e) =>
-                      setFormData({ ...formData, Tipo: e.detail.value })
-                    }
-                  >
-                    <IonSelectOption value="Entrada">Entrada</IonSelectOption>
-                    <IonSelectOption value="Salida">Salida</IonSelectOption>
-                    <IonSelectOption value="Horas extra">Horas extra</IonSelectOption>
-                    <IonSelectOption value="Descanso">Descanso</IonSelectOption>
-                    <IonSelectOption value="Terminado el descanso">
-                      Terminado el descanso
-                    </IonSelectOption>
-                  </IonSelect>
-                </IonItem>
-                <IonItem>
-                  <IonInput
-                    type="time"
-                    placeholder="Hora"
-                    value={formData.hora}
-                    onIonChange={(e) =>
-                      setFormData({ ...formData, hora: e.detail.value! })
-                    }
-                  />
-                </IonItem>
-                <IonItem>
-                  <IonInput
-                    type="date"
-                    placeholder="Fecha"
-                    value={formData.fecha}
-                    onIonChange={(e) =>
-                      setFormData({ ...formData, fecha: e.detail.value! })
-                    }
-                  />
-                </IonItem>
-                <IonItem>
-                  <IonSelect
-                    value={formData.Localizacion}
-                    placeholder="Selecciona una localización"
-                    onIonChange={(e) =>
-                      setFormData({ ...formData, Localizacion: e.detail.value })
-                    }
-                  >
-                    {locations.map((loc) => (
-                      <IonSelectOption key={loc.id} value={loc.id}>
-                        {loc.properties.Nombre.title[0].text.content}
-                      </IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
-                  {isAdding ? "Añadir Fichaje" : "Guardar cambios"}
-                </IonButton>
-                {isEditing && (
-                  <IonButton
-                    color="danger"
-                    expand="block"
-                    onClick={() => setShowDeleteAlert(true)}
-                    style={{ marginTop: '0.5rem' }}
-                  >
-                    Eliminar fichaje
-                  </IonButton>
-                )}
-                <IonButton
-                  color="medium"
-                  expand="block"
-                  onClick={handleCancelEdit}
-                  style={{ marginTop: '0.5rem' }}
-                >
-                  Cancelar
-                </IonButton>
-              </form>
-            </div>
-          </>
-        )
-        }
-        <IonAlert
-          isOpen={showDeleteAlert}
-          onDidDismiss={() => setShowDeleteAlert(false)}
-          header="Confirmar eliminación"
-          message="¿Estás seguro de que quieres eliminar este fichaje?"
-          buttons={[
-            {
-              text: 'Cancelar',
-              role: 'cancel',
-              handler: () => setShowDeleteAlert(false)
-            },
-            {
-              text: 'Eliminar',
-              role: 'destructive',
-              handler: async () => {
-                if (!selectedEvent) return;
-
-                try {
-                  await Axios.delete(`${url_connect}signings/${selectedEvent.id}/delete`);
-                  await fetchEvents();
-                  setSelectedEvent(null);
-                  setIsEditing(false);
-                  setFormData({
-                    Empleado: "",
-                    Tipo: "",
-                    Fecha_hora: "",
-                    fecha: "",
-                    hora: "",
-                    Localizacion: ""
-                  });
-                } catch (error) {
-                  console.error("Error eliminando el fichaje:", error);
-                }
-              }
+                <div className="legend-row">
+                  {[
+                    { label: 'Entrada', color: '#81C784' },
+                    { label: 'Salida', color: '#E57373' },
+                    { label: 'Descanso', color: '#FFF176' },
+                    { label: 'Terminando el descanso', color: '#FFB74D' },
+                    { label: 'Horas extra', color: '#9575CD' },
+                    { label: 'Terminadas horas extra', color: '#BA68C8' },
+                  ].map(({ label, color }) => (
+                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{
+                        width: '16px',
+                        height: '16px',
+                        backgroundColor: color,
+                        borderRadius: '4px',
+                        border: '1px solid #ccc'
+                      }} />
+                      <span style={{ fontSize: '14px' }}>{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (isEditing || isAdding) && (
+              <>
+                <div className="form-section">
+                  <h2>{isAdding ? "Añadir Fichaje" : "Editar Fichaje"}</h2>
+                  <form onSubmit={isAdding ? handleAddSigning : handleSaveChanges}>
+                    <IonItem>
+                      <IonSelect
+                        value={formData.Empleado}
+                        placeholder="Selecciona Empleado"
+                        onIonChange={(e) =>
+                          setFormData({ ...formData, Empleado: e.detail.value })
+                        }
+                      >
+                        {users.map((user) => (
+                          <IonSelectOption key={user.id} value={user.id}>
+                            {user.properties['Nombre de usuario'].title[0].plain_text}
+                          </IonSelectOption>
+                        ))}
+                      </IonSelect>
+                    </IonItem>
+                    <IonItem>
+                      <IonSelect
+                        value={formData.Tipo}
+                        placeholder="Tipo de fichaje"
+                        onIonChange={(e) =>
+                          setFormData({ ...formData, Tipo: e.detail.value })
+                        }
+                      >
+                        <IonSelectOption value="Entrada">Entrada</IonSelectOption>
+                        <IonSelectOption value="Salida">Salida</IonSelectOption>
+                        <IonSelectOption value="Horas extra">Horas extra</IonSelectOption>
+                        <IonSelectOption value="Descanso">Descanso</IonSelectOption>
+                        <IonSelectOption value="Terminado el descanso">
+                          Terminado el descanso
+                        </IonSelectOption>
+                      </IonSelect>
+                    </IonItem>
+                    <IonItem>
+                      <IonInput
+                        type="time"
+                        placeholder="Hora"
+                        value={formData.hora}
+                        onIonChange={(e) =>
+                          setFormData({ ...formData, hora: e.detail.value! })
+                        }
+                      />
+                    </IonItem>
+                    <IonItem>
+                      <IonInput
+                        type="date"
+                        placeholder="Fecha"
+                        value={formData.fecha}
+                        onIonChange={(e) =>
+                          setFormData({ ...formData, fecha: e.detail.value! })
+                        }
+                      />
+                    </IonItem>
+                    <IonItem>
+                      <IonSelect
+                        value={formData.Localizacion}
+                        placeholder="Selecciona una localización"
+                        onIonChange={(e) =>
+                          setFormData({ ...formData, Localizacion: e.detail.value })
+                        }
+                      >
+                        {locations.map((loc) => (
+                          <IonSelectOption key={loc.id} value={loc.id}>
+                            {loc.properties.Nombre.title[0].text.content}
+                          </IonSelectOption>
+                        ))}
+                      </IonSelect>
+                    </IonItem>
+                    <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
+                      {isAdding ? "Añadir Fichaje" : "Guardar cambios"}
+                    </IonButton>
+                    {isEditing && (
+                      <IonButton
+                        color="danger"
+                        expand="block"
+                        onClick={() => setShowDeleteAlert(true)}
+                        style={{ marginTop: '0.5rem' }}
+                      >
+                        Eliminar fichaje
+                      </IonButton>
+                    )}
+                    <IonButton
+                      color="medium"
+                      expand="block"
+                      onClick={handleCancelEdit}
+                      style={{ marginTop: '0.5rem' }}
+                    >
+                      Cancelar
+                    </IonButton>
+                  </form>
+                </div>
+              </>
+            )
             }
-          ]}
-        />
+            <IonAlert
+              isOpen={showDeleteAlert}
+              onDidDismiss={() => setShowDeleteAlert(false)}
+              header="Confirmar eliminación"
+              message="¿Estás seguro de que quieres eliminar este fichaje?"
+              buttons={[
+                {
+                  text: 'Cancelar',
+                  role: 'cancel',
+                  handler: () => setShowDeleteAlert(false)
+                },
+                {
+                  text: 'Eliminar',
+                  role: 'destructive',
+                  handler: async () => {
+                    if (!selectedEvent) return;
 
+                    try {
+                      await Axios.delete(`${url_connect}signings/${selectedEvent.id}/delete`);
+                      await fetchEvents();
+                      setSelectedEvent(null);
+                      setIsEditing(false);
+                      setFormData({
+                        Empleado: "",
+                        Tipo: "",
+                        Fecha_hora: "",
+                        fecha: "",
+                        hora: "",
+                        Localizacion: ""
+                      });
+                    } catch (error) {
+                      console.error("Error eliminando el fichaje:", error);
+                    }
+                  }
+                }
+              ]}
+            />
+          </div>
+        </div>
+        <Footer />
       </IonContent>
     </IonPage>
   );

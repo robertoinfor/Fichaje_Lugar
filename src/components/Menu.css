@@ -1,0 +1,30 @@
+/* Ancho y sombra del menú */
+ion-menu {
+  --width: 280px;
+}
+
+/* Cabecera del menú con misma altura que la toolbar */
+.menu-header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 8px;
+}
+
+/* Título opcional si quieres repetirlo */
+.menu-header .menu-title {
+  font-size: 1.2rem;
+  font-family: 'Georgia', serif;
+  font-weight: 500;
+  color: #000;
+  margin: 0 auto;
+}
+
+/* Ajuste de altura de cada item del menú */
+ion-menu ion-item {
+  --min-height: 45px;
+  line-height: 45px;
+}

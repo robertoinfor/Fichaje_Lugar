@@ -1,0 +1,36 @@
+:root {
+  --ion-background-color: #ffffff;
+  --ion-color-light: #ffffff;
+  --ion-color-dark: #000000;
+  --ion-text-color: #000000;
+  --ion-toolbar-background: #ffffff;
+  --ion-toolbar-color: #000000;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  ion-app,
+  ion-router-outlet,
+  ion-page,
+  ion-content {
+    height: 100%;
+  }
+  
+  ion-content {
+    --overflow: auto;
+  }
+  
+
+.ion-content .scroll-content {
+    overflow-y: visible !important;
+  }
+
+input::placeholder,
+textarea::placeholder {
+    color: #666;
+}

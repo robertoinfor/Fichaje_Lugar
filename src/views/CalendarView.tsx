@@ -4,6 +4,8 @@ import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
 import CustomCalendar from '../components/Calendar';
 import { useUserAndSignings } from '../hooks/useUserAndSignings';
+import './CalendarView.css'
+import Footer from '../components/Footer';
 
 const CalendarView: React.FC = () => {
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
@@ -27,15 +29,12 @@ const CalendarView: React.FC = () => {
       <TopBar onMenuClick={() => menu?.open()} />
 
       <IonContent id="main-content">
-        {userName ? (
-          <div>¡Hola, {userName}!</div>
-        ) : (
-          <div>Cargando...</div>
-        )}
-
-        <div className="calendar-section">
-          <CustomCalendar events={eventos} />
-        </div>
+        <section className="calendar-section">
+          <div className="calendar-box">
+            <CustomCalendar events={eventos} />
+          </div>
+        </section>
+        <Footer/>
       </IonContent>
     </IonPage>
   );
