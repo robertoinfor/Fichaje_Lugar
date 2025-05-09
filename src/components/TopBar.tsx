@@ -3,13 +3,12 @@ import {
   IonToolbar,
   IonButtons,
   IonButton,
-  IonTitle,
   IonIcon,
+  IonTitle,
 } from '@ionic/react';
 import { arrowBack, menu as menuIcon } from 'ionicons/icons';
 import { useNavigation } from '../hooks/useNavigation';
 import './TopBar.css';
-import { useEffect } from 'react';
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -38,11 +37,10 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
               <IonIcon icon={arrowBack}/>
             </IonButton>
           )}
-          <img src="/Logo_Lugar2.svg" alt="Logo La Lugar" className="logo-img" />
+          <img src="/Logo_Lugar2.svg" alt="Logo Lugar Gestión Cultural" className="logo-img" />
         </div>
 
-        <h1 className="toolbar-title-custom">FICHAPP</h1>
-
+        <div className="toolbar-title-custom">FICHAPP</div>
         <IonButtons slot="end">
           <IonButton fill="clear" onClick={onMenuClick}>
             <IonIcon icon={menuIcon} />

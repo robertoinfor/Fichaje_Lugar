@@ -14,11 +14,14 @@ import { Buffer } from 'buffer';
 import ExportToPdf from '../components/ExportToPdf';
 import './AdminSignings.css'
 import Footer from '../components/Footer';
+import { useAuthGuard } from '../hooks/useAuthUser';
+import CustomBttn from '../components/CustomBttn';
 (window as any).Buffer = Buffer;
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
 const AdminSignings: React.FC = () => {
+  useAuthGuard();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -26,7 +29,7 @@ const AdminSignings: React.FC = () => {
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const isAdmin = true; // cambiar
+  const [isAdmin, setIsAdmin] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [calendarDate, setCalendarDate] = useState<Date>(new Date());
@@ -46,6 +49,13 @@ const AdminSignings: React.FC = () => {
     "Horas extra": "HE",
     "Terminadas horas extra": "FHE",
   };
+
+  useEffect(() => {
+    const rol = localStorage.getItem('rol');
+    if (rol === 'Administrador') {
+      setIsAdmin(true);
+    }
+  }, []);
 
   const fetchLocations = async () => {
     try {
@@ -232,70 +242,72 @@ const AdminSignings: React.FC = () => {
       <IonContent id="main-content">
         <div className="signings-section">
           <div className="signings-box">
+          <h1 className="config-title">Mis fichajes</h1>
+          <div className="config-divider" />
             {!isEditing && !isAdding ? (
               <>
                 <div className="header-row">
-                    <div className="search-input">
-                      <IonInput
-                        placeholder="Buscar por nombre o tipo de evento"
-                        value={searchTerm}
-                        onIonInput={e => setSearchTerm(e.detail.value!)}
-                      />
-                    </div>
-                  <div className="toolbar-buttons">
-                      <IonButton onClick={handleAddMode}>Añadir fichaje manualmente</IonButton>
-                      <ExportToExcel
-                        eventos={filteredEventsByMonth.map(ev => {
-                          const [nombre, hora] = (ev.title || '').split(' - ');
-                          return {
-                            nombre,
-                            fecha: ev.start.toISOString().split('T')[0],
-                            hora,
-                            tipo: ev.type,
-                          };
-                        })}
-                        nombreArchivo={"Fichajes"}
-                      />
-
-                      <ExportToPdf
-                        eventos={filteredEventsByMonth.map(ev => {
-                          const [nombre, hora] = (ev.title || '').split(' - ');
-                          return {
-                            nombre,
-                            fecha: ev.start.toISOString().split('T')[0],
-                            hora,
-                            tipo: ev.type,
-                          };
-                        })}
-                        nombreArchivo="Fichajes"
-                      />
-                  </div>
-
-                  <div className="calendar-wrapper">
-                    <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} onMonthChange={setCalendarDate}
+                  <div className="search-input">
+                    <IonInput
+                      placeholder="Buscar por nombre o tipo de evento"
+                      value={searchTerm}
+                      onIonInput={e => setSearchTerm(e.detail.value!)}
                     />
                   </div>
+                  <div className="toolbar-buttons">
+                    <CustomBttn onClick={handleAddMode} text='Añadir fichaje' width='15vw' />
+                    <ExportToExcel
+                      eventos={filteredEventsByMonth.map(ev => {
+                        const [nombre, hora] = (ev.title || '').split(' - ');
+                        return {
+                          nombre,
+                          fecha: ev.start.toISOString().split('T')[0],
+                          hora,
+                          tipo: ev.type,
+                        };
+                      })}
+                      nombreArchivo={"Fichajes"}
+                    />
+
+                    <ExportToPdf
+                      eventos={filteredEventsByMonth.map(ev => {
+                        const [nombre, hora] = (ev.title || '').split(' - ');
+                        return {
+                          nombre,
+                          fecha: ev.start.toISOString().split('T')[0],
+                          hora,
+                          tipo: ev.type,
+                        };
+                      })}
+                      nombreArchivo="Fichajes"
+                    />
+                  </div>
+                  <div className="legend-row">
+                    {[
+                      { label: 'Entrada', color: '#81C784' },
+                      { label: 'Salida', color: '#E57373' },
+                      { label: 'Descanso', color: '#FFF176' },
+                      { label: 'Terminando el descanso', color: '#FFB74D' },
+                      { label: 'Horas extra', color: '#9575CD' },
+                      { label: 'Terminadas horas extra', color: '#BA68C8' },
+                    ].map(({ label, color }) => (
+                      <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: color,
+                          borderRadius: '4px',
+                          border: '1px solid #ccc'
+                        }} />
+                        <span style={{ fontSize: '14px' }}>{label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="legend-row">
-                  {[
-                    { label: 'Entrada', color: '#81C784' },
-                    { label: 'Salida', color: '#E57373' },
-                    { label: 'Descanso', color: '#FFF176' },
-                    { label: 'Terminando el descanso', color: '#FFB74D' },
-                    { label: 'Horas extra', color: '#9575CD' },
-                    { label: 'Terminadas horas extra', color: '#BA68C8' },
-                  ].map(({ label, color }) => (
-                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{
-                        width: '16px',
-                        height: '16px',
-                        backgroundColor: color,
-                        borderRadius: '4px',
-                        border: '1px solid #ccc'
-                      }} />
-                      <span style={{ fontSize: '14px' }}>{label}</span>
-                    </div>
-                  ))}
+                
+                <div className="calendar-wrapper">
+                  <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} onMonthChange={setCalendarDate}
+                  />
                 </div>
               </>
             ) : (isEditing || isAdding) && (

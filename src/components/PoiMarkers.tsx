@@ -4,6 +4,7 @@ import type { Marker } from '@googlemaps/markerclusterer';
 import { Circle } from './Circle';
 import { AdvancedMarker, Pin, useMap } from '@vis.gl/react-google-maps';
 import type { Poi } from '../types/Poi';
+import { colorFill } from 'ionicons/icons';
 
 interface PoiMarkersProps {
   pois: Poi[];
@@ -53,10 +54,10 @@ const PoiMarkers: React.FC<PoiMarkersProps> = ({ pois, isDeletingPoint, onDelete
         <Circle
           radius={200}
           center={circleCenter}
-          strokeColor={'#0c4cb3'}
+          strokeColor={'#444444'}
           strokeOpacity={1}
           strokeWeight={3}
-          fillColor={'#3b82f6'}
+          fillColor={'#b2b2b2'}
           fillOpacity={0.3}
         />
       )}
@@ -68,7 +69,7 @@ const PoiMarkers: React.FC<PoiMarkersProps> = ({ pois, isDeletingPoint, onDelete
           clickable={true}
           onClick={() => handleMarkerClick(poi)}
         >
-          <Pin background={'#FBBC04'} glyphColor={'#000'} borderColor={'#000'} />
+          <Pin background="#E53935" borderColor="#000000" glyphColor="#000000" />
         </AdvancedMarker>
       ))}
     </>

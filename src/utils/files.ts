@@ -1,4 +1,3 @@
-// src/utils/files.ts
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
@@ -11,10 +10,8 @@ export async function savePlatformFile(
 ): Promise<void> {
   const platform = Capacitor.getPlatform();  
   if (platform === 'web') {
-    // en navegador: lanzamos descarga con file-saver
     saveAs(blob, fileName);
   } else {
-    // en iOS/Android: escribimos y compartimos
     const base64 = await new Promise<string>((res, rej) => {
       const reader = new FileReader();
       reader.onload = () => res((reader.result as string).split(',')[1]);

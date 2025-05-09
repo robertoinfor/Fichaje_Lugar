@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Toast } from '@capacitor/toast';
+import CustomBttn from './CustomBttn';
 
 interface Props {
   eventos: {
@@ -15,7 +16,6 @@ interface Props {
   nombreArchivo?: string;
 }
 
-// estilos del PDF
 const styles = StyleSheet.create({
   page: { padding: 30, fontSize: 12 },
   title: { fontSize: 18, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' },
@@ -31,10 +31,9 @@ const tipoMap: Record<string, string> = {
   D: 'Descanso',
   FD: 'Terminado el descanso',
   HE: 'Horas extra',
-  FQ: 'Terminadas horas extra',
+  FHE: 'Terminadas horas extra',
 };
 
-// documento PDF
 const FichajesPdf: React.FC<Props> = ({ eventos }) => (
   <Document>
     <Page style={styles.page}>
@@ -63,19 +62,16 @@ const ExportToPdf: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' }) =
   const filename = `${nombreArchivo}_${dayjs().format('YYYY-MM-DD')}.pdf`;
 
   const handleExport = async () => {
-    // 1) Generar blob de PDF
     const blob = await pdf(<FichajesPdf eventos={eventos} />).toBlob();
 
     const platform = Capacitor.getPlatform();
     if (platform === 'web') {
-      // 2a) Web: descarga directa
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = filename;
       link.click();
       URL.revokeObjectURL(link.href);
     } else {
-      // 2b) Móvil: guardamos en Descargas/Documentos
       const base64 = await new Promise<string>((res, rej) => {
         const reader = new FileReader();
         reader.onload = () => res((reader.result as string).split(',')[1]);
@@ -96,20 +92,11 @@ const ExportToPdf: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' }) =
   };
 
   return (
-    <button
+    <CustomBttn
       onClick={handleExport}
-      style={{
-        padding: '8px 16px',
-        color: '#fff',
-        backgroundColor: '#007bff',
-        borderRadius: '4px',
-        fontSize: '14px',
-        border: 'none',
-        cursor: 'pointer',
-      }}
-    >
-      📄 Exportar PDF
-    </button>
+      text='📄 Exportar a PDF'
+      width='15vw'
+    />
   );
 };
 

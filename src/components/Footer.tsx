@@ -2,7 +2,6 @@ import { Mail, Phone, Globe } from 'lucide-react';
 import './Footer.css';
 import { useIonToast } from '@ionic/react';
 
-
 const Footer: React.FC = () => {
   const [present] = useIonToast();
   const handleCopyPhone = () => {

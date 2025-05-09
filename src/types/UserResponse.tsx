@@ -1,8 +1,8 @@
 export interface UserResponse {
   id: string
   nombre: string
-  Email: string
-  Pwd: string
-  Rol: string
-  Fecha_alta: string
+  email: string
+  pwd: string
+  rol: string
+  fecha_alta: string
 }

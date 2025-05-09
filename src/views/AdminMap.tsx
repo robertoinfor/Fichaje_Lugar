@@ -13,6 +13,7 @@ import Axios from 'axios';
 import { Poi } from '../types/Poi';
 import Footer from '../components/Footer';
 import './AdminMap.css'
+import { useAuthGuard } from '../hooks/useAuthUser';
 
 const useIsMobile = (bp = 600) => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < bp);
@@ -25,21 +26,18 @@ const useIsMobile = (bp = 600) => {
 };
 
 const AdminMap: React.FC = () => {
+    useAuthGuard();
     const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
-
     const isMobile = useIsMobile();
-
     const url_connect = import.meta.env.VITE_URL_CONNECT;
     const [locations, setLocations] = useState<Poi[]>([]);
     const [oldlocations, setOldLocations] = useState<Poi[]>([]);
     const [circleCenter, setCircleCenter] = useState<google.maps.LatLng | null>(null);
     const [selectedPoi, setSelectedPoi] = useState<Poi | null>(null);
-
     const [message, setMessage] = useState("");
     const [newPointName, setNewPointName] = useState("");
     const [editPointName, setEditPointName] = useState("");
     const [editingKey, setEditingKey] = useState<string | null>(null);
-
     const [isAddingPoint, setIsAddingPoint] = useState(false);
     const [isDeletingPoint, setIsDeletingPoint] = useState(false);
     const [isShowingOld, setShowOldLocations] = useState(false);
@@ -84,7 +82,7 @@ const AdminMap: React.FC = () => {
             return;
         }
         if (locations.some(l => l.name.toLowerCase() === newPointName.trim().toLowerCase())) {
-            setMessage("❌ Ya existe.");
+            setMessage("❌ Ya existe esa localización.");
             return;
         }
         Axios.post(url_connect + 'locations/', {
@@ -145,6 +143,17 @@ const AdminMap: React.FC = () => {
         setShowOldLocations(false);
     };
 
+    const resetModes = () => {
+        setIsAddingPoint(false);
+        setIsDeletingPoint(false);
+        setShowOldLocations(false);
+        setIsEditing(false);
+        setMessage("");
+        setNewPointName("");
+        setEditPointName("");
+        setSelectedPoi(null);
+    };
+
     return (
         <IonPage>
             <IonMenu side="end" content-id="main-content" ref={setMenu}>
@@ -180,62 +189,107 @@ const AdminMap: React.FC = () => {
                             </div>
 
                             <div className="sidebar">
-                                <CustomBttn
-                                    onClick={() => {
-                                        setIsAddingPoint(true);
-                                        setIsDeletingPoint(false);
-                                        setShowOldLocations(false);
-                                        setMessage("");
-                                    }}
-                                    text="Añadir ubicación"
-                                />
-                                <CustomBttn
-                                    onClick={() => {
-                                        setIsDeletingPoint(true);
-                                        setIsAddingPoint(false);
-                                        setShowOldLocations(false);
-                                        setMessage("");
-                                    }}
-                                    text="Eliminar ubicación"
-                                />
-                                <CustomBttn
-                                    onClick={() => {
-                                        setShowOldLocations(true);
-                                        setIsAddingPoint(false);
-                                        setIsDeletingPoint(false);
-                                        setMessage("");
-                                        fetchLocations();
-                                    }}
-                                    text="Recuperar ubicación"
-                                />
-
-                                <div className="error-space">
-                                    {message && <p className="sidebar-error">{message}</p>}
+                                <div className="button-group">
+                                    <div>
+                                        <label className="section-title">Ubicaciones activas</label>
+                                        {locations.length === 0 && (
+                                            <p className="helper-text">No hay ubicaciones activas</p>
+                                        )}
+                                        <ul className="inactive-list">
+                                            {locations.map(loc => (
+                                                <li
+                                                    key={loc.key}
+                                                    className="inactive-item"
+                                                    onClick={() => handleMarkerSelect(loc)}
+                                                    style={{ marginTop: 10, background: '#d8d8d8' }}
+                                                >
+                                                    {loc.name}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    <hr className="sidebar-divider" />
+                                    <CustomBttn
+                                        onClick={() => {
+                                            setIsAddingPoint(true);
+                                            setIsDeletingPoint(false);
+                                            setShowOldLocations(false);
+                                            setMessage("");
+                                        }}
+                                        text="Añadir ubicación"
+                                    />
+                                    <CustomBttn
+                                        onClick={() => {
+                                            setIsDeletingPoint(true);
+                                            setIsAddingPoint(false);
+                                            setShowOldLocations(false);
+                                            setMessage("");
+                                        }}
+                                        text="Desactivar ubicación"
+                                    />
+                                    <CustomBttn
+                                        onClick={() => {
+                                            setShowOldLocations(true);
+                                            setIsAddingPoint(false);
+                                            setIsDeletingPoint(false);
+                                            setMessage("");
+                                            fetchLocations();
+                                        }}
+                                        text="Reactivar ubicación"
+                                    />
                                 </div>
 
                                 {isAddingPoint && (
-                                    <div className="sidebar-section">
-                                        <h4 className="section-title">Nombre de ubicación</h4>
+                                    <div className="floating-form">
+                                        <label htmlFor="pt-name" className="section-title">Nombre de ubicación</label>
                                         <input
+                                            id="pt-name"
                                             className="field-input"
                                             type="text"
                                             value={newPointName}
                                             onChange={e => setNewPointName(e.target.value)}
                                             placeholder="Escribe aquí..."
                                         />
-                                    </div>
-                                )}
-
-                                {isDeletingPoint && (
-                                    <div className="sidebar-section">
-                                        <p className="section-text">
-                                            Haz clic en un marcador para eliminarlo.
+                                        <div className="actions-row" style={{ marginTop: 8, textAlign: 'right' }}>
+                                            <CustomBttn
+                                                text="Cancelar"
+                                                onClick={() => {
+                                                    setIsAddingPoint(false)
+                                                    setNewPointName('')
+                                                }}
+                                                height='0.5vh'
+                                                width='8vw'
+                                            />
+                                        </div>
+                                        <div className="error-space">
+                                            {message && <p className="sidebar-error">{message}</p>}
+                                        </div>
+                                        <p className="helper-text">
+                                            Ahora haz clic en el mapa para colocar el pin.
                                         </p>
                                     </div>
                                 )}
 
+                                {isDeletingPoint && (
+                                    <div className="floating-form">
+                                        <p className="helper-text">Haz clic en un marcador para desactivarlo.</p>
+                                        <div className="actions-row" style={{ marginTop: 8, textAlign: 'right' }}>
+                                            <CustomBttn
+                                                text="Cancelar"
+                                                onClick={() => {
+                                                    setIsDeletingPoint(false)
+                                                    setNewPointName('')
+                                                }}
+                                                height='0.5vh'
+                                                width='8vw'
+                                            />
+                                        </div>
+                                    </div>
+
+                                )}
+
                                 {isShowingOld && (
-                                    <div className="sidebar-section">
+                                    <div className="floating-form">
                                         <h4 className="section-title">Ubicaciones inactivas</h4>
                                         <ul className="inactive-list">
                                             {oldlocations.map(loc => (
@@ -248,6 +302,17 @@ const AdminMap: React.FC = () => {
                                                 </li>
                                             ))}
                                         </ul>
+                                        <div className="actions-row" style={{ marginTop: 8, textAlign: 'right' }}>
+                                            <CustomBttn
+                                                text="Cancelar"
+                                                onClick={() => {
+                                                    setShowOldLocations(false)
+                                                    setNewPointName('')
+                                                }}
+                                                height='0.5vh'
+                                                width='8vw'
+                                            />
+                                        </div>
                                     </div>
                                 )}
 
@@ -273,6 +338,7 @@ const AdminMap: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
+
                             </div>
                         </div>
                     </div>

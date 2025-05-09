@@ -4,7 +4,9 @@ export interface Location {
         Longitud: {
             number: string;
         };
-        Latitud: string;
+        Latitud: {
+            number: string;
+        };
         Nombre: { title: [{ text: { content: string } }] };
         Estado: { status: {name : string}}
     };

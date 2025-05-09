@@ -1,22 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 import axios from 'axios';
 import { calcularDistanciaMetros } from '../utils/geo';
 import { Poi } from '../types/Poi';
 
 export const useVerifyLocation = () => {
-  const [estaDentro, setEstaDentro] = useState(false);
-  const [puntoCercano, setPuntoCercano] = useState<Poi | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const [isInside, setIsInside] = useState(false);
+  const [nearPoint, setNearPoint] = useState<Poi | null>(null);
+  const [loading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const checkLocation = async () => {
+  const checkLocation = useCallback(async () => {
     try {
       const permiso = await Geolocation.checkPermissions();
       if (permiso.location !== 'granted') {
         await Geolocation.requestPermissions();
       }
-      const posicion = await Geolocation.getCurrentPosition();
+      const posicion = await Geolocation.getCurrentPosition({
+        timeout: 10000,
+        enableHighAccuracy: true
+      });
       const { latitude, longitude } = posicion.coords;
 
       const response = await axios.get(import.meta.env.VITE_URL_CONNECT + 'locations');
@@ -41,24 +44,25 @@ export const useVerifyLocation = () => {
       }
 
       const dentro = distanciaMinima <= 200;
-      setEstaDentro(dentro);
-      setPuntoCercano(dentro ? masCercano : null);
+      setIsInside(dentro);
+      setNearPoint(dentro ? masCercano : null);
     } catch (err: any) {
       console.error('Error al verificar ubicación cercana:', err);
       setError('Error al verificar ubicación.');
     } finally {
-      setCargando(false);
+      setIsLoading(false);
     }
-  };
+  }, []);
+
+  
   useEffect(() => {
     checkLocation();
-
     const interval = setInterval(() => {
       checkLocation();
-    }, 60000);
+    }, 100000);
 
     return () => clearInterval(interval);
   }, [checkLocation]);
 
-  return { estaDentro, puntoCercano, cargando, error, checkLocation, };
+  return { isInside, nearPoint, loading, error, checkLocation, };
 };

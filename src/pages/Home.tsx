@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonInput, IonMenu, IonModal, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import Axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Eraser, Eye, EyeOff } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
@@ -23,7 +23,7 @@ const Home: React.FC = () => {
   const [message, setMessage] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
-  const isAdmin = false;
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [enteredToken, setEnteredToken] = useState('');
   const [enteredUser, setEnteredUser] = useState('');
@@ -35,11 +35,22 @@ const Home: React.FC = () => {
 
   const url_connect = import.meta.env.VITE_URL_CONNECT;
 
+  const passwordRef = useRef<HTMLIonInputElement>(null);
+
+
   useEffect(() => {
     const storedUser = localStorage.getItem('userName');
     const storedId = localStorage.getItem('id');
     if (storedUser && storedId) {
+      document.activeElement instanceof HTMLElement && document.activeElement.blur();
       navigation.push('/home/signing', 'forward', 'push');
+    }
+  }, []);
+
+  useEffect(() => {
+    const rol = localStorage.getItem('rol');
+    if (rol === 'Administrador') {
+      setIsAdmin(true);
     }
   }, []);
 
@@ -65,23 +76,28 @@ const Home: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const input = await passwordRef.current?.getInputElement();
+    const finalPassword = input?.value || '';
+
     try {
       if (!login) {
         setMessage('Introduce el nombre de usuario/correo corporativo');
         return;
       }
-      if (!password) {
+
+      if (!finalPassword) {
         setMessage('Introduce la contraseña');
         return;
       }
 
       const response = await Axios.post<UserResponse>(
         `${url_connect}users/login`,
-        { login, password }
+        { login, password: finalPassword }
       );
       handleClear();
       localStorage.setItem('userName', response.data.nombre);
       localStorage.setItem('id', response.data.id);
+      localStorage.setItem('rol', response.data.rol);
 
       const supported = await messagingSupported();
       if (supported) {
@@ -97,6 +113,7 @@ const Home: React.FC = () => {
       Axios.put(`${url_connect}users/${response.data.id}/log`, {
         Conexion: 'Online'
       });
+      document.activeElement instanceof HTMLElement && document.activeElement.blur();
       navigation.push('/home/signing', 'forward', 'push');
     } catch (error: any) {
       console.error('🔥 Login error:', error);
@@ -194,7 +211,7 @@ const Home: React.FC = () => {
       if (err.response?.status === 401) {
         setMessage('El token ha expirado.');
       } else if (err.response?.status === 404) {
-        setMessage('Token no encontrado.');
+        setMessage('El token no es válido.');
       } else {
         setMessage('Error al verificar token.');
       }
@@ -207,7 +224,7 @@ const Home: React.FC = () => {
 
   return (
     <IonPage>
-      <IonMenu side="end" content-id="main-content" ref={setMenu}>
+      <IonMenu side="end" contentId="main-content" ref={setMenu} type="overlay">
         <IonHeader>
           <IonToolbar>
             <IonTitle>Menú</IonTitle>
@@ -218,7 +235,7 @@ const Home: React.FC = () => {
         </IonContent>
       </IonMenu>
       <TopBar onMenuClick={() => menu?.open()} />
-      <IonContent id="main-content">
+      <IonContent id="main-content" fullscreen>
         <div tabIndex={-1} style={{ outline: 'none' }}>
           <section className="login-section">
             <div className="login-box">
@@ -249,6 +266,7 @@ const Home: React.FC = () => {
                 </div>
                 <div className="input-group">
                   <IonInput
+                    ref={passwordRef}
                     id="password"
                     type={showPwd ? 'text' : 'password'}
                     className="input-field"

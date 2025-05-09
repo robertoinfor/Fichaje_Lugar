@@ -16,21 +16,30 @@ import { UserFormData } from '../types/UserFormData';
 import './AdminUsers.css'
 import CustomBttn from '../components/CustomBttn';
 import Footer from '../components/Footer';
+import { useAuthGuard } from '../hooks/useAuthUser';
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
 const AdminUsersView: React.FC = () => {
+    useAuthGuard();
     const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
-    const isAdmin = true; // cambiar
+    const [isAdmin, setIsAdmin] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
     const [editingMode, setEditingMode] = useState(false);
     const [addMode, setAddingMode] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
+    useEffect(() => {
+        const rol = localStorage.getItem('rol');
+        if (rol === 'Administrador') {
+            setIsAdmin(true);
+        }
+    }, []);
+    
     const fetchUsers = async () => {
         try {
-            const response = await Axios.get(url_connect+"users/");
+            const response = await Axios.get(url_connect + "users/");
             setUsers(response.data.results);
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -183,7 +192,7 @@ const AdminUsersView: React.FC = () => {
 
                         {!editingMode && !addMode ? (
                             <>
-                                <CustomBttn onClick={handleAdd} text='Nuevo usuario'/>
+                                <CustomBttn onClick={handleAdd} text='Nuevo usuario' />
 
                                 <div className="table-header">
                                     <input
@@ -284,7 +293,7 @@ const AdminUsersView: React.FC = () => {
                         )}
                     </div>
                 </section>
-                <Footer/>
+                <Footer />
             </IonContent>
         </IonPage>
     );

@@ -7,30 +7,30 @@
   --ion-toolbar-color: #000000;
 }
 
-html, body {
-    height: 100%;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-  }
-  
-  ion-app,
-  ion-router-outlet,
-  ion-page,
-  ion-content {
-    height: 100%;
-  }
-  
-  ion-content {
-    --overflow: auto;
-  }
-  
+/* 1) Quitar todo scroll fuera de los IonContent */
+html, body,
+ion-app, ion-router-outlet, ion-page {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden !important;
+}
 
-.ion-content .scroll-content {
-    overflow-y: visible !important;
-  }
+/* 2) Restaurar el scroll dentro de tus IonContent */
+ion-content {
+  --overflow: auto;
+}
 
+/* 3) Asegurar que los menús también usen sólo su propio scroll */
+ion-menu, 
+ion-menu .menu-inner {
+  --overflow: auto;
+}
+
+/* 4) Placeholders */
 input::placeholder,
 textarea::placeholder {
-    color: #666;
+  color: #666;
+  opacity: 1;
 }
+

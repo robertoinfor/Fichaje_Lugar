@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, IonMenu } from '@ionic/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
 import CustomCalendar from '../components/Calendar';
@@ -8,11 +8,20 @@ import './CalendarView.css'
 import Footer from '../components/Footer';
 
 const CalendarView: React.FC = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
   const userName = localStorage.getItem('userName');
   const userId = localStorage.getItem('id');
 
-  const { eventos, isAdmin } = useUserAndSignings(userName, userId);
+  useEffect(() => {
+    const rol = localStorage.getItem('rol');
+    if (rol === 'Administrador') {
+      setIsAdmin(true);
+    }
+  }, []);
+
+  const { eventos } = useUserAndSignings(userName, userId);
+
   return (
     <IonPage>
       <IonMenu side="end" content-id="main-content" ref={setMenu}>
@@ -31,10 +40,14 @@ const CalendarView: React.FC = () => {
       <IonContent id="main-content">
         <section className="calendar-section">
           <div className="calendar-box">
-            <CustomCalendar events={eventos} />
+            <h1 className="config-title">Mis fichajes</h1>
+            <div className="config-divider" />
+            <div className="calendar-container">
+              <CustomCalendar events={eventos} />
+            </div>
           </div>
         </section>
-        <Footer/>
+        <Footer />
       </IonContent>
     </IonPage>
   );

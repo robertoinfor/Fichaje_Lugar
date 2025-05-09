@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Geolocation, Position } from '@capacitor/geolocation';
+import { Geolocation } from '@capacitor/geolocation';
 
 export const useGeolocation = () => {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -7,11 +7,11 @@ export const useGeolocation = () => {
 
   useEffect(() => {
     let watchId: string;
-  
+
     Geolocation.watchPosition(
       {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 20000,
         maximumAge: 0,
       },
       (position, err) => {
@@ -20,7 +20,7 @@ export const useGeolocation = () => {
           setError(err.message || 'Error al obtener ubicación');
           return;
         }
-  
+
         if (position) {
           setCoords({
             lat: position.coords.latitude,
@@ -31,14 +31,16 @@ export const useGeolocation = () => {
     ).then((id) => {
       watchId = id;
     });
-  
+
     return () => {
       if (watchId) {
         Geolocation.clearWatch({ id: watchId });
       }
     };
   }, []);
-  
+
 
   return { coords, error };
 };
+export default useGeolocation;
+

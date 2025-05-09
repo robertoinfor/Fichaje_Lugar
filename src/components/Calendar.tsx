@@ -65,10 +65,10 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
       
 
     const eventColors: Record<string, string> = {
-        E: "#6eff6c",
-        S: "#ff2b2b",
-        HE: "#9575CD",
-        FHE: "#BA68C8",
+        E: "#71fa7e",
+        S: "#fc4f4f",
+        HE: "#ffc56b",
+        FHE: "#ff9e56",
         D: "#85eeff",
         FD: "#00ACC1",
         Festivo: "#ffb347",

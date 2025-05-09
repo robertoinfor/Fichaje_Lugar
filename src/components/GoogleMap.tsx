@@ -1,11 +1,11 @@
-// src/components/GoogleMap.tsx
 import React from "react";
-import { APIProvider, Map, MapCameraChangedEvent } from '@vis.gl/react-google-maps';
-import { AdvancedMarker, Pin }     from '@vis.gl/react-google-maps';
-import PoiMarkers                  from "./PoiMarkers";
-import MarkerInfo                  from "./InfoWindow";
-import { Poi }                     from "../types/Poi";
+import { APIProvider, Map } from '@vis.gl/react-google-maps';
+import { AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import PoiMarkers from "./PoiMarkers";
+import MarkerInfo from "./InfoWindow";
+import { Poi } from "../types/Poi";
 import './GoogleMap.css';
+import SearchBox from "./SearchBoxMap";
 
 interface GoogleMapProps {
   isMobile: boolean;
@@ -13,12 +13,12 @@ interface GoogleMapProps {
   isDeletingPoint: boolean;
   userCoords: google.maps.LatLngLiteral | null;
   circleCenter: google.maps.LatLng | null;
-  selectedPoi: Poi | null;                   // <-- NUEVO
+  selectedPoi: Poi | null;
   onMapClick: (ev: any) => void;
   onDelete: (id: string) => void;
   onMarkerSelect: (poi: Poi) => void;
-  onEdit: () => void;                        // <-- NUEVO
-  onCloseInfo: () => void;                   // <-- NUEVO
+  onEdit: () => void;
+  onCloseInfo: () => void;
   apiKey: string;
   mapId: string;
 }
@@ -48,7 +48,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
         height: isMobile ? '50vh' : '100%'
       }}
     >
-      <APIProvider apiKey={apiKey}>
+      <APIProvider apiKey={apiKey} libraries={['places']} >
         <Map
           defaultZoom={15}
           defaultCenter={{ lat: 28.079672, lng: -15.451525 }}
@@ -56,6 +56,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
           mapId={mapId}
           style={{ width: '100%', height: '100%' }}
         >
+          <SearchBox />
           <PoiMarkers
             pois={locations}
             isDeletingPoint={isDeletingPoint}

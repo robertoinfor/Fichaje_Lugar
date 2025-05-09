@@ -1,18 +1,18 @@
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
   IonItem,
   IonInput,
   IonSelect,
   IonSelectOption,
   IonButton,
-  IonLabel
+  IonLabel,
+  IonCardContent,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle
 } from '@ionic/react';
 import { UserFormData } from '../types/UserFormData';
+import CustomBttn from './CustomBttn';
 
 interface UserFormProps {
   initialData?: UserFormData;
@@ -104,15 +104,13 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
   };
 
   return (
-    <div className="form-container">
-      <div className="form-box">
-        {initialData && initialData.id && (
-          <h2 className="form-title">
-            <IonButton onClick={() => { if (initialData?.id) { onChangeStatus(initialData.id); } }}>
-              {initialData?.Estado === "Activo" ? "Dar de baja" : "Reactivar cuenta"}
-            </IonButton>
-          </h2>
-        )}
+    <IonCard className="user-card">
+      <IonCardHeader>
+        <IonCardTitle className="form-title">
+          Gestión de usuarios
+        </IonCardTitle>
+      </IonCardHeader>
+      <IonCardContent>
         <form onSubmit={handleSubmit}>
           <IonItem>
             <IonInput
@@ -141,20 +139,6 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
             />
           </IonItem>
           {errors.Email && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Email}</p>}
-
-          {initialData && !editingPassword && (
-            <IonButton
-              expand="block"
-              color="medium"
-              onClick={() => setEditingPassword(true)}
-              style={{ marginBottom: '1rem' }}
-            >
-              Cambiar contraseña
-            </IonButton>
-          )}
-
-          {editingPassword && (
-            <>
               <IonItem>
                 <IonInput
                   type={showPassword ? "text" : "password"}
@@ -183,8 +167,6 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
                 </IonButton>
               </IonItem>
               {errors.Repeat && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Repeat}</p>}
-            </>
-          )}
 
           <IonItem>
             <IonSelect
@@ -229,22 +211,33 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
               </IonItem>
             </>
           )}
-
-
           <IonItem>
             <IonLabel>Foto</IonLabel>
             <input type="file" accept="image/*" onChange={handleFileChange} />
           </IonItem>
 
-          <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
-            {editing ? "Guardar cambios" : "Añadir usuario"}
-          </IonButton>
-          <IonButton color="medium" expand="block" onClick={onCancel} style={{ marginTop: '0.5rem' }}>
-            Cancelar
-          </IonButton>
+          {editing && (
+            <CustomBttn text={initialData?.Estado === "Activo" ? "Dar de baja" : "Reactivar cuenta"}
+              onClick={() => { if (initialData?.id) { onChangeStatus(initialData.id); } }}
+              width='100%'
+            />
+          )}
+
+          <CustomBttn
+            text={editing ? 'Guardar cambios' : 'Añadir usuario'}
+            type="submit"
+            width='100%'
+          />
+
+          <CustomBttn
+            text="Cancelar"
+            onClick={onCancel}
+            disabled={false}
+            width='100%'
+          />
         </form>
-    </div>
-    </div>
+      </IonCardContent>
+    </IonCard>
   );
 };
 

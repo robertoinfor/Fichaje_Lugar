@@ -5,6 +5,7 @@ import { Toast } from '@capacitor/toast';
 import { Capacitor } from '@capacitor/core';
 import { saveAs } from 'file-saver';
 import { Buffer } from 'buffer';
+import CustomBttn from './CustomBttn';
 
 interface Props {
   eventos: {
@@ -22,13 +23,12 @@ const tipoMap: Record<string, string> = {
   D: 'Descanso',
   FD: 'Terminado el descanso',
   HE: 'Horas extra',
-  FQ: 'Terminadas horas extra',
+  FHE: 'Terminadas horas extra',
 };
 
 const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' }) => {
   const handleExport = async () => {
     try {
-      // 1) Creamos workbook y worksheet
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('Fichajes');
 
@@ -39,7 +39,6 @@ const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' })
         { header: 'Tipo', key: 'tipo', width: 25 },
       ];
 
-      // 2) Rellenamos filas
       eventos.forEach(e =>
         ws.addRow({
           nombre: e.nombre,
@@ -49,13 +48,11 @@ const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' })
         })
       );
 
-      // 3) Estilizado cabecera
       const header = ws.getRow(1);
       header.font = { bold: true };
       header.alignment = { vertical: 'middle', horizontal: 'center' };
       header.commit();
 
-      // 4) Ajuste ancho columnas
       ws.columns.forEach(col => {
         let max = 10;
         col.eachCell?.({ includeEmpty: true }, cell => {
@@ -65,18 +62,15 @@ const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' })
         col.width = max;
       });
 
-      // 5) Generamos buffer
       const buffer = await wb.xlsx.writeBuffer();
 
       const platform = Capacitor.getPlatform();
       if (platform === 'web') {
-        // 5a) Web: descarga directa
         const blob = new Blob([buffer], {
           type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         });
         saveAs(blob, `${nombreArchivo}.xlsx`);
       } else {
-        // 5b) Móvil: guardamos en Descargas/Documentos
         const base64 = Buffer.from(buffer).toString('base64');
         const dir = platform === 'android' ? Directory.External : Directory.Documents;
         await Filesystem.writeFile({
@@ -100,20 +94,11 @@ const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' })
   };
 
   return (
-    <button
+    <CustomBttn
       onClick={handleExport}
-      style={{
-        padding: '8px 16px',
-        color: '#fff',
-        backgroundColor: '#007bff',
-        borderRadius: '4px',
-        fontSize: '14px',
-        border: 'none',
-        cursor: 'pointer',
-      }}
-    >
-      📄 Exportar Excel
-    </button>
+      text='📄 Exportar a Excel'
+      width='15vw'
+    />
   );
 };
 

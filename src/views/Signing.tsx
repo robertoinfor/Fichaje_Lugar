@@ -8,10 +8,12 @@ import CustomBttn from '../components/CustomBttn';
 import { useVerifyLocation } from '../hooks/useVerifyLocation';
 import Footer from '../components/Footer';
 import './Signing.css';
+import { useAuthGuard } from '../hooks/useAuthUser';
 
 const Signing: React.FC = () => {
+    useAuthGuard();
     const url_connect = import.meta.env.VITE_URL_CONNECT;
-    const { estaDentro, puntoCercano, cargando, error, checkLocation } = useVerifyLocation();
+    const { isInside, nearPoint, loading, error, checkLocation } = useVerifyLocation();
     const [userlogged, setUserLogged] = useState<User | undefined>(undefined);
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
@@ -23,6 +25,13 @@ const Signing: React.FC = () => {
     const userId = localStorage.getItem('id');
     const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
     const focusRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {        
+        const rol = localStorage.getItem('rol');
+        if (rol === 'Administrador') {
+            setIsAdmin(true);
+        }
+    }, []);
 
     useEffect(() => {
         if (!userName) return;
@@ -102,24 +111,22 @@ const Signing: React.FC = () => {
         }
         if (online == "") {
             Axios.post(url_connect + 'signings/', {
-                Fecha_hora: new Date(),
                 Empleado: userId,
-                Localizacion: puntoCercano?.key,
+                Localizacion: nearPoint?.key,
                 Tipo: tipo
             })
         } else {
             Axios.post(url_connect + 'signings/', {
-                Fecha_hora: new Date(),
                 Empleado: userId,
                 Tipo: tipo,
-                Localizacion: puntoCercano?.key
+                Localizacion: nearPoint?.key
             }).then(() => {
                 Axios.put(url_connect + 'users/' + userId + "/log", {
                     Conexion: online
                 });
             })
         }
-    }, [isFichado, isResting, isWorkingExtra, userId, puntoCercano]);
+    }, [isFichado, isResting, isWorkingExtra, userId, nearPoint]);
 
     const formatTime = (totalSeconds: number) => {
         const hours = Math.floor(totalSeconds / 3600);
@@ -142,72 +149,74 @@ const Signing: React.FC = () => {
             </IonMenu>
             <TopBar onMenuClick={() => menu?.open()} />
             <IonContent id="main-content">
-                {cargando ? (
-                    <p>Verificando ubicación...</p>
-                ) : error ? (
-                    <>
-                        <p>{error}</p>
-                        <CustomBttn text='Recargar ubicación' onClick={checkLocation} />ç
-                    </>
-                ) : puntoCercano && estaDentro ? (
-                    <section className="signing-section">
-                        <div className="signing-box">
-                            {userlogged && (
-                                <>
-                                    <img
-                                        src={userlogged.properties.Foto.files[0].external.url}
-                                        alt="Usuario"
-                                        className="signing-avatar"
-                                    />
-                                    <h2>Fichaje</h2>
-                                </>
-                            )}
+                <section className="signing-section">
+                    <div className="signing-box">
+                        {loading ? (
+                            <p>🔄 Verificando ubicación…</p>
+                        ) : error ? (
+                            <>
+                                <p style={{ color: 'red' }}>{error}</p>
+                                <CustomBttn text="Recargar ubicación" onClick={checkLocation} />
+                            </>
+                        ) : nearPoint && isInside ? (
+                            <>
+                                {userlogged && (
+                                    <>
+                                        <img
+                                            src={userlogged.properties.Foto.files[0].external.url}
+                                            alt="Usuario"
+                                            className="signing-avatar"
+                                        />
+                                        <h2>Fichaje</h2>
+                                    </>
+                                )}
+                                <div className="login-divider" />
+                                <div className="timer">{formatTime(seconds)}</div>
+                                <div className="signing-buttons-wrapper">
+                                    <div className="button-row">
+                                        <CustomBttn
+                                            text="Entrada"
+                                            onClick={() => handleAction('entrada')}
+                                            disabled={isFichado}
+                                            width="100%"
+                                        />
+                                    </div>
 
-                            <div className="login-divider" />
-                            <div className="timer">{formatTime(seconds)}</div>
-                            <div className="signing-buttons-wrapper">
-                                <div className="button-row">
-                                    <CustomBttn
-                                        text="Entrada"
-                                        onClick={() => handleAction('entrada')}
-                                        disabled={isFichado}
-                                        width="100%"
-                                    />
-                                </div>
+                                    <div className="button-row two-buttons">
+                                        <CustomBttn
+                                            text={isResting ? 'Terminar descanso' : 'Descanso'}
+                                            onClick={() => handleAction('descanso')}
+                                            disabled={!isFichado}
+                                            width="100%"
+                                        />
+                                        <CustomBttn
+                                            text={isWorkingExtra ? 'Terminar extra' : 'Horas extra'}
+                                            onClick={() => handleAction('extra')}
+                                            disabled={!isFichado}
+                                            width="100%"
+                                        />
+                                    </div>
 
-                                <div className="button-row two-buttons">
-                                    <CustomBttn
-                                        text={isResting ? 'Terminar descanso' : 'Descanso'}
-                                        onClick={() => handleAction('descanso')}
-                                        disabled={!isFichado}
-                                        width="100%"
-                                    />
-                                    <CustomBttn
-                                        text={isWorkingExtra ? 'Terminar extra' : 'Horas extra'}
-                                        onClick={() => handleAction('extra')}
-                                        disabled={!isFichado}
-                                        width="100%"
-                                    />
+                                    <div className="button-row">
+                                        <CustomBttn
+                                            text="Salida"
+                                            onClick={() => handleAction('salida')}
+                                            disabled={!isFichado}
+                                            width="100%"
+                                        />
+                                    </div>
                                 </div>
-
-                                <div className="button-row">
-                                    <CustomBttn
-                                        text="Salida"
-                                        onClick={() => handleAction('salida')}
-                                        disabled={!isFichado}
-                                        width="100%"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                ) : (
-                    <>
-                        <p style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>
-                            ❌ No estás en una zona de fichaje autorizada.
-                        </p>
-                        <CustomBttn text='Recargar ubicación' onClick={checkLocation} /></>
-                )}
+                            </>
+                        ) : (
+                            <>
+                                <p style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>
+                                    ❌ No estás en una zona de fichaje autorizada.
+                                </p>
+                                <CustomBttn text="Recargar ubicación" onClick={checkLocation} />
+                            </>
+                        )}
+                    </div>
+                </section>
                 <Footer />
             </IonContent>
         </IonPage >

@@ -1,48 +1,112 @@
+:root {
+  --primary: #3366ff;
+  --primary-dark: #274bdb;
+  --bg-page: #f0f2f7;
+  --bg-input: #ffffff;
+  --border-input: #dfe3e8;
+  --text-base: #2a2a2a;
+  --radius: 12px;
+}
+
 .form-container {
-    display: flex;
-    justify-content: center;
-    padding: 2rem 1rem;
+  background: var(--bg-page);
+  display: flex;
+  justify-content: center;
+  padding-top: 2rem;
+  min-height: 100%;
+}
+
+.user-card {
+  width: 100%;
+  max-width: 550px;
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.form-title {
+  font-size: 1.75rem;
+  color: var(--text-base);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.user-card ion-item {
+  --background: var(--bg-input);
+  --border-radius: var(--radius);
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: var(--border-input);
+  margin: 0.75rem 0;
+  padding-left: 1rem;
+}
+
+.user-card ion-label {
+  font-weight: 500;
+  color: var(--text-base);
+  font-size: 0.9rem;
+}
+
+.user-card ion-input,
+.user-card ion-select {
+  color: var(--text-base);
+}
+
+.password-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper ion-button {
+  font-size: 0.8rem;
+}
+
+/* Imagen de perfil */
+.current-photo {
+  display: block;
+  margin: 1rem auto;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--border-input);
+  object-fit: cover;
+}
+
+/* Botones */
+.form-button {
+  width: 100%;
+  margin-top: 1.25rem;
+  --border-radius: var(--radius);
+  --background: var(--primary);
+  --background-activated: var(--primary-dark);
+  --color: #fff;
+  font-weight: 600;
+  height: 2.75rem;
+}
+
+.form-button.cancel {
+  --background: #a0a8b9;
+  --background-activated: #878f9f;
+}
+
+.form-button:hover {
+  transform: translateY(-1px);
+  transition: transform 0.1s;
+}
+
+/* Error text */
+.error-text {
+  color: #e53e3e;
+  font-size: 0.8rem;
+  margin: 0.25rem 1rem 0 1rem;
+}
+
+/* Ajustes móviles */
+@media (max-width: 480px) {
+  .user-card {
+    margin: 0 0.5rem;
   }
-  
-  .form-box {
-    background-color: white;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    max-width: 600px;
-    width: 100%;
-    font-family: 'Georgia', serif;
-  }
-  
   .form-title {
-    text-align: center;
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-    font-weight: 500;
+    font-size: 1.5rem;
   }
-  
-  .user-form ion-item {
-    margin-bottom: 0.75rem;
-    --background: transparent;
-    --border-radius: 8px;
-  }
-  
-  .form-button {
-    margin-top: 1rem;
-    font-weight: bold;
-  }
-  
-  .form-button.cancel {
-    margin-top: 0.5rem;
-  }
-  
-  @media (max-width: 480px) {
-    .form-box {
-      padding: 1.5rem;
-    }
-  
-    .form-title {
-      font-size: 1.5rem;
-    }
-  }
-  
+}
