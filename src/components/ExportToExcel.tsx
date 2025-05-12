@@ -6,6 +6,7 @@ import { Capacitor } from '@capacitor/core';
 import { saveAs } from 'file-saver';
 import { Buffer } from 'buffer';
 import CustomBttn from './CustomBttn';
+import dayjs from 'dayjs';
 
 interface Props {
   eventos: {
@@ -17,6 +18,7 @@ interface Props {
   nombreArchivo?: string;
 }
 
+// Traduce el evento para mejor entendimiento en el Excel
 const tipoMap: Record<string, string> = {
   E: 'Entrada',
   S: 'Salida',
@@ -32,6 +34,7 @@ const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' })
       const wb = new ExcelJS.Workbook();
       const ws = wb.addWorksheet('Fichajes');
 
+      // Columnas
       ws.columns = [
         { header: 'Nombre', key: 'nombre', width: 20 },
         { header: 'Fecha', key: 'fecha', width: 15 },
@@ -39,6 +42,7 @@ const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' })
         { header: 'Tipo', key: 'tipo', width: 25 },
       ];
 
+      // Desglosa el evento en función de las columnas
       eventos.forEach(e =>
         ws.addRow({
           nombre: e.nombre,
@@ -64,23 +68,26 @@ const ExportToExcel: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' })
 
       const buffer = await wb.xlsx.writeBuffer();
 
+      // Cojo la plataforma
       const platform = Capacitor.getPlatform();
       if (platform === 'web') {
         const blob = new Blob([buffer], {
           type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        });
-        saveAs(blob, `${nombreArchivo}.xlsx`);
+        });        
+        saveAs(blob, `${nombreArchivo}_${dayjs().format('YYYY-MM-DD')}.xlsx`);
+        // Si es móvil lo paso a base64
       } else {
         const base64 = Buffer.from(buffer).toString('base64');
+        // En función del SO lo guardo en una carpeta u otra
         const dir = platform === 'android' ? Directory.External : Directory.Documents;
         await Filesystem.writeFile({
-          path: `Download/${nombreArchivo}.xlsx`,
+          path: `Download/${nombreArchivo}_${dayjs().format('YYYY-MM-DD')}.xlsx`,
           data: base64,
           directory: dir,
           encoding: 'base64' as Encoding,
         });
         await Toast.show({
-          text: `Excel guardado como ${nombreArchivo}.xlsx`,
+          text: `Excel guardado como ${nombreArchivo}_${dayjs().format('YYYY-MM-DD')}.xlsx`,
           duration: 'long',
         });
       }

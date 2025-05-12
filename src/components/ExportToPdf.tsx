@@ -16,6 +16,7 @@ interface Props {
   nombreArchivo?: string;
 }
 
+// Estilos de la hoja
 const styles = StyleSheet.create({
   page: { padding: 30, fontSize: 12 },
   title: { fontSize: 18, marginBottom: 20, textAlign: 'center', fontWeight: 'bold' },
@@ -25,6 +26,7 @@ const styles = StyleSheet.create({
   header: { fontWeight: 'bold', backgroundColor: '#f0f0f0' },
 });
 
+// Conversión del tipo de evento para mostrarlo completo
 const tipoMap: Record<string, string> = {
   E: 'Entrada',
   S: 'Salida',
@@ -34,6 +36,7 @@ const tipoMap: Record<string, string> = {
   FHE: 'Terminadas horas extra',
 };
 
+// Componente a modo de plantilla para el contenido del pdf
 const FichajesPdf: React.FC<Props> = ({ eventos }) => (
   <Document>
     <Page style={styles.page}>
@@ -58,12 +61,15 @@ const FichajesPdf: React.FC<Props> = ({ eventos }) => (
   </Document>
 );
 
+// Botón para exportar a pdf y su función
 const ExportToPdf: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' }) => {
   const filename = `${nombreArchivo}_${dayjs().format('YYYY-MM-DD')}.pdf`;
 
   const handleExport = async () => {
+    // Se guarda en memoria
     const blob = await pdf(<FichajesPdf eventos={eventos} />).toBlob();
 
+    // Se detecta la plataforma
     const platform = Capacitor.getPlatform();
     if (platform === 'web') {
       const link = document.createElement('a');
@@ -71,6 +77,7 @@ const ExportToPdf: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' }) =
       link.download = filename;
       link.click();
       URL.revokeObjectURL(link.href);
+      // Si es móvil se pasa a base64
     } else {
       const base64 = await new Promise<string>((res, rej) => {
         const reader = new FileReader();
@@ -78,6 +85,7 @@ const ExportToPdf: React.FC<Props> = ({ eventos, nombreArchivo = 'fichajes' }) =
         reader.onerror = rej;
         reader.readAsDataURL(blob);
       });
+      // En funcion del SO, se guarda en un directorio u otro
       const dir = platform === 'android' ? Directory.External : Directory.Documents;
       await Filesystem.writeFile({
         path: `Download/${filename}`,

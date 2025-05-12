@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 
+// Función para monitorizar la posición 
 export const useGeolocation = () => {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,6 @@ export const useGeolocation = () => {
       }
     };
   }, []);
-
 
   return { coords, error };
 };

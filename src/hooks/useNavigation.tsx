@@ -1,6 +1,7 @@
 import { useIonRouter } from '@ionic/react';
 
-export const  useNavigation = () => {
+// Función para utilizar la misma navegación en toda la app
+export const useNavigation = () => {
   const navigation = useIonRouter();
   return navigation;
 };

@@ -3,6 +3,7 @@ import './Footer.css';
 import { useIonToast } from '@ionic/react';
 
 const Footer: React.FC = () => {
+  // Para mostrar un cuadro indicando que se ha copiado el teléfono
   const [present] = useIonToast();
   const handleCopyPhone = () => {
     navigator.clipboard.writeText("(+34) 660 079 198")
@@ -11,7 +12,7 @@ const Footer: React.FC = () => {
           message: 'Teléfono copiado al portapapeles 📋',
           duration: 1500,
           position: 'bottom',
-          color: 'success'
+          color: 'light'
         });
       })
       .catch(() => {
@@ -31,6 +32,7 @@ const Footer: React.FC = () => {
         <div className="footer-items">
           <div className="footer-item">
             <div className="footer-icon"><Mail size={18} /></div>
+            {/* Indicamos que es un correo */}
             <a href="mailto:info@lugargestioncultural.com">info@lugargestioncultural.com</a>
           </div>
           <div className="footer-item" onClick={handleCopyPhone} style={{ cursor: 'pointer' }}>
@@ -39,6 +41,7 @@ const Footer: React.FC = () => {
           </div>
           <div className="footer-item">
             <div className="footer-icon"><Globe size={18} /></div>
+            {/* Redirigimos a la página de la empresa */}
             <a href="https://lugargestioncultural.com/" target="_blank" rel="noreferrer">
               https://lugargestioncultural.com/
             </a>

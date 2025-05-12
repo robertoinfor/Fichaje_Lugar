@@ -4,7 +4,6 @@ import type { Marker } from '@googlemaps/markerclusterer';
 import { Circle } from './Circle';
 import { AdvancedMarker, Pin, useMap } from '@vis.gl/react-google-maps';
 import type { Poi } from '../types/Poi';
-import { colorFill } from 'ionicons/icons';
 
 interface PoiMarkersProps {
   pois: Poi[];
@@ -19,6 +18,15 @@ const PoiMarkers: React.FC<PoiMarkersProps> = ({ pois, isDeletingPoint, onDelete
   const markersRef = useRef<{ [key: string]: Marker }>({});
   const clusterer = useRef<MarkerClusterer | null>(null);
 
+  // Crea un Clúster
+  useEffect(() => {
+    if (!map) return;
+    if (!clusterer.current) {
+      clusterer.current = new MarkerClusterer({ map });
+    }
+  }, [map]);
+
+  // Gestiona los clicks para seleccionar un punto o borrarlo
   const handleMarkerClick = useCallback((poi: Poi) => {
     if (isDeletingPoint && onDelete) {
       onDelete(poi.key);
@@ -29,13 +37,7 @@ const PoiMarkers: React.FC<PoiMarkersProps> = ({ pois, isDeletingPoint, onDelete
     }
   }, [isDeletingPoint, onDelete, onMarkerSelect, map]);
 
-  useEffect(() => {
-    if (!map) return;
-    if (!clusterer.current) {
-      clusterer.current = new MarkerClusterer({ map });
-    }
-  }, [map]);
-
+  // Gestiona los marcadores activos y actualiza los clusters
   const setMarkerRef = useCallback((marker: Marker | null, key: string) => {
     if (marker) {
       markersRef.current[key] = marker;

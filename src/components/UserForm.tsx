@@ -39,7 +39,6 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [editingPassword, setEditingPassword] = useState(!initialData);
 
   const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[-_!@#$%^&*])[A-Za-z\d\-_\!@#\$%\^&\*]{8,}$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,16 +50,14 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
     if (!formData.Email) newErrors.Email = "El email es obligatorio.";
     else if (!emailRegex.test(formData.Email)) newErrors.Email = "Email no válido.";
 
-    if (editingPassword) {
-      if (!formData.Pwd) newErrors.Pwd = "La contraseña es obligatoria.";
-      else if (!passwordRegex.test(formData.Pwd)) {
-        newErrors.Pwd = "Debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.";
-      }
+    if (!formData.Pwd) newErrors.Pwd = "La contraseña es obligatoria.";
+    else if (!passwordRegex.test(formData.Pwd)) {
+      newErrors.Pwd = "Debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.";
+    }
 
-      if (!repeatPassword) newErrors.Repeat = "Repite la contraseña.";
-      else if (formData.Pwd !== repeatPassword) {
-        newErrors.Repeat = "Las contraseñas no coinciden.";
-      }
+    if (!repeatPassword) newErrors.Repeat = "Repite la contraseña.";
+    else if (formData.Pwd !== repeatPassword) {
+      newErrors.Repeat = "Las contraseñas no coinciden.";
     }
 
     if (!formData.Rol) newErrors.Rol = "El rol es obligatorio.";
@@ -96,7 +93,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
     if (!validateForm()) return;
 
     const finalData = { ...formData };
-    if (!editingPassword && initialData) {
+    if (initialData) {
       finalData.Pwd = initialData.Pwd;
     }
 
@@ -139,34 +136,34 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
             />
           </IonItem>
           {errors.Email && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Email}</p>}
-              <IonItem>
-                <IonInput
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Contraseña"
-                  value={formData.Pwd}
-                  onIonChange={e => handleChange('Pwd', e.detail.value!)}
-                />
-                <IonButton slot="end" fill="clear" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? "Ocultar" : "Mostrar"}
-                </IonButton>
-              </IonItem>
-              {errors.Pwd && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Pwd}</p>}
+          <IonItem>
+            <IonInput
+              type={showPassword ? "text" : "password"}
+              placeholder="Contraseña"
+              value={formData.Pwd}
+              onIonChange={e => handleChange('Pwd', e.detail.value!)}
+            />
+            <IonButton slot="end" fill="clear" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? "Ocultar" : "Mostrar"}
+            </IonButton>
+          </IonItem>
+          {errors.Pwd && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Pwd}</p>}
 
-              <IonItem>
-                <IonInput
-                  type={showRepeatPassword ? "text" : "password"}
-                  placeholder="Repetir Contraseña"
-                  value={repeatPassword}
-                  onIonChange={e => {
-                    setRepeatPassword(e.detail.value!);
-                    setErrors(prev => ({ ...prev, Repeat: "" }));
-                  }}
-                />
-                <IonButton slot="end" fill="clear" onClick={() => setShowRepeatPassword(!showRepeatPassword)}>
-                  {showRepeatPassword ? "Ocultar" : "Mostrar"}
-                </IonButton>
-              </IonItem>
-              {errors.Repeat && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Repeat}</p>}
+          <IonItem>
+            <IonInput
+              type={showRepeatPassword ? "text" : "password"}
+              placeholder="Repetir Contraseña"
+              value={repeatPassword}
+              onIonChange={e => {
+                setRepeatPassword(e.detail.value!);
+                setErrors(prev => ({ ...prev, Repeat: "" }));
+              }}
+            />
+            <IonButton slot="end" fill="clear" onClick={() => setShowRepeatPassword(!showRepeatPassword)}>
+              {showRepeatPassword ? "Ocultar" : "Mostrar"}
+            </IonButton>
+          </IonItem>
+          {errors.Repeat && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Repeat}</p>}
 
           <IonItem>
             <IonSelect

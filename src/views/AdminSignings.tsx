@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonMenu, IonButton, IonSelect, IonSelectOption, IonAlert } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonMenu, IonButton, IonSelect, IonSelectOption, IonAlert, IonRow, IonGrid, IonCol, IonLabel } from '@ionic/react';
 import Axios from 'axios';
 import dayjs from 'dayjs';
 import CustomCalendar from '../components/Calendar';
@@ -50,6 +50,7 @@ const AdminSignings: React.FC = () => {
     "Terminadas horas extra": "FHE",
   };
 
+  // Verifica que el usuario es administrador
   useEffect(() => {
     const rol = localStorage.getItem('rol');
     if (rol === 'Administrador') {
@@ -57,6 +58,7 @@ const AdminSignings: React.FC = () => {
     }
   }, []);
 
+  // Recoge todas las localizaciones
   const fetchLocations = async () => {
     try {
       const response = await Axios.get(url_connect + 'locations/');
@@ -70,6 +72,7 @@ const AdminSignings: React.FC = () => {
     fetchLocations();
   }, []);
 
+  // Función para traducir la información de los eventos a los eventos de los Calendario
   const mapFichajeToEvent = (fichaje: Signing, users: User[]): CalendarEvent => {
     const dateString = fichaje.properties.Fecha.formula.string;
     const timeString = fichaje.properties.Hora.formula.string;
@@ -77,12 +80,12 @@ const AdminSignings: React.FC = () => {
     const locationId = fichaje.properties.Localizacion.relation[0]?.id;
     const localizacion = locations.find(loc => loc.id === locationId);
     const locationName = localizacion ? localizacion.properties.Nombre.title[0].text.content : "Sin ubicación";
-    const empleadoId = fichaje.properties.Empleado.relation[0]?.id;
-    const usuario = users.find(u => u.id === empleadoId);
-    const empleadoNombre = usuario ? usuario.properties['Nombre de usuario'].title[0].plain_text : "Desconocido";
+    const employeeId = fichaje.properties.Empleado.relation[0]?.id;
+    const user = users.find(u => u.id === employeeId);
+    const empleadoNombre = user ? user.properties['Nombre de usuario'].title[0].plain_text : "Desconocido";
 
     return {
-      empleadoId: empleadoId,
+      empleadoId: employeeId,
       id: fichaje.id,
       title: `${empleadoNombre} - ${timeString}`,
       start: startDate,
@@ -94,6 +97,7 @@ const AdminSignings: React.FC = () => {
     };
   };
 
+  // Recojo todos los fichajes de todos los usuarios
   const fetchEvents = async (): Promise<CalendarEvent[]> => {
     try {
       const response = await Axios.get(url_connect + 'signings/allsignings');
@@ -113,6 +117,7 @@ const AdminSignings: React.FC = () => {
     }
   };
 
+  // Recojo todos los usuarios
   const fetchUsers = async () => {
     try {
       const response = await Axios.get(url_connect + 'users/');
@@ -133,12 +138,17 @@ const AdminSignings: React.FC = () => {
     }
   }, [users]);
 
+  // Recojo los datos del fichaje pulsado
   const handleSelectEvent = (event: CalendarEvent) => {
+    const fullType = Object.entries(typeMap)
+      .find(([texto, abre]) => abre === event.type)?.[0]
+      || event.type;
+
     setSelectedEvent(event);
-    setIsEditing(true)
+    setIsEditing(true);
     setFormData({
       Empleado: event.empleadoId ?? "",
-      Tipo: event.type,
+      Tipo: fullType,
       Fecha_hora: dayjs(event.start).format("YYYY-MM-DDTHH:mm"),
       fecha: dayjs(event.start).format("YYYY-MM-DD"),
       hora: dayjs(event.start).format("HH:mm"),
@@ -146,12 +156,12 @@ const AdminSignings: React.FC = () => {
     });
   };
 
-  const handleSaveChanges = async (e: React.FormEvent) => {
+  // Guardo los cambios del fichaje seleccionado
+  const handleSaveChanges = async () => {
     const updatedFormData = {
       ...formData,
       Fecha_hora: `${formData.fecha}T${formData.hora}`,
     };
-    e.preventDefault();
     try {
       Axios.put(`${url_connect}signings/${selectedEvent?.id}/update`, updatedFormData)
         .then(() => {
@@ -169,11 +179,13 @@ const AdminSignings: React.FC = () => {
     }
   };
 
+  // Activo el modo adición del fichaje
   const handleAddMode = () => {
     setIsAdding(true);
   };
 
-  const handleAddSigning = () => {
+  // Subo el fichaje
+  const handleAddSigning = async () => {
     const updatedFormData = {
       ...formData,
       Fecha_hora: `${formData.fecha}T${formData.hora}`,
@@ -188,6 +200,7 @@ const AdminSignings: React.FC = () => {
     fetchEvents();
   }
 
+  // Limpio variables
   const handleCancelEdit = () => {
     fetchEvents();
     setSelectedEvent(null);
@@ -204,6 +217,7 @@ const AdminSignings: React.FC = () => {
     )
   };
 
+  // Filtro los eventos según lo que haya en el buscador 
   const filteredEvents = useMemo(() => {
     const term = searchTerm.toLowerCase();
     return events.filter(ev => {
@@ -242,8 +256,8 @@ const AdminSignings: React.FC = () => {
       <IonContent id="main-content">
         <div className="signings-section">
           <div className="signings-box">
-          <h1 className="config-title">Mis fichajes</h1>
-          <div className="config-divider" />
+            <h1 className="config-title">Mis fichajes</h1>
+            <div className="config-divider" />
             {!isEditing && !isAdding ? (
               <>
                 <div className="header-row">
@@ -304,7 +318,7 @@ const AdminSignings: React.FC = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="calendar-wrapper">
                   <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} onMonthChange={setCalendarDate}
                   />
@@ -312,103 +326,129 @@ const AdminSignings: React.FC = () => {
               </>
             ) : (isEditing || isAdding) && (
               <>
-                <div className="form-section">
-                  <h2>{isAdding ? "Añadir Fichaje" : "Editar Fichaje"}</h2>
-                  <form onSubmit={isAdding ? handleAddSigning : handleSaveChanges}>
-                    <IonItem>
-                      <IonSelect
-                        value={formData.Empleado}
-                        placeholder="Selecciona Empleado"
-                        onIonChange={(e) =>
-                          setFormData({ ...formData, Empleado: e.detail.value })
-                        }
-                      >
-                        {users.map((user) => (
-                          <IonSelectOption key={user.id} value={user.id}>
-                            {user.properties['Nombre de usuario'].title[0].plain_text}
-                          </IonSelectOption>
-                        ))}
-                      </IonSelect>
-                    </IonItem>
-                    <IonItem>
-                      <IonSelect
-                        value={formData.Tipo}
-                        placeholder="Tipo de fichaje"
-                        onIonChange={(e) =>
-                          setFormData({ ...formData, Tipo: e.detail.value })
-                        }
-                      >
-                        <IonSelectOption value="Entrada">Entrada</IonSelectOption>
-                        <IonSelectOption value="Salida">Salida</IonSelectOption>
-                        <IonSelectOption value="Horas extra">Horas extra</IonSelectOption>
-                        <IonSelectOption value="Descanso">Descanso</IonSelectOption>
-                        <IonSelectOption value="Terminado el descanso">
-                          Terminado el descanso
-                        </IonSelectOption>
-                      </IonSelect>
-                    </IonItem>
-                    <IonItem>
-                      <IonInput
-                        type="time"
-                        placeholder="Hora"
-                        value={formData.hora}
-                        onIonChange={(e) =>
-                          setFormData({ ...formData, hora: e.detail.value! })
-                        }
-                      />
-                    </IonItem>
-                    <IonItem>
-                      <IonInput
-                        type="date"
-                        placeholder="Fecha"
-                        value={formData.fecha}
-                        onIonChange={(e) =>
-                          setFormData({ ...formData, fecha: e.detail.value! })
-                        }
-                      />
-                    </IonItem>
-                    <IonItem>
-                      <IonSelect
-                        value={formData.Localizacion}
-                        placeholder="Selecciona una localización"
-                        onIonChange={(e) =>
-                          setFormData({ ...formData, Localizacion: e.detail.value })
-                        }
-                      >
-                        {locations.map((loc) => (
-                          <IonSelectOption key={loc.id} value={loc.id}>
-                            {loc.properties.Nombre.title[0].text.content}
-                          </IonSelectOption>
-                        ))}
-                      </IonSelect>
-                    </IonItem>
-                    <IonButton type="submit" expand="block" style={{ marginTop: '1rem' }}>
-                      {isAdding ? "Añadir Fichaje" : "Guardar cambios"}
-                    </IonButton>
-                    {isEditing && (
-                      <IonButton
-                        color="danger"
-                        expand="block"
-                        onClick={() => setShowDeleteAlert(true)}
-                        style={{ marginTop: '0.5rem' }}
-                      >
-                        Eliminar fichaje
-                      </IonButton>
-                    )}
-                    <IonButton
-                      color="medium"
-                      expand="block"
-                      onClick={handleCancelEdit}
-                      style={{ marginTop: '0.5rem' }}
-                    >
-                      Cancelar
-                    </IonButton>
-                  </form>
-                </div>
+                {(isEditing || isAdding) && (
+                  <div className="form-section">
+                    <IonGrid>
+                      <IonRow>
+                        <IonCol size="12" sizeMd="6">
+                          <IonItem>
+                            <IonLabel position="floating">Empleado</IonLabel>
+                            <IonSelect
+                              value={formData.Empleado}
+                              onIonChange={e =>
+                                setFormData({ ...formData, Empleado: e.detail.value! })
+                              }
+                            >
+                              {users.map(user => (
+                                <IonSelectOption key={user.id} value={user.id}>
+                                  {user.properties['Nombre de usuario'].title[0].plain_text}
+                                </IonSelectOption>
+                              ))}
+                            </IonSelect>
+                          </IonItem>
+                        </IonCol>
+                        <IonCol size="12" sizeMd="6">
+                          <IonItem>
+                            <IonLabel position="floating">Tipo de fichaje</IonLabel>
+                            <IonSelect
+                              interface="alert"
+                              interfaceOptions={{ cssClass: 'fix-radio-center' }}
+                              value={formData.Tipo}
+                              onIonChange={e =>
+                                setFormData({ ...formData, Tipo: e.detail.value! })
+                              }
+                            >
+                              <IonSelectOption value="Entrada">Entrada</IonSelectOption>
+                              <IonSelectOption value="Salida">Salida</IonSelectOption>
+                              <IonSelectOption value="Descanso">Descanso</IonSelectOption>
+                              <IonSelectOption value="Terminado el descanso">
+                                Terminado descanso
+                              </IonSelectOption>
+                              <IonSelectOption value="Horas extra">Horas extra</IonSelectOption>
+                              <IonSelectOption value="Terminadas horas extra">
+                                Terminadas extra
+                              </IonSelectOption>
+                            </IonSelect>
+                          </IonItem>
+                        </IonCol>
+                      </IonRow>
+                      <IonRow>
+                        <IonCol size="12" sizeMd="6">
+                          <IonItem>
+                            <IonLabel position="floating">Fecha</IonLabel>
+                            <IonInput
+                              type="date"
+                              value={formData.fecha}
+                              onIonChange={e =>
+                                setFormData({ ...formData, fecha: e.detail.value! })
+                              }
+                            />
+                          </IonItem>
+                        </IonCol>
+                        <IonCol size="12" sizeMd="6">
+                          <IonItem>
+                            <IonLabel position="floating">Hora</IonLabel>
+                            <IonInput
+                              type="time"
+                              value={formData.hora}
+                              onIonChange={e =>
+                                setFormData({ ...formData, hora: e.detail.value! })
+                              }
+                            />
+                          </IonItem>
+                        </IonCol>
+                      </IonRow>
+
+                      <IonRow>
+                        <IonCol size="12">
+                          <IonItem>
+                            <IonLabel position="floating">Localización</IonLabel>
+                            <IonSelect
+                              value={formData.Localizacion}
+                              onIonChange={e =>
+                                setFormData({ ...formData, Localizacion: e.detail.value! })
+                              }
+                            >
+                              {locations.map(loc => (
+                                <IonSelectOption key={loc.id} value={loc.id}>
+                                  {loc.properties.Nombre.title[0].text.content}
+                                </IonSelectOption>
+                              ))}
+                            </IonSelect>
+                          </IonItem>
+                        </IonCol>
+                      </IonRow>
+
+                      <IonRow className="ion-justify-content-center" style={{ marginTop: 16 }}>
+                        <IonCol size="12" sizeMd="4">
+                          <CustomBttn
+                            text={isAdding ? "Añadir" : "Guardar"}
+                            onClick={isAdding ? handleAddSigning : handleSaveChanges}
+                          />
+                        </IonCol>
+                        {isEditing && (
+                          <IonCol size="12" sizeMd="4">
+                            <CustomBttn
+                              text='Eliminar'
+                              onClick={() => setShowDeleteAlert(true)}
+                            />
+                          </IonCol>
+                        )}
+                        <IonCol size="12" sizeMd="4">
+                          <CustomBttn
+                            text="Cancelar"
+                            onClick={handleCancelEdit}
+                          />
+                        </IonCol>
+                      </IonRow>
+                    </IonGrid>
+                  </div>
+                )}
               </>
             )
             }
             <IonAlert
+              cssClass="custom-select-alert"
               isOpen={showDeleteAlert}
               onDidDismiss={() => setShowDeleteAlert(false)}
               header="Confirmar eliminación"
@@ -449,7 +489,7 @@ const AdminSignings: React.FC = () => {
         </div>
         <Footer />
       </IonContent>
-    </IonPage>
+    </IonPage >
   );
 };
 

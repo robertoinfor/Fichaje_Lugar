@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
     IonPage, IonHeader, IonToolbar, IonTitle,
-    IonContent, IonMenu, IonGrid, IonRow, IonCol
+    IonContent, IonMenu
 } from '@ionic/react';
 
 import TopBar from '../components/TopBar';
@@ -15,6 +15,7 @@ import Footer from '../components/Footer';
 import './AdminMap.css'
 import { useAuthGuard } from '../hooks/useAuthUser';
 
+// Compruebo si estoy en móvil
 const useIsMobile = (bp = 600) => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < bp);
     useEffect(() => {
@@ -45,6 +46,7 @@ const AdminMap: React.FC = () => {
 
     const { coords: userCoords } = useGeolocation();
 
+    // Recojo las localizaciones tanto activas como inactivas
     const fetchLocations = useCallback(() => {
         Axios.get(url_connect + 'locations/').then(res => {
             const activos = res.data.results
@@ -73,6 +75,8 @@ const AdminMap: React.FC = () => {
     }, [url_connect]);
     useEffect(fetchLocations, [fetchLocations]);
 
+    // Al pulsar en el mapa, si estoy añadiendo un punto, comprueba si se ha introducido el nombre y si no existe esa localización
+    // la añade y actualiza los puntos en el mapa.
     const handleMapClick = useCallback((ev: any) => {
         if (!isAddingPoint) return;
         const latLng = ev.detail?.latLng || ev.latLng;
@@ -97,6 +101,7 @@ const AdminMap: React.FC = () => {
         isAddingPoint, newPointName, locations, url_connect, fetchLocations
     ]);
 
+    // Establece como inactiva la localización
     const handleDelete = useCallback((id: string) => {
         Axios.put(url_connect + `locations/${id}/changeState`, { Estado: "Inactivo" })
             .then(() => {
@@ -105,11 +110,13 @@ const AdminMap: React.FC = () => {
         setIsDeletingPoint(false);
     }, [url_connect]);
 
+    // Selecciona el punto pulsado
     const handleMarkerSelect = useCallback((poi: Poi) => {
         setSelectedPoi(poi);
         setCircleCenter(new google.maps.LatLng(poi.location.lat, poi.location.lng));
     }, []);
 
+    // Selecciono el al darle al lápiz y abro el menú de edición
     const handleEditStart = () => {
         if (!selectedPoi) return;
         setEditingKey(selectedPoi.key);
@@ -118,6 +125,7 @@ const AdminMap: React.FC = () => {
         setSelectedPoi(null);
     };
 
+    // Guardo la edición del cambio de nombre
     const saveEdit = () => {
         if (!editingKey) return;
 
@@ -136,22 +144,12 @@ const AdminMap: React.FC = () => {
         setEditPointName("");
     };
 
+    // Actualiza el estado de  la ubicación para activarla
     const reactivateLocation = (id: string) => {
         Axios.put(url_connect + `locations/${id}/changeState`, { Estado: "Activo" })
             .then(() => fetchLocations())
             .catch(console.error);
         setShowOldLocations(false);
-    };
-
-    const resetModes = () => {
-        setIsAddingPoint(false);
-        setIsDeletingPoint(false);
-        setShowOldLocations(false);
-        setIsEditing(false);
-        setMessage("");
-        setNewPointName("");
-        setEditPointName("");
-        setSelectedPoi(null);
     };
 
     return (
@@ -239,6 +237,7 @@ const AdminMap: React.FC = () => {
                                     />
                                 </div>
 
+                                {/* Activa el modal para añadir el punto */}
                                 {isAddingPoint && (
                                     <div className="floating-form">
                                         <label htmlFor="pt-name" className="section-title">Nombre de ubicación</label>
@@ -270,6 +269,7 @@ const AdminMap: React.FC = () => {
                                     </div>
                                 )}
 
+                                {/* Activa el modal para desactivar un punto */}
                                 {isDeletingPoint && (
                                     <div className="floating-form">
                                         <p className="helper-text">Haz clic en un marcador para desactivarlo.</p>
@@ -288,6 +288,7 @@ const AdminMap: React.FC = () => {
 
                                 )}
 
+                                {/* Muestra las ubicaciones inactivas para reactivarlas */}
                                 {isShowingOld && (
                                     <div className="floating-form">
                                         <h4 className="section-title">Ubicaciones inactivas</h4>
@@ -316,6 +317,7 @@ const AdminMap: React.FC = () => {
                                     </div>
                                 )}
 
+                                {/* Muestra el modal para editar el nombre de la ubicación */}
                                 {isEditing && (
                                     <div className="sidebar-edit">
                                         <label className="edit-label" htmlFor="editPoint">

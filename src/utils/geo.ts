@@ -1,4 +1,5 @@
-export const calcularDistanciaMetros = (
+// Función para calcular la distancia entre dos puntos según latitud y longitud
+export const calcDistanceMts = (
     lat1: number,
     lon1: number,
     lat2: number,

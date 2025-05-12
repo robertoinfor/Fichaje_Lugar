@@ -30,13 +30,15 @@ const AdminUsersView: React.FC = () => {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Verifico si el usuario es administrador
     useEffect(() => {
         const rol = localStorage.getItem('rol');
         if (rol === 'Administrador') {
             setIsAdmin(true);
         }
     }, []);
-    
+
+    // Recojo todos los usuarios
     const fetchUsers = async () => {
         try {
             const response = await Axios.get(url_connect + "users/");
@@ -46,10 +48,12 @@ const AdminUsersView: React.FC = () => {
         }
     };
 
+    // En caso de añadir o modificar un usuario actualiza la lista de usuarios
     useEffect(() => {
         fetchUsers();
     }, [editingMode, addMode]);
 
+    // Abre el panel de edición, recogiendo la contraseña del usuario para la posible modificación
     const handleEdit = async (user: User) => {
         try {
             const response = await Axios.post(url_connect + 'users/decrypt', {
@@ -68,11 +72,13 @@ const AdminUsersView: React.FC = () => {
         }
     };
 
+    // Abre el panel para la adición de usuarios
     const handleAdd = () => {
         setSelectedUser(null);
         setAddingMode(true);
     };
 
+    // Comprueba si el usuario ya existe y sube la modificación o la edición
     const handleSave = async (formData: UserFormData) => {
         const usernameToCheck = formData["Nombre de usuario"].trim().toLowerCase();
 
@@ -126,6 +132,7 @@ const AdminUsersView: React.FC = () => {
     };
 
 
+    // Cambia el estado del usuario para desactivarlo
     const handleChangeState = async (id: string) => {
         let status = selectedUser?.properties.Estado?.status?.name || "";
         let newStatus = "";
@@ -151,6 +158,7 @@ const AdminUsersView: React.FC = () => {
             setSelectedUser(updatedUser);
         }
 
+        // Hace la llamada a la Api
         try {
             await Axios.put(url_connect + 'users/' + id + "/state", { Estado: newStatus });
             await fetchUsers();
@@ -163,6 +171,7 @@ const AdminUsersView: React.FC = () => {
         }
     };
 
+    // Limpia estados
     const handleCancel = () => {
         setEditingMode(false);
         setAddingMode(false);
@@ -189,7 +198,7 @@ const AdminUsersView: React.FC = () => {
                     <div className="login-box">
                         <h1>Gestión de usuarios</h1>
                         <div className="login-divider" />
-
+                        {/* Muestra todos los usuarios */}
                         {!editingMode && !addMode ? (
                             <>
                                 <CustomBttn onClick={handleAdd} text='Nuevo usuario' />
@@ -259,6 +268,7 @@ const AdminUsersView: React.FC = () => {
                                     </table>
                                 </div>
                             </>
+                            // Muestra el formulario en función de si está añadiendo o editando
                         ) : (
                             <UserForm
                                 key={selectedUser ? selectedUser.id : 'new'}

@@ -3,6 +3,7 @@ import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 import { saveAs } from 'file-saver';
 
+// Función para guardar el archivo
 export async function savePlatformFile(
   blob: Blob,
   fileName: string,

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
+// Función para que, en caso de darle al return y haber cerrado la sesión, te vuelva a la página de login
 export function useAuthGuard(requiredRole?: string) {
   const history = useHistory();
 

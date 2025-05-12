@@ -3,6 +3,7 @@ import { IonButton } from '@ionic/react';
 import './CustomBttn.css';
 import { CustomButton } from '../types/CustomButton';
 
+// Botón personalizado para toda la aplicación
 const CustomBttn: React.FC<CustomButton> = ({
   text,
   fontSize = '1rem',

@@ -45,6 +45,7 @@ const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
+        {/* Establezco las rutas a las vistas */}
         <Route exact path="/home" component={Home}>
         </Route>
         <Route exact path="/" component={Home}>

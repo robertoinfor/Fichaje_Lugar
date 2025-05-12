@@ -12,24 +12,30 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
     const username = localStorage.getItem("userName");
     const url_connect = import.meta.env.VITE_URL_CONNECT;
 
+    // Manejo el cierre de sesión 
     const handleLogOut = async () => {
         try {
+            // Cambia el estado a desconectado
           await Axios.put(url_connect + "users/" + localStorage.getItem('id') + "/log", {
             Conexion: "Desconectado"
           });
       
+          // Recojo el token FCM del usuario
           const { data } = await Axios.get(url_connect + "fcm/token/" + localStorage.getItem('id'));
-          console.log(data);
           
           const token = data?.pageId;
       
+          // Borro el token FCM del usuario
           if (token) {
             await Axios.delete(url_connect + "fcm/token/" + token);
           }
       
+          // Borro los datos de inicio de sesión del dispositivo
           localStorage.removeItem('userName');
           localStorage.removeItem('id');
           document.activeElement instanceof HTMLElement && document.activeElement.blur();
+
+          // Vuelvo a la página de login y borro el historial
           navigation.push('/', 'forward', 'push');
           window.location.reload();
         } catch (err) {
@@ -37,17 +43,19 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
         }
       };
       
-
+    // Voy a la página para fichar
     const handleHome = () => {
         document.activeElement instanceof HTMLElement && document.activeElement.blur();
         navigation.push('/home/signing', 'forward', 'push');
     };
 
+    // Voy a la página de admin
     const handleAdmin = () => {
         document.activeElement instanceof HTMLElement && document.activeElement.blur();
         navigation.push('/home/menu', 'forward', 'push');
     };
 
+    // Voy a la página de mis fichajes
     const handleViewHistory = () => {
         document.activeElement instanceof HTMLElement && document.activeElement.blur();
         navigation.push('/home/signing/calendar', 'forward', 'push');
@@ -59,7 +67,8 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
     }
     return (
         <IonList>
-            {
+            { 
+            // Muestro las opciones básicas si existe un usuario loggeado
                 (username && username !== "") && (
                     <>
                         <IonItem button onClick={handleHome}>
@@ -68,6 +77,7 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
                         <IonItem button onClick={handleViewHistory}>
                             <IonLabel>Ver mi historial</IonLabel>
                         </IonItem>
+                        {/* Si es administrador, muestro la opción */}
                         {admin && (
                             <IonItem button onClick={handleAdmin}>
                                 <IonLabel>Modo Administrador</IonLabel>

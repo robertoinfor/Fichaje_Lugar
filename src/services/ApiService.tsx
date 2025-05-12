@@ -2,6 +2,7 @@ import Axios from 'axios';
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
+// Recojo los fichajes por usuario
 export const getSignings = async (userId: string) => {
   try {
     const response = await Axios.get(url_connect + "signings/" + userId+ "/user");

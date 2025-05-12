@@ -1,3 +1,4 @@
+// Componente copiado del tutorial de Google Maps
 import {
     forwardRef,
     useContext,

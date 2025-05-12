@@ -17,7 +17,7 @@ const Signing: React.FC = () => {
     const [userlogged, setUserLogged] = useState<User | undefined>(undefined);
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
-    const [isFichado, setIsFichado] = useState(false);
+    const [isSigned, setIsSigned] = useState(false);
     const [isResting, setIsResting] = useState(false);
     const [isWorkingExtra, setIsWorkingExtra] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -26,13 +26,15 @@ const Signing: React.FC = () => {
     const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
     const focusRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {        
+    // Comprobación de si el usuario es Administrador
+    useEffect(() => {
         const rol = localStorage.getItem('rol');
         if (rol === 'Administrador') {
             setIsAdmin(true);
         }
     }, []);
 
+    // Recoge el usuario loggeado
     useEffect(() => {
         if (!userName) return;
         Axios.get(url_connect + `users/${userName}`)
@@ -44,6 +46,7 @@ const Signing: React.FC = () => {
             });
     }, [userName]);
 
+    // Guarda de forma local el tiempo trabajado al darle a "Entrada"
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (isRunning) {
@@ -60,10 +63,11 @@ const Signing: React.FC = () => {
         return () => clearInterval(interval);
     }, [isRunning]);
 
+    // Recoge si el usuario loggeado ha fichado anteriormente y comprueba si es administrador
     useEffect(() => {
         const storedFichado = localStorage.getItem('isFichado');
         if (storedFichado === 'true') {
-            setIsFichado(true);
+            setIsSigned(true);
             setIsRunning(true);
         }
         if (userlogged && userlogged.properties.Rol.select.name === "Administrador") {
@@ -71,12 +75,14 @@ const Signing: React.FC = () => {
         }
     }, [userlogged]);
 
+    // 
     useEffect(() => {
         if (focusRef.current) {
             focusRef.current.focus();
         }
     }, []);
 
+    // Registra el evento según el botón pulsado para guardarlo en Notion y modifica el estado del usuario
     const handleAction = useCallback((actionType: 'entrada' | 'salida' | 'descanso' | 'extra') => {
         let tipo = '';
         let online = ''
@@ -85,7 +91,7 @@ const Signing: React.FC = () => {
                 tipo = 'Entrada';
                 setIsRunning(true);
                 setSeconds(0);
-                setIsFichado(true);
+                setIsSigned(true);
                 const now = Date.now();
                 localStorage.setItem('startTimestamp', now.toString());
                 localStorage.setItem('isFichado', 'true');
@@ -93,9 +99,9 @@ const Signing: React.FC = () => {
                 break;
             case 'salida':
                 tipo = 'Salida';
-                setIsRunning(!isFichado);
+                setIsRunning(!isSigned);
                 setSeconds(0);
-                setIsFichado(!isFichado);
+                setIsSigned(!isSigned);
                 localStorage.removeItem('isFichado');
                 localStorage.removeItem('startTimestamp');
                 online = "Online"
@@ -126,8 +132,9 @@ const Signing: React.FC = () => {
                 });
             })
         }
-    }, [isFichado, isResting, isWorkingExtra, userId, nearPoint]);
+    }, [isSigned, isResting, isWorkingExtra, userId, nearPoint]);
 
+    // Formatea la hora para mostrar el tiempo trabajado desde que entró
     const formatTime = (totalSeconds: number) => {
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -151,13 +158,17 @@ const Signing: React.FC = () => {
             <IonContent id="main-content">
                 <section className="signing-section">
                     <div className="signing-box">
+                        {/* Mientras no se haya verificada la ubicación muestra una pestaña de carga */}
                         {loading ? (
                             <p>🔄 Verificando ubicación…</p>
+                            // En caso de error lo muestra y muestra un botón para recargarla
                         ) : error ? (
                             <>
                                 <p style={{ color: 'red' }}>{error}</p>
                                 <CustomBttn text="Recargar ubicación" onClick={checkLocation} />
                             </>
+                            // Si estoy dentro de un punto de fichaje y, por lo tanto, tengo un punto cercano, muestro 
+                            //  los botones para fichar
                         ) : nearPoint && isInside ? (
                             <>
                                 {userlogged && (
@@ -167,9 +178,9 @@ const Signing: React.FC = () => {
                                             alt="Usuario"
                                             className="signing-avatar"
                                         />
-                                        <h2>Fichaje</h2>
                                     </>
                                 )}
+                                <h2>Fichaje</h2>
                                 <div className="login-divider" />
                                 <div className="timer">{formatTime(seconds)}</div>
                                 <div className="signing-buttons-wrapper">
@@ -177,7 +188,7 @@ const Signing: React.FC = () => {
                                         <CustomBttn
                                             text="Entrada"
                                             onClick={() => handleAction('entrada')}
-                                            disabled={isFichado}
+                                            disabled={isSigned}
                                             width="100%"
                                         />
                                     </div>
@@ -186,13 +197,13 @@ const Signing: React.FC = () => {
                                         <CustomBttn
                                             text={isResting ? 'Terminar descanso' : 'Descanso'}
                                             onClick={() => handleAction('descanso')}
-                                            disabled={!isFichado}
+                                            disabled={!isSigned}
                                             width="100%"
                                         />
                                         <CustomBttn
                                             text={isWorkingExtra ? 'Terminar extra' : 'Horas extra'}
                                             onClick={() => handleAction('extra')}
-                                            disabled={!isFichado}
+                                            disabled={!isSigned}
                                             width="100%"
                                         />
                                     </div>
@@ -201,12 +212,13 @@ const Signing: React.FC = () => {
                                         <CustomBttn
                                             text="Salida"
                                             onClick={() => handleAction('salida')}
-                                            disabled={!isFichado}
+                                            disabled={!isSigned}
                                             width="100%"
                                         />
                                     </div>
                                 </div>
                             </>
+                            // En caso de no estar en una zona para fichar, lo muestra
                         ) : (
                             <>
                                 <p style={{ color: 'red', padding: '1rem', textAlign: 'center' }}>

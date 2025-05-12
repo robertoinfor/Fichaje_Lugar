@@ -17,6 +17,7 @@ const app = initializeApp(firebaseConfig);
 export const analytics  = getAnalytics(app);
 export const messaging  = getMessaging(app);
 
+// Pido permiso para recibir notificaciones y, una vez aceptado, genero el token FCM y lo subo a Notion
 export async function generateToken(userId: string) {
   try {
     const permission = await Notification.requestPermission();

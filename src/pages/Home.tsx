@@ -37,7 +37,7 @@ const Home: React.FC = () => {
 
   const passwordRef = useRef<HTMLIonInputElement>(null);
 
-
+  // Si se han guardado los datos de inicio de sesión, va a la siguiente página
   useEffect(() => {
     const storedUser = localStorage.getItem('userName');
     const storedId = localStorage.getItem('id');
@@ -47,6 +47,7 @@ const Home: React.FC = () => {
     }
   }, []);
 
+  // Comprueba si el usuario es Administrador
   useEffect(() => {
     const rol = localStorage.getItem('rol');
     if (rol === 'Administrador') {
@@ -54,6 +55,7 @@ const Home: React.FC = () => {
     }
   }, []);
 
+  // Comprueba si el entorno es soportado por Firebase, registra el servicio y espera a la llegada de mensajes
   useEffect(() => {
     messagingSupported().then(supported => {
       if (!supported) {
@@ -74,6 +76,8 @@ const Home: React.FC = () => {
     });
   }, []);
 
+  // Recoge los datos de los campos, comprueba que los datos son correctos,
+  //  actualiza datos del usuario, genera el token FCM y cambia de vista
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const input = await passwordRef.current?.getInputElement();
@@ -135,6 +139,7 @@ const Home: React.FC = () => {
     }
   };
 
+  // Limpia variables
   const handleClear = () => {
     setLogin('');
     setPassword('');
@@ -145,6 +150,7 @@ const Home: React.FC = () => {
     setShowPassword(false);
   };
 
+  // Función para ocultar parte del email mostrado
   function maskEmail(email: string): string {
     const [localPart, domain] = email.split('@');
     if (localPart.length <= 3) return email;
@@ -156,6 +162,7 @@ const Home: React.FC = () => {
     return `${visibleStart}${maskedMiddle}${visibleEnd}@${domain}`;
   }
 
+  // Función para enviar el token de recuperación por correo al usuario especificado
   async function forgotPassword() {
     if (!enteredUser) {
       setMessage('Introduce un usuario.');
@@ -185,6 +192,7 @@ const Home: React.FC = () => {
     }
   }
 
+  // Comprueba que el token introducido existe, te devuelve la contraseña desencriptada y borra el token
   const handleTokenVerification = async () => {
     try {
       const resp = await Axios.post(
@@ -218,6 +226,7 @@ const Home: React.FC = () => {
     }
   };
 
+  // Limpia campos al abrir la pestaña
   useEffect(() => {
     if (showModal) handleClear();
   }, [showModal]);

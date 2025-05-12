@@ -50,7 +50,7 @@ export default function SearchBox() {
         <input
             ref={inputRef}
             type="text"
-            placeholder="Buscar lugares…"
+            placeholder="Buscar..."
             style={{
                 boxSizing: 'border-box',
                 border: '1px solid transparent',

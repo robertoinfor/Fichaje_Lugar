@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, dayjsLocalizer, View, NavigateAction } from "react-big-calendar";
+import { Calendar, dayjsLocalizer, View } from "react-big-calendar";
 import dayjs from "dayjs";
 import 'dayjs/locale/es';
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -22,6 +22,8 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
     const [currentView, setCurrentView] = useState<View>(isMobile ? "day" : "month");
     const [currentDate, setCurrentDate] = useState<Date>(new Date());
     const [festivos, setFestivos] = useState<CalendarEvent[]>([]);
+
+    // Recoge los festivos de canarias
     const fetchFestivos = async (year: number) => {
         try {
             const res = await fetch(`${url_connect}holidays/${year}`);
@@ -39,10 +41,12 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
         }
     };
 
+    // Cambia la vista según si es móvil o escritorio
     const handleViewChange = (view: View) => {
         setCurrentView(view);
     };
 
+    // Cambia la vista a otro mes o día
     const handleNavigate = (newDate: Date, newView: View) => {
         setCurrentDate(newDate);
         setCurrentView(newView);
@@ -53,17 +57,20 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
           }
     };
 
+    // Al pulsar en el día se cambia a la vista de día
     const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
         setCurrentDate(slotInfo.start);
         setCurrentView("day");
     };
 
+    // Al seleccionar el evento (fichaje) se abre la vista edición
     const handleSelectEvent = (event: CalendarEvent) => {
         if (event.type === "Festivo") return;
         onSelectEvent?.(event);
       };
       
 
+      // Cambia el color en función del tipo de fichaje o festivo
     const eventColors: Record<string, string> = {
         E: "#71fa7e",
         S: "#fc4f4f",
@@ -74,6 +81,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
         Festivo: "#ffb347",
     };
 
+    // Si es un festivo modifica la vista para que ocupe todo el día y deje el fondo naranja
     const getEventStyle = (event: CalendarEvent): { style: CSSProperties } => {
       const backgroundColor = event.type === "Festivo"
         ? "#ffe0b2"
@@ -96,6 +104,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
         fetchFestivos(año);
     }, []);
 
+    // Compruebo si ese día es festivo en función de los festivos recogidos anteriormente
     const dayPropGetter = (date: Date) => {
         const isSameDay = (d1: Date, d2: Date) =>
             d1.getFullYear() === d2.getFullYear() &&

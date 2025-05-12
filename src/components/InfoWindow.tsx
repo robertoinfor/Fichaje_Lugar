@@ -11,6 +11,7 @@ interface MarkerInfoProps {
 const MarkerInfo: React.FC<MarkerInfoProps> = ({ position, name, onEdit, onClose }) => {
   const map = useMap();
 
+  // Muestra un recuadro con el nombre de la ubicación y el botón para editar
   useEffect(() => {
     if (!map) return;
     const contentDiv = document.createElement('div');

@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 export const useSignings = (userId: string) => {
   const [signings, setSignings] = useState<CalendarEvent[]>([]);
 
+  // Recojo los eventos formateando los datos para tener el formato de los eventos del calendario
   useEffect(() => {
     const fetchSignings = async () => {
       try {

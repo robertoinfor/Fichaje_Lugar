@@ -9,8 +9,10 @@ export const useUserAndSignings = (userName: string | null, userId: string | nul
   const [userLogged, setUserLogged] = useState<User | undefined>();
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // Recojo los fichajes del usuario
   const signings = useSignings(userId || '');
 
+  // Recojo el id del usuario
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -32,5 +34,5 @@ export const useUserAndSignings = (userName: string | null, userId: string | nul
     }
   }, [userLogged]);
 
-  return { eventos: signings, isAdmin, userLogged };
+  return { signings, isAdmin, userLogged };
 };

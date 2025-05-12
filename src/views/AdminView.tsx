@@ -15,12 +15,15 @@ const AdminView: React.FC = () => {
 
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // Verifico si el usuario es administrador
   useEffect(() => {
     const rol = localStorage.getItem('rol');
     if (rol === 'Administrador') {
       setIsAdmin(true);
     }
   }, []);
+
+  // Rutas para cada uno de los botones 
   const handleUsersView = () => {
     navigation.push('/home/menu/adduser', 'forward')
   }

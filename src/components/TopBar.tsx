@@ -18,23 +18,25 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
   const navigation = useNavigation();
   let username = localStorage.getItem("userName");
 
+  // Retrocedo en el historial y, si es la pantalla principal, borro los datos de usuario
   const returnView = () => {
-    if (location.pathname === '/home/signing' || location.pathname === '/home' ) {
+    if (location.pathname === '/home/signing' || location.pathname === '/home') {
       localStorage.removeItem('userName');
       localStorage.removeItem('id');
-      username=""
+      username = ""
     }
     (document.activeElement as HTMLElement)?.blur();
     navigation.goBack();
   };
-  
+
   return (
     <IonHeader>
       <IonToolbar className="custom-toolbar">
         <div slot="start" className="toolbar-start">
-        {username && (
+          {/* Si hay usuario loggeado, muestra la flecha */}
+          {username && (
             <IonButton fill="clear" onClick={returnView}>
-              <IonIcon icon={arrowBack}/>
+              <IonIcon icon={arrowBack} />
             </IonButton>
           )}
           <img src="/Logo_Lugar2.svg" alt="Logo Lugar Gestión Cultural" className="logo-img" />

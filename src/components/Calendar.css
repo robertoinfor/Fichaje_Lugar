@@ -5,12 +5,14 @@
   justify-content: space-between;
   margin-bottom: 0.5rem;
 }
+
 .rbc-toolbar .rbc-toolbar-label {
   flex: 1;
   text-align: center;
   font-size: 1.25rem;
   font-weight: 500;
 }
+
 .rbc-toolbar .rbc-btn-group button {
   background: #fff;
   border: 1px solid #ccc;
@@ -20,6 +22,7 @@
   cursor: pointer;
   font-size: 1rem;
 }
+
 .rbc-toolbar .rbc-btn-group button:hover {
   background: #eee;
 }
@@ -28,10 +31,12 @@
 .rbc-month-view .rbc-row-bg,
 .rbc-month-view .rbc-row-content {
   min-height: 8rem;
+  pointer-events: none;
 }
 
 /* Eventos */
 .rbc-event {
+  pointer-events: auto;
   margin: 2px 0;
   padding: 2px 4px;
   border-radius: 4px;
@@ -40,6 +45,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .rbc-event-label {
   display: none;
 }
@@ -47,8 +53,8 @@
 /* Popup de eventos */
 .rbc-overlay {
   background: white;
-  border: 1px solid rgba(0,0,0,0.1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive */
@@ -57,6 +63,7 @@
     padding: 0.2rem 0.5rem;
     font-size: 0.9rem;
   }
+
   .rbc-month-view .rbc-row-bg,
   .rbc-month-view .rbc-row-content {
     min-height: 6rem;

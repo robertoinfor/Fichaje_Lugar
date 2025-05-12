@@ -13,6 +13,8 @@ const CalendarView: React.FC = () => {
   const userName = localStorage.getItem('userName');
   const userId = localStorage.getItem('id');
 
+
+  // Compruebo el rol del usuario
   useEffect(() => {
     const rol = localStorage.getItem('rol');
     if (rol === 'Administrador') {
@@ -20,7 +22,8 @@ const CalendarView: React.FC = () => {
     }
   }, []);
 
-  const { eventos } = useUserAndSignings(userName, userId);
+  // Recojo los eventos del usuario loggeado
+  const { signings } = useUserAndSignings(userName, userId);
 
   return (
     <IonPage>
@@ -43,7 +46,7 @@ const CalendarView: React.FC = () => {
             <h1 className="config-title">Mis fichajes</h1>
             <div className="config-divider" />
             <div className="calendar-container">
-              <CustomCalendar events={eventos} />
+              <CustomCalendar events={signings} />
             </div>
           </div>
         </section>
