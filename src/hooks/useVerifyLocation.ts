@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
+import { Capacitor } from '@capacitor/core';
 import axios from 'axios';
 import { calcDistanceMts } from '../utils/geo';
 import { Poi } from '../types/Poi';
@@ -10,20 +11,35 @@ export const useVerifyLocation = () => {
   const [loading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Pide los permisos de ubicación, la comprueba y verifica si está dentro del radio
   const checkLocation = useCallback(async () => {
     try {
-      const permission = await Geolocation.checkPermissions();
-      if (permission.location !== 'granted') {
-        await Geolocation.requestPermissions();
-      }
-      const position = await Geolocation.getCurrentPosition({
-        timeout: 10000,
-        enableHighAccuracy: true
-      });
-      const { latitude, longitude } = position.coords;
+      let latitude: number, longitude: number;
 
-      // Recojo las localizaciones y las guardo
+      if (Capacitor.getPlatform() === 'web') {
+        // ✅ API del navegador para web
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            timeout: 10000,
+            enableHighAccuracy: true
+          });
+        });
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+      } else {
+        // ✅ Capacitor plugin para apps nativas
+        const permission = await Geolocation.checkPermissions();
+        if (permission.location !== 'granted') {
+          await Geolocation.requestPermissions();
+        }
+        const position = await Geolocation.getCurrentPosition({
+          timeout: 10000,
+          enableHighAccuracy: true
+        });
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+      }
+
+      // Obtener localizaciones
       const response = await axios.get(import.meta.env.VITE_URL_CONNECT + 'locations');
       const pois: Poi[] = response.data.results.map((page: any) => ({
         key: page.id,
@@ -37,7 +53,6 @@ export const useVerifyLocation = () => {
       let masCercano: Poi | null = null;
       let distanciaMinima = Infinity;
 
-      // Por cada punto, compruebo la distancia en metros entre el punto actual y el punto
       for (const poi of pois) {
         const distancia = calcDistanceMts(latitude, longitude, poi.location.lat, poi.location.lng);
         if (distancia < distanciaMinima) {
@@ -46,7 +61,6 @@ export const useVerifyLocation = () => {
         }
       }
 
-      // Si estoy a un mínimo de doscientos metros, guardo que estoy dentro de ese punto y el más cercano
       const dentro = distanciaMinima <= 200;
       setIsInside(dentro);
       setNearPoint(dentro ? masCercano : null);
@@ -58,7 +72,6 @@ export const useVerifyLocation = () => {
     }
   }, []);
 
-  
   useEffect(() => {
     checkLocation();
     const interval = setInterval(() => {
