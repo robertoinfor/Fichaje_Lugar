@@ -11,7 +11,7 @@ const CustomBttn: React.FC<CustomButton> = ({
   height = '45px',
   onClick,
   disabled,
-  type = 'button'
+  type = 'button',
 }) => {
   return (
     <IonButton

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonMenu, IonButton, IonSelect, IonSelectOption, IonAlert, IonRow, IonGrid, IonCol, IonLabel } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonMenu, IonSelect, IonSelectOption, IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
 import Axios from 'axios';
 import dayjs from 'dayjs';
 import CustomCalendar from '../components/Calendar';
@@ -257,7 +257,7 @@ const AdminSignings: React.FC = () => {
       <IonContent id="main-content">
         <div className="signings-section">
           <div className="signings-box">
-            <h1 className="config-title">Mis fichajes</h1>
+            <h1 className="config-title">Todos los fichajes</h1>
             <div className="config-divider" />
             {!isEditing && !isAdding ? (
               <>
@@ -327,171 +327,105 @@ const AdminSignings: React.FC = () => {
               </>
             ) : (isEditing || isAdding) && (
               <>
-                {(isEditing || isAdding) && (
-                  <div className="form-section">
-                    <IonGrid>
-                      <IonRow>
-                        <IonCol size="12" sizeMd="6">
-                          <IonItem>
-                            <IonLabel position="floating">Empleado</IonLabel>
-                            <IonSelect
-                              value={formData.Empleado}
-                              onIonChange={e =>
-                                setFormData({ ...formData, Empleado: e.detail.value! })
-                              }
-                            >
-                              {users.map(user => (
-                                <IonSelectOption key={user.id} value={user.id}>
-                                  {user.properties['Nombre de usuario'].title[0].plain_text}
-                                </IonSelectOption>
-                              ))}
-                            </IonSelect>
-                          </IonItem>
-                        </IonCol>
-                        <IonCol size="12" sizeMd="6">
-                          <IonItem>
-                            <IonLabel position="floating">Tipo de fichaje</IonLabel>
-                            <IonSelect
-                              interface="alert"
-                              interfaceOptions={{ cssClass: 'fix-radio-center' }}
-                              value={formData.Tipo}
-                              onIonChange={e =>
-                                setFormData({ ...formData, Tipo: e.detail.value! })
-                              }
-                            >
-                              <IonSelectOption value="Entrada">Entrada</IonSelectOption>
-                              <IonSelectOption value="Salida">Salida</IonSelectOption>
-                              <IonSelectOption value="Descanso">Descanso</IonSelectOption>
-                              <IonSelectOption value="Terminado el descanso">
-                                Terminado descanso
-                              </IonSelectOption>
-                              <IonSelectOption value="Horas extra">Horas extra</IonSelectOption>
-                              <IonSelectOption value="Terminadas horas extra">
-                                Terminadas extra
-                              </IonSelectOption>
-                            </IonSelect>
-                          </IonItem>
-                        </IonCol>
-                      </IonRow>
-                      <IonRow>
-                        <IonCol size="12" sizeMd="6">
-                          <IonItem>
-                            <IonLabel position="floating">Fecha</IonLabel>
-                            <IonInput
-                              type="date"
-                              value={formData.fecha}
-                              onIonChange={e =>
-                                setFormData({ ...formData, fecha: e.detail.value! })
-                              }
-                            />
-                          </IonItem>
-                        </IonCol>
-                        <IonCol size="12" sizeMd="6">
-                          <IonItem>
-                            <IonLabel position="floating">Hora</IonLabel>
-                            <IonInput
-                              type="time"
-                              value={formData.hora}
-                              onIonChange={e =>
-                                setFormData({ ...formData, hora: e.detail.value! })
-                              }
-                            />
-                          </IonItem>
-                        </IonCol>
-                      </IonRow>
+                <IonCard className="user-card">
+                  <IonCardHeader>
+                    <IonCardTitle className="form-title">
+                      {isAdding ? "Añadir fichaje" : "Editar fichaje"}
+                    </IonCardTitle>
+                  </IonCardHeader>
+                  <IonCardContent>
+                    <form>
+                      <IonItem>
+                        <IonSelect
+                          placeholder="Empleado"
+                          value={formData.Empleado}
+                          onIonChange={e => setFormData({ ...formData, Empleado: e.detail.value! })}
+                        >
+                          {users.map(user => (
+                            <IonSelectOption key={user.id} value={user.id}>
+                              {user.properties['Nombre de usuario'].title[0].plain_text}
+                            </IonSelectOption>
+                          ))}
+                        </IonSelect>
+                      </IonItem>
 
-                      <IonRow>
-                        <IonCol size="12">
-                          <IonItem>
-                            <IonLabel position="floating">Localización</IonLabel>
-                            <IonSelect
-                              value={formData.Localizacion}
-                              onIonChange={e =>
-                                setFormData({ ...formData, Localizacion: e.detail.value! })
-                              }
-                            >
-                              {locations.map(loc => (
-                                <IonSelectOption key={loc.id} value={loc.id}>
-                                  {loc.properties.Nombre.title[0].text.content}
-                                </IonSelectOption>
-                              ))}
-                            </IonSelect>
-                          </IonItem>
-                        </IonCol>
-                      </IonRow>
+                      <IonItem>
+                        <IonSelect
+                          placeholder="Tipo de fichaje"
+                          value={formData.Tipo}
+                          onIonChange={e => setFormData({ ...formData, Tipo: e.detail.value! })}
+                        >
+                          <IonSelectOption value="Entrada">Entrada</IonSelectOption>
+                          <IonSelectOption value="Salida">Salida</IonSelectOption>
+                          <IonSelectOption value="Descanso">Descanso</IonSelectOption>
+                          <IonSelectOption value="Terminado el descanso">Terminado descanso</IonSelectOption>
+                          <IonSelectOption value="Horas extra">Horas extra</IonSelectOption>
+                          <IonSelectOption value="Terminadas horas extra">Terminadas extra</IonSelectOption>
+                        </IonSelect>
+                      </IonItem>
 
-                      <IonRow className="ion-justify-content-center" style={{ marginTop: 16 }}>
-                        <IonCol size="12" sizeMd="4">
-                          <CustomBttn
-                            text={isAdding ? "Añadir" : "Guardar"}
-                            onClick={isAdding ? handleAddSigning : handleSaveChanges}
-                          />
-                        </IonCol>
-                        {isEditing && (
-                          <IonCol size="12" sizeMd="4">
-                            <CustomBttn
-                              text='Eliminar'
-                              onClick={() => setShowDeleteAlert(true)}
-                            />
-                          </IonCol>
-                        )}
-                        <IonCol size="12" sizeMd="4">
-                          <CustomBttn
-                            text="Cancelar"
-                            onClick={handleCancelEdit}
-                          />
-                        </IonCol>
-                      </IonRow>
-                    </IonGrid>
-                  </div>
-                )}
-              </>
-            )
-            }
-            <IonAlert
-              cssClass="custom-select-alert"
-              isOpen={showDeleteAlert}
-              onDidDismiss={() => setShowDeleteAlert(false)}
-              header="Confirmar eliminación"
-              message="¿Estás seguro de que quieres eliminar este fichaje?"
-              buttons={[
-                {
-                  text: 'Cancelar',
-                  role: 'cancel',
-                  handler: () => setShowDeleteAlert(false)
-                },
-                {
-                  text: 'Eliminar',
-                  role: 'destructive',
-                  handler: async () => {
-                    if (!selectedEvent) return;
+                      <IonItem>
+                        <IonInput
+                          type="date"
+                          placeholder="Fecha"
+                          value={formData.fecha}
+                          onIonChange={e => setFormData({ ...formData, fecha: e.detail.value! })}
+                        />
+                      </IonItem>
 
-                    try {
-                      await Axios.delete(`${url_connect}signings/${selectedEvent.id}/delete`);
-                      await fetchEvents();
-                      setSelectedEvent(null);
-                      setIsEditing(false);
-                      setFormData({
-                        Empleado: "",
-                        Tipo: "",
-                        Fecha_hora: "",
-                        fecha: "",
-                        hora: "",
-                        Localizacion: ""
-                      });
-                    } catch (error) {
-                      console.error("Error eliminando el fichaje:", error);
-                    }
-                  }
-                }
-              ]}
-            />
-          </div>
-        </div>
-        <Footer />
-      </IonContent>
-    </IonPage >
-  );
+                      <IonItem>
+                        <IonInput
+                          type="time"
+                          placeholder="Hora"
+                          value={formData.hora}
+                          onIonChange={e => setFormData({ ...formData, hora: e.detail.value! })}
+                        />
+                      </IonItem>
+
+                      <IonItem>
+                        <IonSelect
+                          placeholder="Localización"
+                          value={formData.Localizacion}
+                          onIonChange={e => setFormData({ ...formData, Localizacion: e.detail.value! })}
+                        >
+                          {locations.map(loc => (
+                            <IonSelectOption key={loc.id} value={loc.id}>
+                              {loc.properties.Nombre.title[0].text.content}
+                            </IonSelectOption>
+                          ))}
+                        </IonSelect>
+                      </IonItem>
+
+                      <CustomBttn
+                        text={isAdding ? "Añadir" : "Guardar"}
+                        onClick={isAdding ? handleAddSigning : handleSaveChanges}
+                        width="100%"
+                      />
+
+                      {isEditing && (
+                        <CustomBttn
+                          text="Eliminar"
+                          onClick={() => setShowDeleteAlert(true)}
+                          width="100%"
+                        />
+                      )}
+
+                      <CustomBttn
+                        text="Cancelar"
+                        onClick={handleCancelEdit}
+                        width="100%"
+                      />
+                    </form>
+                  </IonCardContent>
+                </IonCard>
+                </>
+            )}
+              </div>
+              </div>
+            <Footer />
+          </IonContent>
+        </IonPage >
+        );
 };
 
-export default AdminSignings;
+        export default AdminSignings;

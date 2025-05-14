@@ -213,6 +213,7 @@ const AdminMap: React.FC = () => {
                                             setIsDeletingPoint(false);
                                             setShowOldLocations(false);
                                             setMessage("");
+                                            setIsEditing(false)
                                         }}
                                         text="Añadir ubicación"
                                     />
@@ -222,6 +223,7 @@ const AdminMap: React.FC = () => {
                                             setIsAddingPoint(false);
                                             setShowOldLocations(false);
                                             setMessage("");
+                                            setIsEditing(false)
                                         }}
                                         text="Desactivar ubicación"
                                     />
@@ -232,6 +234,7 @@ const AdminMap: React.FC = () => {
                                             setIsDeletingPoint(false);
                                             setMessage("");
                                             fetchLocations();
+                                            setIsEditing(false)
                                         }}
                                         text="Reactivar ubicación"
                                     />
@@ -330,16 +333,16 @@ const AdminMap: React.FC = () => {
                                             value={editPointName}
                                             onChange={e => setEditPointName(e.target.value)}
                                         />
-                                        <CustomBttn
-                                            text='Guardar'
-                                            onClick={saveEdit}
-                                            height='0.5vh'
-                                            width='8vw' />
-                                        <CustomBttn
-                                            text='Cancelar'
-                                            onClick={() => setIsEditing(false)}
-                                            height='0.5vh'
-                                            width='8vw' />
+                                        <div className="edit-buttons-row">
+                                            <CustomBttn
+                                                text='Guardar'
+                                                onClick={saveEdit}
+                                            />
+                                            <CustomBttn
+                                                text='Cancelar'
+                                                onClick={() => setIsEditing(false)}
+                                            />
+                                        </div>
                                     </div>
                                 )}
                             </div>
