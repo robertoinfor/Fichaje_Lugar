@@ -99,7 +99,7 @@ const AdminUsersView: React.FC = () => {
         if (formData.FotoFile) {
             const uploadData = new FormData();
             uploadData.append('file', formData.FotoFile);
-            const uploadResponse = await Axios.post(url_connect + 'drive', uploadData, {
+            const uploadResponse = await Axios.post(url_connect + 'cloudinary/', uploadData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             dataToSend.FotoUrl = uploadResponse.data.fileUrl;
