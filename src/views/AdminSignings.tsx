@@ -198,6 +198,7 @@ const AdminSignings: React.FC = () => {
       console.log(error);
     });
     fetchEvents();
+    setIsAdding(false)
   }
 
   // Limpio variables

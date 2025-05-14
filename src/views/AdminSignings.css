@@ -198,67 +198,6 @@
   border: 1px solid #ccc;
 }
 
-.form-section ion-row {
-  margin-bottom: 1rem;
-}
-
-.form-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: var(--bg-page, #f0f2f7);
-  padding: 1.5rem;
-  border-radius: var(--radius, 12px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  max-width: 550px;
-  margin: 1rem auto;
-  width: 95%;
-  box-sizing: border-box;
-}
-
-.form-section h2 {
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-
-.form-section form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.form-section ion-item {
-  --background: var(--bg-input, #fff);
-  --border-radius: var(--radius, 12px);
-  --border-width: 1px;
-  --border-style: solid;
-  --border-color: var(--border-input, #dfe3e8);
-  margin: 0.75rem 0;
-  padding-left: 1rem;
-  width: 100%;
-}
-
-.form-section ion-label {
-  font-weight: 500;
-  color: var(--text-base, #2a2a2a);
-  font-size: 0.9rem;
-}
-
-.form-section ion-input,
-.form-section ion-select {
-  color: var(--text-base, #2a2a2a);
-}
-
-/* Mensajes de error */
-.form-section .error-text {
-  color: #e53e3e;
-  font-size: 0.8rem;
-  margin: 0.25rem 1rem 0 1rem;
-}
-
 .calendar-wrapper {
   width: 100%;
   height: 75vh;
@@ -293,6 +232,42 @@ ion-alert.fix-radio-center .alert-radio-group .alert-radio-icon {
   margin-top: 0 !important;
   margin-right: 0.5rem !important;
 }
+
+/* Fila de botones: centrados y con hueco */
+.button-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Cada col de botón ocupa su espacio y no colapsa */
+.button-row ion-col {
+  flex: 1 1 auto;
+  display: flex;
+}
+
+.button-row ion-col > * {
+  flex: 1;
+}
+
+.button-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.button-row ion-col {
+  display: flex;
+}
+
+.button-row ion-col > * {
+  flex: 1; /* asegura que el botón llene todo su col */
+}
+
 
 @media (max-width: 768px) {
   .header-row {

@@ -319,9 +319,9 @@ const AdminMap: React.FC = () => {
 
                                 {/* Muestra el modal para editar el nombre de la ubicación */}
                                 {isEditing && (
-                                    <div className="sidebar-edit">
+                                    <div className="floating-form">
                                         <label className="edit-label" htmlFor="editPoint">
-                                            Editar nombre de ubicación
+                                            Editar nombre:
                                         </label>
                                         <input
                                             id="editPoint"
@@ -330,17 +330,18 @@ const AdminMap: React.FC = () => {
                                             value={editPointName}
                                             onChange={e => setEditPointName(e.target.value)}
                                         />
-                                        <div className="edit-buttons">
-                                            <button className="save-btn" onClick={saveEdit}>
-                                                Guardar
-                                            </button>
-                                            <button className="cancel-btn" onClick={() => setIsEditing(false)}>
-                                                Cancelar
-                                            </button>
-                                        </div>
+                                        <CustomBttn
+                                            text='Guardar'
+                                            onClick={saveEdit}
+                                            height='0.5vh'
+                                            width='8vw' />
+                                        <CustomBttn
+                                            text='Cancelar'
+                                            onClick={() => setIsEditing(false)}
+                                            height='0.5vh'
+                                            width='8vw' />
                                     </div>
                                 )}
-
                             </div>
                         </div>
                     </div>
