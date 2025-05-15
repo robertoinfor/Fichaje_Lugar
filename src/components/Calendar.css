@@ -70,10 +70,6 @@
   transition: filter 0.2s ease;
 }
 
-.rbc-toolbar .rbc-btn-group button:hover {
-  filter: brightness(1.8);
-}
-
 /* Celdas del mes */
 .rbc-month-view .rbc-row-bg,
 .rbc-month-view .rbc-row-content {

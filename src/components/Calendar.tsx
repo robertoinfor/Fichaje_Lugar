@@ -153,7 +153,8 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
                     today: "Hoy",
                     month: "Mes",
                     week: "Semana",
-                    day: "Día"
+                    day: "Día",
+                    work_week: "Lunes-viernes"
                 }}
             />
         </div>
