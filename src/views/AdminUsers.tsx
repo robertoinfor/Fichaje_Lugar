@@ -284,7 +284,7 @@ const AdminUsersView: React.FC = () => {
                                             Rol: selectedUser.properties.Rol.select.name,
                                             Fecha_alta:
                                                 selectedUser.properties.Fecha_alta.date.start,
-                                            Horas: selectedUser.properties.Horas.number,
+                                            Horas: selectedUser.properties.Horas.rich_text.text.content,
                                             Foto:
                                                 selectedUser.properties.Foto.files[0].external.url,
                                             Estado:
