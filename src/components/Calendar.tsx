@@ -125,7 +125,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
     };
     
     return (
-        <div style={{ height: "90vh", width: "90vw" }}>
+        <div className="calendar-container" style={{ height: "90vh", width: "90vw" }}>
             <Calendar
                 localizer={localizer}
                 events={[...events, ...festivos]}

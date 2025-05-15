@@ -1,3 +1,42 @@
+/* Forzar tema claro solo dentro del calendario */
+.calendar-container {
+  /* redefine variables para modo claro */
+  --bg-input:    #ffffff;
+  --text-base:   #2a2a2a;
+  --border-input: #dfe3e8;
+
+  /* fuerza fondo y texto */
+  background-color: var(--bg-input) !important;
+  color:            var(--text-base) !important;
+
+  /* algunos navegadores usan esta propiedad para controles */
+  color-scheme: light;
+}
+
+/* Afecta a todo lo que herede color dentro */
+.calendar-container .rbc-calendar,
+.calendar-container .rbc-calendar * {
+  color: var(--text-base) !important;
+}
+
+.calendar-container .rbc-month-view .rbc-row-bg,
+.calendar-container .rbc-month-view .rbc-row-content {
+  min-height: 8rem;
+  background: none;       /* que no imponga fondo */
+  pointer-events: none;   /* opcional, si quieres que no capten clicks */
+}
+
+/* Encabezados de días (week/day view) */
+.calendar-container .rbc-header {
+  color: var(--text-base) !important;
+}
+
+/* Botones de la toolbar (si quedara blanco en dark) */
+.calendar-container .rbc-toolbar .rbc-btn-group button {
+  color: var(--text-base) !important;
+}
+
+
 /* Toolbar */
 .rbc-toolbar {
   display: flex;
