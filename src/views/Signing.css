@@ -12,6 +12,7 @@
   overflow: hidden;
   z-index: 1;
 }
+
 .signing-section::before {
   content: "";
   position: absolute;
@@ -45,7 +46,8 @@
 
 /* 3) Estilo del título “Fichaje” */
 .signing-box h2 {
-  font-size: 2rem;      /* antes estaba en 2rem */
+  font-size: 2rem;
+  /* antes estaba en 2rem */
   margin: 0 0 16px;
   color: #222;
   font-weight: 500;
@@ -63,6 +65,8 @@
 /* 5) Temporizador */
 .timer {
   font-size: 1.5rem;
+  font-weight: bold;
+  color: #222;
   margin-bottom: 20px;
 }
 
@@ -86,7 +90,7 @@
   justify-content: space-between;
 }
 
-.button-row > * {
+.button-row>* {
   flex: 1;
 }
 
@@ -104,10 +108,16 @@
   .signing-box {
     padding: 24px;
   }
+
   .button-row {
     flex-direction: column;
   }
+
   .button-row.two-buttons {
     gap: 0.5rem;
+  }
+
+  .timer {
+    color: #eee;
   }
 }

@@ -287,8 +287,12 @@ const Home: React.FC = () => {
                     className="password-toggle"
                     onClick={() => setShowPwd(s => !s)}
                   >
-                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                    <div className="password-wrapper" style={{ color: 'var(--text-base)' }}>
+                      {showPwd
+                        ? <EyeOff size={18} color="currentColor" />
+                        : <Eye size={18} color="currentColor" />
+                      }
+                    </div>                  </button>
                 </div>
 
                 <div className="forgot-password" onClick={() => setShowModal(true)}>
