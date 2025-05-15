@@ -1,4 +1,10 @@
 .config-section {
+  --primary: #358F99;
+  --primary-dark: #2a776f;
+  --bg-input: #ffffff;
+  --text-base: #2a2a2a;
+  color-scheme: light;
+
   display: flex;
   justify-content: center;
   align-items: center;

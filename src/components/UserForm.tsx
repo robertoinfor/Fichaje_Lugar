@@ -189,11 +189,12 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
           {errors.Fecha_alta && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Fecha_alta}</p>}
 
           <IonItem>
+            <IonLabel position="floating" >Horas de contrato</IonLabel>
             <IonInput
               type="time"
               placeholder="Horas de contrato"
-              value={formData.Horas ? formData.Horas.toString() : ""}
-              onIonChange={e => handleChange('Horas', parseFloat(e.detail.value!))}
+              value={formData.Horas?.toString() || ""}
+              onIonChange={e => handleChange('Horas', e.detail.value!)}
             />
           </IonItem>
           {errors.Horas && <p style={{ color: 'red', marginLeft: 15 }}>{errors.Horas}</p>}
