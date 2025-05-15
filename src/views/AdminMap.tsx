@@ -198,8 +198,13 @@ const AdminMap: React.FC = () => {
                                                 <li
                                                     key={loc.key}
                                                     className="inactive-item"
-                                                    onClick={() => handleMarkerSelect(loc)}
-                                                    style={{ marginTop: 10, background: '#d8d8d8' }}
+                                                    onClick={() => {
+                                                        if (isDeletingPoint) {
+                                                            handleDelete(loc.key)
+                                                        } else {
+                                                            handleMarkerSelect(loc)
+                                                        }
+                                                    }} style={{ marginTop: 10, background: '#d8d8d8' }}
                                                 >
                                                     {loc.name}
                                                 </li>
@@ -306,6 +311,7 @@ const AdminMap: React.FC = () => {
                                                 </li>
                                             ))}
                                         </ul>
+                                        <p className="helper-text">Haz clic en el nombre para reactivarla.</p>
                                         <div className="actions-row" style={{ marginTop: 8, textAlign: 'right' }}>
                                             <CustomBttn
                                                 text="Cancelar"

@@ -100,11 +100,26 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
     onSave(finalData);
   };
 
+  const normalizeTime = (timeStr: string): string => {
+    const [h, m] = timeStr.split(":");
+    const hh = h.length === 1 ? '0' + h : h;
+    const mm = m.length === 1 ? '0' + m : m;
+    return `${hh}:${mm}`;
+  };
+
   return (
     <IonCard className="user-card">
       <IonCardHeader>
         <IonCardTitle className="form-title">
-          Gestión de usuarios
+          {editing ? (
+            <>
+              Edición de usuarios
+            </>
+          ) : (
+            <>
+              Nuevo usuario
+            </>
+          )}
         </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
@@ -193,7 +208,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
             <IonInput
               type="time"
               placeholder="Horas de contrato"
-              value={formData.Horas?.toString() || ""}
+              value={normalizeTime(formData.Horas.toString()) || ""}
               onIonChange={e => handleChange('Horas', e.detail.value!)}
             />
           </IonItem>

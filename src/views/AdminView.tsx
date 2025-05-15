@@ -63,7 +63,7 @@ const AdminView: React.FC = () => {
               >
                 <div className="card-icon"><User size={28} /></div>
                 <h2 className="card-title">Modificar usuarios</h2>
-                <p className="card-text">Añadir, eliminar o modificar usuarios.</p>
+                <p className="card-text">Añadir, activar/desactivar o modificar usuarios.</p>
               </div>
 
               <div
@@ -74,7 +74,7 @@ const AdminView: React.FC = () => {
               >
                 <div className="card-icon"><MapPin size={28} /></div>
                 <h2 className="card-title">Modificar localizaciones</h2>
-                <p className="card-text">Añadir, eliminar o modificar ubicaciones.</p>
+                <p className="card-text">Añadir, activar/desactivar o modificar ubicaciones.</p>
               </div>
 
               <div

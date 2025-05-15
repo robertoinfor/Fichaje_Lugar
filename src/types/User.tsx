@@ -8,7 +8,7 @@ export interface User {
         Pwd: { rich_text: [{ text: { content: string } }] };
         Rol: { select: { name: string } };
         Fecha_alta: { date: { start: string } };
-        Horas: { rich_text: { text: { content: string } } };
+        Horas: { rich_text: [ { text: { content: string } } ]};
         Foto: { files: [{ type: string, external: { url: string } }] };
         Conexion: { status: { name: string } };
         Estado: { status: { name: string } };

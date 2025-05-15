@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import axios from 'axios';
 import { calcDistanceMts } from '../utils/geo';
 import { Poi } from '../types/Poi';
+import { Location } from '../types/Location'
 
 export const useVerifyLocation = () => {
   const [isInside, setIsInside] = useState(false);
@@ -39,16 +40,18 @@ export const useVerifyLocation = () => {
         longitude = position.coords.longitude;
       }
 
-      // Obtener localizaciones
+      // Obtener localizaciones activas
       const response = await axios.get(import.meta.env.VITE_URL_CONNECT + 'locations');
-      const pois: Poi[] = response.data.results.map((page: any) => ({
-        key: page.id,
-        name: page.properties.Nombre.title[0].text.content,
-        location: {
-          lat: page.properties.Latitud.number,
-          lng: page.properties.Longitud.number,
-        },
-      }));
+      const pois: Poi[] = response.data.results
+        .filter((page: Location) => page.properties.Estado.status.name === 'Activo')
+        .map((page: any) => ({
+          key: page.id,
+          name: page.properties.Nombre.title[0].text.content,
+          location: {
+            lat: page.properties.Latitud.number,
+            lng: page.properties.Longitud.number,
+          },
+        }));
 
       let masCercano: Poi | null = null;
       let distanciaMinima = Infinity;

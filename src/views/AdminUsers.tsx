@@ -50,7 +50,7 @@ const AdminUsersView: React.FC = () => {
 
     // En caso de añadir o modificar un usuario actualiza la lista de usuarios
     useEffect(() => {
-        fetchUsers();
+        fetchUsers();        
     }, [editingMode, addMode]);
 
     // Abre el panel de edición, recogiendo la contraseña del usuario para la posible modificación
@@ -282,7 +282,7 @@ const AdminUsersView: React.FC = () => {
                                             Rol: selectedUser.properties.Rol.select.name,
                                             Fecha_alta:
                                                 selectedUser.properties.Fecha_alta.date.start,
-                                            Horas: selectedUser.properties.Horas.rich_text.text.content,
+                                            Horas: selectedUser.properties.Horas.rich_text[0].text.content,
                                             Foto:
                                                 selectedUser.properties.Foto.files[0].external.url,
                                             Estado:
