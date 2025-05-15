@@ -29,7 +29,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
     Pwd: initialData?.Pwd || "",
     Rol: initialData?.Rol || "",
     Fecha_alta: initialData?.Fecha_alta || "",
-    Horas: initialData?.Horas || 0,
+    Horas: initialData?.Horas || "",
     Foto: initialData?.Foto || "",
     Estado: initialData?.Estado || "",
     "Nombre completo": initialData?.['Nombre completo'] || ""
@@ -190,7 +190,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
 
           <IonItem>
             <IonInput
-              type="number"
+              type="time"
               placeholder="Horas de contrato"
               value={formData.Horas ? formData.Horas.toString() : ""}
               onIonChange={e => handleChange('Horas', parseFloat(e.detail.value!))}

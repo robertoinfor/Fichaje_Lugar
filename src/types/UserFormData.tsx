@@ -5,7 +5,7 @@ export interface UserFormData {
   Pwd: string;
   Rol: string;
   Fecha_alta: string;
-  Horas: number;
+  Horas: string;
   Foto?: string;
   FotoFile?: File;
   Estado: string;
