@@ -239,19 +239,17 @@ const AdminUsersView: React.FC = () => {
 
                                                     return (
                                                         <tr key={user.id}>
-                                                            <td>
-                                                                <img
-                                                                    src={fotoUrl}
-                                                                    className="user-avatar"
-                                                                    alt="Avatar"
-                                                                />
-                                                                {nombre}
+                                                            <td data-label="">
+                                                                <div className="user-info">
+                                                                    <img src={fotoUrl} className="user-avatar" alt="Avatar" />
+                                                                    <span>{nombre}</span>
+                                                                </div>
                                                             </td>
-                                                            <td>
+                                                            <td data-label="Correo">
                                                                 <a href={`mailto:${correo}`}>{correo}</a>
                                                             </td>
-                                                            <td>{rol}</td>
-                                                            <td>
+                                                            <td data-label="Rol">{rol}</td>
+                                                            <td data-label="Editar">
                                                                 <span
                                                                     className="edit-icon"
                                                                     onClick={() => handleEdit(user)}
