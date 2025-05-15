@@ -6,6 +6,12 @@
   --border-input: #dfe3e8;
   --text-base: #2a2a2a;
   --radius: 12px;
+
+  /* nuevos */
+  --btn-text: #ffffff;
+  --btn-cancel-bg: #a0a8b9;
+  --btn-cancel-bg-hover: #878f9f;
+  --error-color: #e53e3e;
 }
 
 .form-container {
@@ -79,14 +85,14 @@
   --border-radius: var(--radius);
   --background: var(--primary);
   --background-activated: var(--primary-dark);
-  --color: #fff;
+  --color: var(--btn-text);
   font-weight: 600;
   height: 2.75rem;
 }
 
 .form-button.cancel {
-  --background: #a0a8b9;
-  --background-activated: #878f9f;
+  --background: var(--btn-cancel-bg);
+  --background-activated: var(--btn-cancel-bg-hover);
 }
 
 .form-button:hover {
@@ -96,7 +102,7 @@
 
 /* Error text */
 .error-text {
-  color: #e53e3e;
+  color: var(--error-color);
   font-size: 0.8rem;
   margin: 0.25rem 1rem 0 1rem;
 }
