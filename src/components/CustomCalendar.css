@@ -23,7 +23,6 @@
 .calendar-container .rbc-month-view .rbc-row-content {
   min-height: 8rem;
   background: none;       /* que no imponga fondo */
-  pointer-events: none;   /* opcional, si quieres que no capten clicks */
 }
 
 /* Encabezados de días (week/day view) */
@@ -74,7 +73,6 @@
 .rbc-month-view .rbc-row-bg,
 .rbc-month-view .rbc-row-content {
   min-height: 8rem;
-  pointer-events: none;
 }
 
 /* Eventos */

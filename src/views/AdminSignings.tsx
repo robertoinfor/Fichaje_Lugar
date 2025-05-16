@@ -304,12 +304,12 @@ const AdminSignings: React.FC = () => {
                   </div>
                   <div className="legend-row">
                     {[
-                      { label: 'Entrada', color: '#81C784' },
-                      { label: 'Salida', color: '#E57373' },
-                      { label: 'Descanso', color: '#FFF176' },
-                      { label: 'Terminando el descanso', color: '#FFB74D' },
-                      { label: 'Horas extra', color: '#9575CD' },
-                      { label: 'Terminadas horas extra', color: '#BA68C8' },
+                      { label: 'Entrada', color: '#71fa7e' },
+                      { label: 'Salida', color: '#fc4f4f' },
+                      { label: 'Descanso', color: '#85eeff' },
+                      { label: 'Terminando el descanso', color: '#00ACC1' },
+                      { label: 'Horas extra', color: '#ffc56b' },
+                      { label: 'Terminadas horas extra', color: '#ff9e56' },
                     ].map(({ label, color }) => (
                       <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{
