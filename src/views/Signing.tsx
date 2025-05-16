@@ -197,13 +197,13 @@ const Signing: React.FC = () => {
                                         <CustomBttn
                                             text={isResting ? 'Terminar descanso' : 'Descanso'}
                                             onClick={() => handleAction('descanso')}
-                                            disabled={!isSigned}
+                                            disabled={!isSigned || isWorkingExtra}
                                             width="100%"
                                         />
                                         <CustomBttn
                                             text={isWorkingExtra ? 'Terminar extra' : 'Horas extra'}
                                             onClick={() => handleAction('extra')}
-                                            disabled={!isSigned}
+                                            disabled={!isSigned || isResting}
                                             width="100%"
                                         />
                                     </div>
@@ -212,7 +212,7 @@ const Signing: React.FC = () => {
                                         <CustomBttn
                                             text="Salida"
                                             onClick={() => handleAction('salida')}
-                                            disabled={!isSigned}
+                                            disabled={!isSigned || isWorkingExtra || isResting}
                                             width="100%"
                                         />
                                     </div>

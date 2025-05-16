@@ -5,19 +5,15 @@
   --ion-text-color: #000000;
   --ion-toolbar-background: #ffffff;
   --ion-toolbar-color: #000000;
-  /* blancos y grises de fondo */
   --bg-base:       #ffffff;
   --bg-card:       #fafbfd;
   --text-base:     #222222;
   --shadow-light:  rgba(0,0,0,0.1);
-
-  /* tu color primario */
   --primary-start: #21989f;
   --primary-end:   #227c89;
   --primary-text:  #ffffff;
 }
 
-/* 1) Quitar todo scroll fuera de los IonContent */
 html,
 body,
 ion-app,
@@ -47,7 +43,6 @@ textarea::placeholder {
   opacity: 1;
 }
 
-/* modo oscuro */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-base:       #121212;
