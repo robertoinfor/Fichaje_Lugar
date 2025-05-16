@@ -120,7 +120,7 @@ const Home: React.FC = () => {
       document.activeElement instanceof HTMLElement && document.activeElement.blur();
 
       if (isRemember) {
-        handleRemember(login, finalPassword)
+        handleRemember(login)
       }
 
       navigation.push('/home/signing', 'forward', 'push');
@@ -156,9 +156,8 @@ const Home: React.FC = () => {
   };
 
   // Función para recordar 
-  const handleRemember = (user: string, pwd: string) => {
+  const handleRemember = (user: string) => {
     localStorage.setItem('rememberedUser', user)
-    localStorage.setItem('rememberedPwd', pwd)
   }
 
   // Función para ocultar parte del email mostrado

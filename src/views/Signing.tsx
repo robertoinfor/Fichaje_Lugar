@@ -75,7 +75,7 @@ const Signing: React.FC = () => {
         }
     }, [userlogged]);
 
-    // 
+    // Guarda el focus para no perder la selección
     useEffect(() => {
         if (focusRef.current) {
             focusRef.current.focus();
