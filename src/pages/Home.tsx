@@ -39,9 +39,9 @@ const Home: React.FC = () => {
 
   // Si se han guardado los datos de inicio de sesión, va a la siguiente página
   useEffect(() => {
-    const storedUser = localStorage.getItem('userName');
-    const storedId = localStorage.getItem('id');
-    if (storedUser && storedId) {
+    const storedUser = localStorage.getItem('rememberedUser');
+    const storedPwd = localStorage.getItem('remeberedPwd');
+    if (storedUser && storedPwd) {
       document.activeElement instanceof HTMLElement && document.activeElement.blur();
       navigation.push('/home/signing', 'forward', 'push');
     }
@@ -113,11 +113,12 @@ const Home: React.FC = () => {
       } else {
         console.log('⚠️ Omitiendo generación de token FCM');
       }
-
       Axios.put(`${url_connect}users/${response.data.id}/log`, {
         Conexion: 'Online'
       });
       document.activeElement instanceof HTMLElement && document.activeElement.blur();
+
+      handleRemember(login, finalPassword)
       navigation.push('/home/signing', 'forward', 'push');
     } catch (error: any) {
       console.error('🔥 Login error:', error);
@@ -149,6 +150,11 @@ const Home: React.FC = () => {
     setRealPwd('');
     setShowPassword(false);
   };
+
+  const handleRemember = (user: string, pwd: string) => {
+    localStorage.setItem('rememberedUser', user)
+    localStorage.setItem('rememberedPwd', pwd)
+  }
 
   // Función para ocultar parte del email mostrado
   function maskEmail(email: string): string {

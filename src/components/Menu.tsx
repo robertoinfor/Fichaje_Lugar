@@ -33,6 +33,8 @@ const Menu: React.FC<MenuProps> = ({ admin }) => {
           // Borro los datos de inicio de sesión del dispositivo
           localStorage.removeItem('userName');
           localStorage.removeItem('id');
+          localStorage.removeItem('rememberedUser')
+          localStorage.removeItem('rememberedPwd')
           document.activeElement instanceof HTMLElement && document.activeElement.blur();
 
           // Vuelvo a la página de login y borro el historial

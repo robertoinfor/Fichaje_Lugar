@@ -146,7 +146,7 @@ const AdminSignings: React.FC = () => {
   // Recojo los datos del fichaje pulsado
   const handleSelectEvent = (event: CalendarEvent) => {
     const fullType = Object.entries(typeMap)
-      .find(([abre]) => abre === event.type)?.[0]
+      .find(([textoCompleto, abrev]) => abrev === event.type)?.[0]
       || event.type;
 
     setSelectedEvent(event);
