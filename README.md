@@ -29,6 +29,7 @@ FichApp es una aplicación de fichaje para empleados, integrada con una base de 
 
 ### Acceso a la aplicación
 - A la aplicación se accede con la url: https://fichaje-lugar.onrender.com/
+- Acceso al backend: https://github.com/robertoinfor/FichajeLugar_backend
 - Si se quiere clonar el repositorio, se pueden modificar las distintas variables en un nuevo archivo .env
 
 ---
