@@ -2,7 +2,7 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter, Ion
 import { useEffect, useState } from 'react';
 import TopBar from '../components/TopBar';
 import Menu from '../components/Menu';
-import CustomCalendar from '../components/Calendar';
+import CustomCalendar from '../components/CustomCalendar';
 import { useUserAndSignings } from '../hooks/useUserAndSignings';
 import './CalendarView.css'
 import Footer from '../components/Footer';

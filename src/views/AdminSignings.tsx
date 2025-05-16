@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonInput, IonMenu, IonSelect, IonSelectOption, IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
 import Axios from 'axios';
 import dayjs from 'dayjs';
-import CustomCalendar from '../components/Calendar';
+import CustomCalendar from '../components/CustomCalendar';
 import { CalendarEvent } from '../types/CalendarEvent';
 import { Signing } from '../types/Signing';
 import { User } from '../types/User';
@@ -16,7 +16,11 @@ import './AdminSignings.css'
 import Footer from '../components/Footer';
 import { useAuthGuard } from '../hooks/useAuthUser';
 import CustomBttn from '../components/CustomBttn';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 (window as any).Buffer = Buffer;
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
 
@@ -76,7 +80,8 @@ const AdminSignings: React.FC = () => {
   const mapFichajeToEvent = (fichaje: Signing, users: User[]): CalendarEvent => {
     const dateString = fichaje.properties.Fecha.formula.string;
     const timeString = fichaje.properties.Hora.formula.string;
-    const startDate = dayjs(`${dateString}T${timeString}`).toDate();
+    const startDate = dayjs.tz(`${dateString}T${timeString}`, 'Atlantic/Canary').toDate();
+    console.log(startDate)
     const locationId = fichaje.properties.Localizacion.relation[0]?.id;
     const localizacion = locations.find(loc => loc.id === locationId);
     const locationName = localizacion ? localizacion.properties.Nombre.title[0].text.content : "Sin ubicación";
@@ -141,7 +146,7 @@ const AdminSignings: React.FC = () => {
   // Recojo los datos del fichaje pulsado
   const handleSelectEvent = (event: CalendarEvent) => {
     const fullType = Object.entries(typeMap)
-      .find(([texto, abre]) => abre === event.type)?.[0]
+      .find(([abre]) => abre === event.type)?.[0]
       || event.type;
 
     setSelectedEvent(event);
@@ -418,14 +423,14 @@ const AdminSignings: React.FC = () => {
                     </form>
                   </IonCardContent>
                 </IonCard>
-                </>
+              </>
             )}
-              </div>
-              </div>
-            <Footer />
-          </IonContent>
-        </IonPage >
-        );
+          </div>
+        </div>
+        <Footer />
+      </IonContent>
+    </IonPage >
+  );
 };
 
-        export default AdminSignings;
+export default AdminSignings;

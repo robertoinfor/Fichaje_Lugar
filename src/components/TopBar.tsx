@@ -4,7 +4,6 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
-  IonTitle,
 } from '@ionic/react';
 import { arrowBack, menu as menuIcon } from 'ionicons/icons';
 import { useNavigation } from '../hooks/useNavigation';
