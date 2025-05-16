@@ -62,7 +62,6 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   pointer-events: auto;
-  /* para que solo el panel reciba eventos */
 }
 
 .floating-form * {
@@ -71,13 +70,9 @@
 
 .helper-text {
   font-size: 0.75rem;
-  /* texto más pequeño */
   line-height: 1.2;
-  /* ajusta el interlineado si lo necesitas */
   color: #666;
-  /* opcional: gris suave para restar protagonismo */
   margin-top: 0.25rem;
-  /* un poquito de separación arriba */
 }
 
 .layout {
@@ -119,9 +114,9 @@
 
 .edit-buttons-row {
   display: flex;
-  justify-content: space-between; /* o 'center' si quieres centrarlos */
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem; /* espacio entre los botones */
+  gap: 1rem;
   margin-top: 1rem;
 }
 
@@ -149,17 +144,12 @@
   border: none;
   width: 100%;
   height: 4px;
-  /* grosor del separador */
   margin: 16px 0;
-  /* espacio arriba y abajo */
   background:
     linear-gradient(to bottom,
       #777,
-      /* tono claro arriba */
       #333 50%,
-      /* tono oscuro en el centro */
       #777
-      /* tono claro abajo */
     );
 }
 

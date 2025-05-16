@@ -186,7 +186,6 @@ body {
 
   .user-table td:nth-of-type(1)::before {
     content: "";
-    /* El avatar + nombre ya se ve claro */
   }
 
   .user-table td:nth-of-type(1) {

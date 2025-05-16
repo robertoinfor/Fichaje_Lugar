@@ -1,19 +1,14 @@
-/* Forzar tema claro solo dentro del calendario */
 .calendar-container {
-  /* redefine variables para modo claro */
   --bg-input:    #ffffff;
   --text-base:   #2a2a2a;
   --border-input: #dfe3e8;
 
-  /* fuerza fondo y texto */
   background-color: var(--bg-input) !important;
   color:            var(--text-base) !important;
 
-  /* algunos navegadores usan esta propiedad para controles */
   color-scheme: light;
 }
 
-/* Afecta a todo lo que herede color dentro */
 .calendar-container .rbc-calendar,
 .calendar-container .rbc-calendar * {
   color: var(--text-base) !important;
@@ -25,18 +20,15 @@
   background: none;       /* que no imponga fondo */
 }
 
-/* Encabezados de días (week/day view) */
 .calendar-container .rbc-header {
   color: var(--text-base) !important;
 }
 
-/* Botones de la toolbar (si quedara blanco en dark) */
 .calendar-container .rbc-toolbar .rbc-btn-group button {
   color: var(--text-base) !important;
 }
 
 
-/* Toolbar */
 .rbc-toolbar {
   display: flex;
   align-items: center;
@@ -69,13 +61,11 @@
   transition: filter 0.2s ease;
 }
 
-/* Celdas del mes */
 .rbc-month-view .rbc-row-bg,
 .rbc-month-view .rbc-row-content {
   min-height: 8rem;
 }
 
-/* Eventos */
 .rbc-event {
   pointer-events: auto;
   margin: 2px 0;
@@ -87,19 +77,16 @@
   text-overflow: ellipsis;
 }
 
-/* Ocultar etiqueta */
 .rbc-event-label {
   display: none;
 }
 
-/* Popup de eventos */
 .rbc-overlay {
   background: var(--bg-input);
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .rbc-toolbar .rbc-btn-group button {
     padding: 0.2rem 0.5rem;

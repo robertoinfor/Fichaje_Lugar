@@ -6,8 +6,6 @@
   --border-input: #dfe3e8;
   --text-base: #2a2a2a;
   --radius: 12px;
-
-  /* nuevos */
   --btn-text: #ffffff;
   --btn-cancel-bg: #a0a8b9;
   --btn-cancel-bg-hover: #878f9f;
@@ -67,7 +65,6 @@
   font-size: 0.8rem;
 }
 
-/* Imagen de perfil */
 .current-photo {
   display: block;
   margin: 1rem auto;
@@ -78,7 +75,6 @@
   object-fit: cover;
 }
 
-/* Botones */
 .form-button {
   width: 100%;
   margin-top: 1.25rem;
@@ -100,14 +96,12 @@
   transition: transform 0.1s;
 }
 
-/* Error text */
 .error-text {
   color: var(--error-color);
   font-size: 0.8rem;
   margin: 0.25rem 1rem 0 1rem;
 }
 
-/* Ajustes móviles */
 @media (max-width: 480px) {
   .user-card {
     margin: 0 0.5rem;

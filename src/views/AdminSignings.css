@@ -43,25 +43,19 @@
   box-sizing: border-box;
 }
 
-/* — Título encima del calendario — */
 .signings-box .config-title {
   font-family: 'Georgia', serif;
   font-size: 2rem;
-  /* mismo tamaño que en Signing */
   margin: 0 0 16px;
   margin-left: 6px;
-  /* separa del divider */
   text-align: center;
   color: #222;
 }
 
-/* — Línea divisoria justo bajo el título, ancho completo dentro del padding — */
 .signings-box .config-divider {
   height: 3px;
   background-color: #333;
-  /* 1.5rem de padding en .signings-box a cada lado */
   width: calc(100% + 3rem);
-  /* compensa esos 1.5rem exteriores */
   margin: 0 -1.5rem 24px;
 }
 
@@ -264,7 +258,6 @@ button.custom-bttn {
   max-width: 100%;
 }
 
-/* Fila de botones: centrados y con hueco */
 .button-row {
   display: flex;
   justify-content: center;
@@ -274,7 +267,6 @@ button.custom-bttn {
   flex-wrap: wrap;
 }
 
-/* Cada col de botón ocupa su espacio y no colapsa */
 .button-row ion-col {
   flex: 1 1 auto;
   display: flex;
@@ -297,7 +289,6 @@ button.custom-bttn {
 
 .button-row ion-col>* {
   flex: 1;
-  /* asegura que el botón llene todo su col */
 }
 
 

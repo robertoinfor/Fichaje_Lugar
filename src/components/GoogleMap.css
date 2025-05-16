@@ -1,19 +1,16 @@
-/* Layout general */
 .container {
   display: flex;
   flex-direction: row;
   height: 90vh;
 }
 
-/* Contenedor del mapa */
 .map-layout {
   flex: 1;
   position: relative;
-  height: 50vh;           /* altura en desktop */
+  height: 50vh;        
   touch-action: none;
 }
 
-/* Forzamos a Google Maps a ocupar todo el contenedor */
 .map-layout > div,
 .map-layout .gm-style {
   width: 100% !important;
@@ -36,7 +33,6 @@
 }
 
 
-/* Sidebar junto al mapa */
 .sidebar {
   width: 300px;
   background-color: #f9f9f9;
@@ -44,7 +40,6 @@
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Sección de formulario */
 .sidebar-section {
   margin: 1.5rem 0;
   padding: 1rem;
@@ -53,7 +48,6 @@
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Títulos y campos */
 .section-title {
   margin: 0 0 0.5rem;
   font-size: 1rem;
@@ -76,7 +70,6 @@
   border-color: #227c89;
 }
 
-/* Lista de inactivas */
 .inactive-list {
   list-style: none;
   padding: 0;
@@ -95,14 +88,12 @@
   color: #00504a;
 }
 
-/* Texto informativo */
 .section-text {
   margin: 0;
   font-size: 0.95rem;
   color: #333;
 }
 
-/* Reserva de espacio para errores */
 .error-space {
   min-height: 1.5em;
   margin-top: 0.5rem;
@@ -113,15 +104,12 @@
   color: #b91c1c;
 }
 
-/* Responsive móvil */
 @media (max-width: 600px) {
-  /* .container apila en columna */
   .container {
     flex-direction: column !important;
     height: auto !important;
   }
 
-  /* Wrapper del mapa deja auto-height para contener también la sidebar */
   .map-layout {
     order: 1;
     width: 100% !important;
@@ -134,7 +122,6 @@
     height: 100% !important;
   }
 
-  /* Sidebar pasa debajo del mapa */
   .sidebar {
     order: 2;
     width: 100% !important;

@@ -24,6 +24,7 @@ const Home: React.FC = () => {
   const [showPwd, setShowPwd] = useState(false);
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isRemember, setIsRemember] = useState(false)
 
   const [enteredToken, setEnteredToken] = useState('');
   const [enteredUser, setEnteredUser] = useState('');
@@ -40,8 +41,8 @@ const Home: React.FC = () => {
   // Si se han guardado los datos de inicio de sesión, va a la siguiente página
   useEffect(() => {
     const storedUser = localStorage.getItem('rememberedUser');
-    const storedPwd = localStorage.getItem('remeberedPwd');
-    if (storedUser && storedPwd) {
+    
+    if (storedUser) {
       document.activeElement instanceof HTMLElement && document.activeElement.blur();
       navigation.push('/home/signing', 'forward', 'push');
     }
@@ -118,7 +119,10 @@ const Home: React.FC = () => {
       });
       document.activeElement instanceof HTMLElement && document.activeElement.blur();
 
-      handleRemember(login, finalPassword)
+      if (isRemember) {
+        handleRemember(login, finalPassword)
+      }
+
       navigation.push('/home/signing', 'forward', 'push');
     } catch (error: any) {
       console.error('🔥 Login error:', error);
@@ -151,6 +155,7 @@ const Home: React.FC = () => {
     setShowPassword(false);
   };
 
+  // Función para recordar 
   const handleRemember = (user: string, pwd: string) => {
     localStorage.setItem('rememberedUser', user)
     localStorage.setItem('rememberedPwd', pwd)
@@ -306,7 +311,7 @@ const Home: React.FC = () => {
                 </div>
 
                 <div className="checkbox-group">
-                  <input type="checkbox" id="rememberMe" />
+                  <input type="checkbox" id="rememberMe" onClick={() => setIsRemember(!isRemember)} />
                   <label htmlFor="rememberMe">Recordarme la próxima vez</label>
                 </div>
 
