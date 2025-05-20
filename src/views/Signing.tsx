@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonMenu } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonMenu, IonModal } from '@ionic/react';
 import Axios from 'axios';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import TopBar from '../components/TopBar';
@@ -24,6 +24,9 @@ const Signing: React.FC = () => {
     const userName = localStorage.getItem('userName');
     const userId = localStorage.getItem('id');
     const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
+    const [action, setAction] = useState<'entrada' | 'salida' | 'descanso' | 'extra' | null>(null);
+    const [modalText, setModalText] = useState('');
+
     const focusRef = useRef<HTMLDivElement>(null);
 
     // Comprobación de si el usuario es Administrador
@@ -82,7 +85,10 @@ const Signing: React.FC = () => {
         }
     }, []);
 
-    // Registra el evento según el botón pulsado para guardarlo en Notion y modifica el estado del usuario
+    const openModal = (text: string, type: string) => {
+
+    }
+
     const handleAction = useCallback((actionType: 'entrada' | 'salida' | 'descanso' | 'extra') => {
         let tipo = '';
         let online = ''
@@ -144,7 +150,7 @@ const Signing: React.FC = () => {
 
     return (
         <IonPage>
-            <IonMenu side="end" content-id="main-content" ref={setMenu}>
+            <IonMenu side="end" contentId="main-content" ref={setMenu}>
                 <IonHeader>
                     <IonToolbar>
                         <IonTitle>Menú</IonTitle>
@@ -187,7 +193,10 @@ const Signing: React.FC = () => {
                                     <div className="button-row">
                                         <CustomBttn
                                             text="Entrada"
-                                            onClick={() => handleAction('entrada')}
+                                            onClick={() => {
+                                                setModalText("¿Quieres fichar la entrada?");
+                                                setAction('entrada')
+                                            }}
                                             disabled={isSigned}
                                             width="100%"
                                         />
@@ -196,14 +205,19 @@ const Signing: React.FC = () => {
                                     <div className="button-row two-buttons">
                                         <CustomBttn
                                             text={isResting ? 'Terminar descanso' : 'Descanso'}
-                                            onClick={() => handleAction('descanso')}
+                                            onClick={() => {
+                                                setModalText(isResting ? '¿Quieres terminar el descanso?' : '¿Quieres empezar el descanso?');
+                                                setAction('descanso')
+                                            }}
                                             disabled={!isSigned || isWorkingExtra}
                                             width="100%"
                                         />
                                         <CustomBttn
                                             text={isWorkingExtra ? 'Terminar extra' : 'Horas extra'}
-                                            onClick={() => handleAction('extra')}
-                                            disabled={!isSigned || isResting}
+                                            onClick={() => {
+                                                setModalText(isWorkingExtra ? '¿Quieres terminar las horas extra?' : '¿Vas a empezar las horas extra?');
+                                                setAction('extra')
+                                            }} disabled={!isSigned || isResting}
                                             width="100%"
                                         />
                                     </div>
@@ -211,8 +225,10 @@ const Signing: React.FC = () => {
                                     <div className="button-row">
                                         <CustomBttn
                                             text="Salida"
-                                            onClick={() => handleAction('salida')}
-                                            disabled={!isSigned || isWorkingExtra || isResting}
+                                            onClick={() => {
+                                                setModalText("¿Quieres fichar la salida?");
+                                                setAction('salida')
+                                            }} disabled={!isSigned || isWorkingExtra || isResting}
                                             width="100%"
                                         />
                                     </div>
@@ -230,6 +246,23 @@ const Signing: React.FC = () => {
                     </div>
                 </section>
                 <Footer />
+                <IonModal isOpen={action !== null} onDidDismiss={() => setAction(null)} className="no-wrapper-modal">
+                    <div className="modal-wrapper">
+                        <h2>{modalText}</h2>
+                        <div className="modal-buttons">
+                            <CustomBttn
+                                text="Confirmar"
+                                onClick={() => {
+                                    if (action) {
+                                        handleAction(action);
+                                    }
+                                    setAction(null);
+                                }}
+                            />
+                            <CustomBttn text="Cancelar" onClick={() => setAction(null)} />
+                        </div>
+                    </div>
+                </IonModal>
             </IonContent>
         </IonPage >
     );

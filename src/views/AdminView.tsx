@@ -26,12 +26,15 @@ const AdminView: React.FC = () => {
   // Rutas para cada uno de los botones 
   const handleUsersView = () => {
     navigation.push('/home/menu/adduser', 'forward')
+    document.activeElement instanceof HTMLElement && document.activeElement.blur();
   }
   const handleHistoryView = () => {
     navigation.push('/home/menu/allsignings', 'forward')
+    document.activeElement instanceof HTMLElement && document.activeElement.blur();
   }
   const handleLocationsView = () => {
     navigation.push('/home/menu/places', 'forward')
+    document.activeElement instanceof HTMLElement && document.activeElement.blur();
   }
 
   return (

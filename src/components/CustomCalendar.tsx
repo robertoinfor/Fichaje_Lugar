@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, dayjsLocalizer, View } from "react-big-calendar";
+import { Calendar, dayjsLocalizer, SlotInfo, View } from "react-big-calendar";
 import dayjs from "dayjs";
 import 'dayjs/locale/es';
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -14,9 +14,10 @@ interface CustomCalendarProps {
     events: CalendarEvent[];
     onSelectEvent?: (event: CalendarEvent) => void;
     onMonthChange?: (date: Date) => void;
+    onSelectSlot?: (slotInfo: { start: Date; end: Date }) => void;
 }
 
-const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, onMonthChange }) => {
+const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, onMonthChange, onSelectSlot }) => {
     const url_connect = import.meta.env.VITE_URL_CONNECT
     const isMobile = window.innerWidth < 768;
     const [currentView, setCurrentView] = useState<View>(isMobile ? "day" : "month");
@@ -54,7 +55,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
         fetchFestivos(año);
         if (onMonthChange) {
             onMonthChange(newDate);
-          }
+        }
     };
 
     // Al pulsar en el día se cambia a la vista de día
@@ -67,10 +68,10 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
     const handleSelectEvent = (event: CalendarEvent) => {
         if (event.type === "Festivo") return;
         onSelectEvent?.(event);
-      };
-      
+    };
 
-      // Cambia el color en función del tipo de fichaje o festivo
+
+    // Cambia el color en función del tipo de fichaje o festivo
     const eventColors: Record<string, string> = {
         E: "#71fa7e",
         S: "#fc4f4f",
@@ -83,20 +84,20 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
 
     // Si es un festivo modifica la vista para que ocupe todo el día y deje el fondo naranja
     const getEventStyle = (event: CalendarEvent): { style: CSSProperties } => {
-      const backgroundColor = event.type === "Festivo"
-        ? "#ffe0b2"
-        : eventColors[event.type] || "gray";
-    
-      return {
-        style: {
-          backgroundColor,
-          color: event.type === "Festivo" ? "#e65100" : "black",
-          borderRadius: "5px",
-          fontWeight: event.type === "Festivo" ? 600 : "normal",
-          border: "none",
-          pointerEvents: event.type === "Festivo" ? "none" : "auto",
-        },
-      };
+        const backgroundColor = event.type === "Festivo"
+            ? "#ffe0b2"
+            : eventColors[event.type] || "gray";
+
+        return {
+            style: {
+                backgroundColor,
+                color: event.type === "Festivo" ? "#e65100" : "black",
+                borderRadius: "5px",
+                fontWeight: event.type === "Festivo" ? 600 : "normal",
+                border: "none",
+                pointerEvents: event.type === "Festivo" ? "none" : "auto",
+            },
+        };
     };
 
     useEffect(() => {
@@ -123,7 +124,16 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
 
         return {};
     };
-    
+
+    const handleSlot = (slotInfo: SlotInfo) => {
+        if (currentView !== "day") {
+            setCurrentDate(slotInfo.start);
+            setCurrentView("day");
+            return;
+        }
+        onSelectSlot?.(slotInfo);
+    };
+
     return (
         <div className="calendar-container" style={{ height: "90vh", width: "90vw" }}>
             <Calendar
@@ -138,7 +148,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events, onSelectEvent, 
                 onNavigate={handleNavigate}
 
                 selectable
-                onSelectSlot={handleSelectSlot}
+                onSelectSlot={handleSlot}
                 onSelectEvent={handleSelectEvent}
                 drilldownView="day"
 

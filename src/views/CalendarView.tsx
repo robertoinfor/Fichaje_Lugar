@@ -6,8 +6,10 @@ import CustomCalendar from '../components/CustomCalendar';
 import { useUserAndSignings } from '../hooks/useUserAndSignings';
 import './CalendarView.css'
 import Footer from '../components/Footer';
+import { useAuthGuard } from '../hooks/useAuthUser';
 
 const CalendarView: React.FC = () => {
+  useAuthGuard();
   const [isAdmin, setIsAdmin] = useState(false);
   const [menu, setMenu] = useState<HTMLIonMenuElement | null>(null);
   const userName = localStorage.getItem('userName');

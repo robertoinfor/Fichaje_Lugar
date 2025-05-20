@@ -17,7 +17,7 @@ export const useVerifyLocation = () => {
       let latitude: number, longitude: number;
 
       if (Capacitor.getPlatform() === 'web') {
-        // ✅ API del navegador para web
+        // API del navegador para web
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             timeout: 10000,
@@ -27,14 +27,14 @@ export const useVerifyLocation = () => {
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
       } else {
-        // ✅ Capacitor plugin para apps nativas
+        // Capacitor plugin para apps nativas
         const permission = await Geolocation.checkPermissions();
         if (permission.location !== 'granted') {
           await Geolocation.requestPermissions();
         }
         const position = await Geolocation.getCurrentPosition({
-          timeout: 10000,
-          enableHighAccuracy: true
+          timeout: 20000,
+          enableHighAccuracy: false
         });
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;

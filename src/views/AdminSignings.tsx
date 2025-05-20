@@ -18,11 +18,15 @@ import { useAuthGuard } from '../hooks/useAuthUser';
 import CustomBttn from '../components/CustomBttn';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { log } from 'console';
 (window as any).Buffer = Buffer;
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.tz.setDefault('Atlantic/Canary');
 
 const url_connect = import.meta.env.VITE_URL_CONNECT;
+const ZONE = 'Atlantic/Canary';
+
 
 const AdminSignings: React.FC = () => {
   useAuthGuard();
@@ -76,12 +80,14 @@ const AdminSignings: React.FC = () => {
     fetchLocations();
   }, []);
 
-  // Función para traducir la información de los eventos a los eventos de los Calendario
+  // Función para traducir la información de los fichajes a los eventos del calendario
   const mapFichajeToEvent = (fichaje: Signing, users: User[]): CalendarEvent => {
     const dateString = fichaje.properties.Fecha.formula.string;
     const timeString = fichaje.properties.Hora.formula.string;
-    const startDate = dayjs.tz(`${dateString}T${timeString}`, 'Atlantic/Canary').toDate();
-    console.log(startDate)
+    const startDayjs = dayjs.utc(`${dateString}T${timeString}`).tz(ZONE);
+    const localDate = startDayjs.toDate();
+    const formattedTime = startDayjs.format('HH:mm');
+
     const locationId = fichaje.properties.Localizacion.relation[0]?.id;
     const localizacion = locations.find(loc => loc.id === locationId);
     const locationName = localizacion ? localizacion.properties.Nombre.title[0].text.content : "Sin ubicación";
@@ -92,9 +98,9 @@ const AdminSignings: React.FC = () => {
     return {
       empleadoId: employeeId,
       id: fichaje.id,
-      title: `${empleadoNombre} - ${timeString}`,
-      start: startDate,
-      end: startDate,
+      title: `${empleadoNombre} - ${formattedTime}`,
+      start: localDate,
+      end: localDate,
       allDay: false,
       type: fichaje.properties.Tipo.select.name,
       location: locationId,
@@ -327,6 +333,14 @@ const AdminSignings: React.FC = () => {
 
                 <div className="calendar-wrapper">
                   <CustomCalendar events={filteredEvents} onSelectEvent={handleSelectEvent} onMonthChange={setCalendarDate}
+                    onSelectSlot={(slotInfo) => {
+                      setFormData({
+                        ...formData,
+                        fecha: slotInfo.start.toISOString().slice(0, 10),
+                        hora: slotInfo.start.toTimeString().slice(0, 5),
+                      });
+                      handleAddMode();
+                    }}
                   />
                 </div>
               </>

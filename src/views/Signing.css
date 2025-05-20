@@ -92,6 +92,60 @@
   margin-bottom: 1rem;
 }
 
+.no-wrapper-modal ion-page {
+  display: contents;
+}
+
+ion-modal {
+    --background: transparent !important;
+}
+
+ion-modal::part(content) {
+  background: transparent !important;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+ion-modal::part(backdrop) {
+  background: rgba(0, 0, 0, 0.35) !important;
+  backdrop-filter: blur(2px);
+}
+.no-wrapper-modal ion-content {
+  --background: transparent;
+}
+
+.no-wrapper-modal ion-modal::part(content) {
+  background: transparent;
+  box-shadow: none;
+}
+
+.modal-wrapper {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin: auto;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-wrapper h2{
+  font-size: 1.5rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.5rem;
+}
+
+ion-modal::part(backdrop) {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+
 @media (max-width: 600px) {
   .signing-box {
     padding: 24px;

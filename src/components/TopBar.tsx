@@ -20,7 +20,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
 
   // Retrocedo en el historial y, si es la pantalla principal, borro los datos de usuario
   const returnView = () => {
-    if (location.pathname === '/home/signing' || location.pathname === '/home') {
+  if (!navigation.canGoBack() || location.pathname === '/home/signing') {
       localStorage.removeItem('userName');
       localStorage.removeItem('id');
       localStorage.removeItem('rememberedUser')
@@ -35,7 +35,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
       <IonToolbar className="custom-toolbar">
         <div slot="start" className="toolbar-start">
           {/* Si hay usuario loggeado o recordado, muestra la flecha */}
-          {username && rememberedUser &&  (
+          {(username || rememberedUser) &&  (
             <IonButton fill="clear" onClick={returnView}>
               <IonIcon icon={arrowBack} />
             </IonButton>

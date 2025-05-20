@@ -133,7 +133,7 @@ const AdminUsersView: React.FC = () => {
 
 
     // Cambia el estado del usuario para desactivarlo
-    const handleChangeState = async (id: string) => {
+const handleChangeState = async (id: string): Promise<"Activo" | "Inactivo" | undefined> => {
         let status = selectedUser?.properties.Estado?.status?.name || "";
         let newStatus = "";
         if (status === "Activo") {
@@ -141,6 +141,8 @@ const AdminUsersView: React.FC = () => {
         } else if (status === "Inactivo") {
             newStatus = "Activo";
         }
+        console.log(newStatus);
+        
         if (selectedUser) {
             const updatedUser = {
                 ...selectedUser,
@@ -168,6 +170,7 @@ const AdminUsersView: React.FC = () => {
             }
         } catch (error) {
             console.error("Error updating state:", error);
+            return undefined;
         }
     };
 

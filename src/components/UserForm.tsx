@@ -19,7 +19,7 @@ interface UserFormProps {
   onSave: (data: UserFormData) => void;
   onCancel: () => void;
   editing: boolean;
-  onChangeStatus: (id: string) => Promise<void>;
+  onChangeStatus: (id: string) => Promise<"Activo" | "Inactivo" | undefined>;
 }
 
 const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, editing, onChangeStatus }) => {
@@ -64,6 +64,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
     if (!formData.Fecha_alta) newErrors.Fecha_alta = "La fecha es obligatoria.";
     if (!formData.Horas) newErrors.Horas = "Las horas son obligatorias.";
     if (!formData['Nombre completo']) newErrors.Horas = "Introduzca el nombre completo.";
+    if (!formData.Foto) newErrors.Foto = "Añada una foto"
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -72,6 +73,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      setRepeatPassword(initialData.Pwd || "");
     }
   }, [initialData]);
 
@@ -230,9 +232,20 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, edit
           </IonItem>
 
           {editing && (
-            <CustomBttn text={initialData?.Estado === "Activo" ? "Dar de baja" : "Reactivar cuenta"}
-              onClick={() => { if (initialData?.id) { onChangeStatus(initialData.id); } }}
-              width='100%'
+            <CustomBttn
+              text={formData.Estado === "Activo" ? "Dar de baja" : "Reactivar cuenta"}
+              onClick={async () => {
+                if (!initialData?.id) return;
+
+                const newEstado = await onChangeStatus(initialData.id);
+                if (newEstado) {
+                  setFormData(prev => ({
+                    ...prev,
+                    Estado: newEstado
+                  }));
+                }
+              }}
+              width="100%"
             />
           )}
 
